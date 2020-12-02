@@ -1,0 +1,56 @@
+
+
+
+gr_maxthreads		.equ	$D04B	;.db $1C
+gr_lastswitch		.equ	$D04D	;.db (switchtable_end-switchtable)/3
+gr_numplayers		.equ	$D04E	;.db $01
+gr_lamptable_ptr		.equ	$D04F	;.dw lamptable		;D04F
+gr_switchtable_ptr	.equ	$D051	;.dw switchtable
+gr_soundtable_ptr		.equ	$D053	;.dw soundtable
+gr_lampflashrate		.equ	$D055
+
+gr_gameoverthread_ptr	.equ	$D05F
+gr_character_defs_ptr	.equ	$D061
+;character_defs		.equ	$E4CB
+
+gr_switchtypetable 	.equ	$D066
+
+gr_switch_event		.equ	$D0B0
+gr_sound_event  		.equ	$D0B2
+gr_score_event		.equ	$D0B4	;rts .db 0
+gr_eb_event			.equ	$D0B6	;rts .db 0
+gr_special_event		.equ	$D0B8	;bra	gr_special   
+gr_macro_event		.equ	$D0BA	;rts .db 0	;Main Loop Begin Hook - rts
+gr_ready_event		.equ	$D0BC	;rts .db 0
+gr_addplayer_event 	.equ	$D0BE	;rts .db 0
+gr_gameover_event		.equ	$D0C0	;rts .db 0
+gr_hstdtoggle_event	.equ	$D0C2	;rts .db 0
+
+
+gr_reset_hook_ptr		.equ	$D0C4
+gr_main_hook_ptr		.equ	$D0C6
+gr_coin_hook_ptr		.equ	$D0C8
+gr_game_hook_ptr		.equ	$D0CA
+gr_player_hook_ptr	.equ	$D0CC
+gr_outhole_hook_ptr	.equ	$D0CE
+
+
+gr_defaudit			.equ	$D003
+gr_gameadjust7		.equ	$D015
+gr_coinlockout		.equ	$D063
+gr_creditsound		.equ	$D05C
+gr_p1_startsound		.equ	$D057
+gr_playerstartdata	.equ	$D074
+gr_playerresetdata	.equ	$D092
+gr_gameoversound		.equ	$D05B
+gr_gameover_lamp		.equ	$D05D
+gr_highscoresound		.equ	$D064
+gr_tilt_lamp		.equ	$D05E
+gr_gamenumber		.equ	$D000
+gr_romrevision		.equ	$D002
+gr_irq_entry		.equ	$D0D0
+gr_swi_entry		.equ	$D0D3
+
+
+
+

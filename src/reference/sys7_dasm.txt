@@ -1,0 +1,3659 @@
+Williams System 7 ROM Disassembly
+1999 Jess M. Askey
+Copyright Williams Electronics Inc.
+**DO NOT Re-Distribute**
+
+
+***Reset Entry***
+E800: 0F          sei  
+
+Begin PIA Setup:
+E801: 8E F1 0D    lds  #$F10D
+E804: C6 0A       ldb  #$0A
+E806: CE 21 00    ldx  #$2100
+E809: 86 04       lda  #$04
+E80B: A7 01       sta  (x+$01)
+E80D: 86 7F       lda  #$7F
+E80F: A7 00       sta  (x+$00)
+E811: DF 9A       stx  $9A
+E813: 9C 9A       cmpx $9A
+E815: 26 25       bne  $E83C
+E817: DE 9A       ldx  $9A	
+E819: 6F 01       clr  (x+$01)
+E81B: 32          pula 
+E81C: A7 00       sta  (x+$00)
+E81E: 32          pula 
+E81F: A7 01       sta  (x+$01)
+E821: 8C 21 00    cmpx #$2100
+E824: 27 02       beq  $E828
+E826: 6F 00       clr  (x+$00)
+E828: 08          inx  
+E829: 08          inx  
+E82A: 5A          decb 
+E82B: 27 13       beq  $E840
+E82D: C5 01       bitb #$01
+E82F: 26 E8       bne  $E819
+E831: 96 9A       lda  $9A
+E833: 48          asla 
+E834: 84 1F       anda #$1F
+E836: 8A 20       ora  #$20
+E838: 97 9A       sta  $9A
+E83A: 20 DB       bra  $E817
+End PIA Setup:
+
+E83C: 7E FF 2B    jmp  $FF2B	-> NMI Entry
+
+E83F: 0B          Data
+
+E840: CE 13 FF    ldx  #$13FF	\ 
+E843: 35          txs  		 |
+E844: 6F 00       clr  (x+$00) | Clear RAM 1000-13FF
+E846: 09          dex  		 |
+E847: 8C 0F FF    cmpx #$0FFF	 |	
+E84A: 26 F8       bne  $E844	/
+E84C: BD EF 22    jsr  $EF22    Initially Set up the Control Stack
+E84F: B6 E0 55    lda  $E055	Game ROM: Lamp Flash Rate
+E852: 97 B5       sta  $B5	
+E854: CE 11 00    ldx  #$1100
+E857: DF 96       stx  $96
+E859: CE 11 18    ldx  #$1118
+E85C: DF 98       stx  $98	Set up Solenoid Buffer Pointer
+E85E: CE 01 7D    ldx  #$017D	CMOS Checksum
+E861: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+E864: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B ) 
+E867: 1B          aba  
+E868: 81 57       cmpa #$57	CSUM CMOS RAM
+E86A: 27 03       beq  $E86F
+
+E86C: BD EF 7D    jsr  $EF7D	Restore Factory Settings and Zero Audit Totals 
+E86F: CE 01 6E    ldx  #$016E   Current Credits
+
+E872: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+E875: 97 5A       sta  $5A
+E877: BD FE 1F    jsr  $FE1F    ( CMOS, X -> A ) Audit 50 Command
+E87A: 6F 00       clr  (x+$00)
+E87C: 6F 01       clr  (x+$01)
+E87E: 81 15       cmpa #$15	Auto-Cycle?
+E880: 26 06       bne  $E888
+
+E882: CE FE AC    ldx  #$FEAC	Set-Up Auto Cycle Mode
+E885: BD EA C4    jsr  $EAC4    Push Control Stack: Data in A,B,X,$A6,$A7,$AA=#06
+E888: 81 45       cmpa #$45
+E88A: 27 E0       beq  $E86C	Restore Factory Setting/Zero Audits
+
+E88C: 81 35       cmpa #$35
+E88E: 26 03       bne  $E893	Zero Audits
+
+E890: BD EF 6F    jsr  $EF6F    (Reset Audits 0100-0165)
+E893: BD F7 2C    jsr  $F72C    Check Max Credits, Adjust Coin Lockout If Necessary
+E896: 7A 00 61    dec  $0061
+E899: BD F8 9A    jsr  $F89A    Blank all Player Displays (buffer 0)
+E89C: 97 3B       sta  $3B
+E89E: 0E          cli  
+E89F: FE E0 B3    ldx  $E0B3
+E8A2: AD 00       jsr  (x+$00)	JSR GameROM
+E8A4: CE FA 34    ldx  #$FA34
+E8A7: BD EA C4    jsr  $EAC4	Init Control Stack
+E8AA: 7E E9 FC    jmp  $E9FC	Begin of Control Stack
+
+*** Begin Main Loop ***
+
+E8AD: CE 00 AD    ldx  #$00AD
+E8B0: DF B3       stx  $B3	Current Control Stack Routine being run
+E8B2: DF B1       stx  $B1	Current Control Stack Routine being run
+E8B4: FE E0 B5    ldx  $E0B5
+E8B7: AD 00       jsr  (x+$00)	Game ROM: 
+E8B9: 0F          sei  
+E8BA: 96 95       lda  $95	IRQ Counter, Incremented every 16 IRQ's
+E8BC: 7F 00 95    clr  $0095	Reset the counter
+E8BF: 0E          cli  
+E8C0: 97 AC       sta  $AC	Put the data into $AC, use later
+
+E8C2: 96 CB       lda  $CB	Flag
+E8C4: 27 03       beq  $E8C9
+E8C6: 7E E9 46    jmp  $E946
+E8C9: B6 28 01    lda  $2801	Check the Advance Switch
+E8CC: 2A 06       bpl  $E8D4
+E8CE: CE FC 23    ldx  #$FC23
+E8D1: BD EA C4    jsr  $EAC4	Go into Diagnostics
+
+Check for active switches:
+
+E8D4: CE 00 00    ldx  #$0000
+E8D7: A6 81       lda  (x+$81)
+E8D9: 43          coma 
+E8DA: A4 71       anda (x+$71)
+E8DC: 27 03       beq  $E8E1
+E8DE: BD EE 61    jsr  $EE61	Switch Closed?
+E8E1: A6 81       lda  (x+$81)
+E8E3: A4 79       anda (x+$79)
+E8E5: 27 03       beq  $E8EA
+E8E7: BD EE BB    jsr  $EEBB	Switch Open?
+E8EA: 08          inx  
+E8EB: 8C 00 08    cmpx #$0008
+E8EE: 26 E7       bne  $E8D7
+
+Clock:
+E8F0: D6 D6       ldb  $D6	Ball Timer Flag
+E8F2: 27 19       beq  $E90D
+E8F4: 96 AC       lda  $AC	Number of IRQ's since last
+E8F6: DE D4       ldx  $D4
+E8F8: BD EE FF    jsr  $EEFF    ( X = X + A )
+E8FB: DF D4       stx  $D4
+E8FD: 8C 0E FF    cmpx #$0EFF
+E900: 2B 0B       bmi  $E90D	Not 1 minute yet
+E902: 5F          clrb 
+E903: D7 D4       stb  $D4	Clear the Minute Timer
+E905: D7 D5       stb  $D5
+E907: CE 01 26    ldx  #$0126	AUD: Ball time in Minutes
+E90A: BD F7 7F    jsr  $F77F    Add 1 to data at X
+
+E90D: CE 11 00    ldx  #$1100
+E910: 9C 96       cmpx $96	Check Buffer Pointer
+E912: 27 32       beq  $E946
+E914: A6 00       lda  (x+$00)	Command Timer
+E916: 90 AC       suba $AC	Subtract our IRQ's
+E918: 22 26       bhi  $E940	Ready to run?
+E91A: DF A8       stx  $A8	Yes!
+E91C: A6 01       lda  (x+$01)	Encoded Switch #
+E91E: 97 A5       sta  $A5
+E920: 7F 00 A0    clr  $00A0
+E923: 16          tab  
+E924: 57          asrb 
+E925: 57          asrb 
+E926: 57          asrb 
+E927: D7 A1       stb  $A1
+E929: BD EB 8E    jsr  $EB8E    Convert Hex (A&07) into bitpos (B) 
+E92C: D7 A2       stb  $A2
+E92E: DE A0       ldx  $A0
+E930: A6 61       lda  (x+$61)
+E932: 97 A4       sta  $A4
+E934: BD EE 04    jsr  $EE04
+E937: DE A8       ldx  $A8
+E939: 24 07       bcc  $E942
+E93B: BD EF 0F    jsr  $EF0F    Copy Word: $96--  Data,$96 -> Data,X
+E93E: 20 D0       bra  $E910
+E940: A7 00       sta  (x+$00)
+E942: 08          inx  
+E943: 08          inx  
+E944: 20 CA       bra  $E910
+
+E946: DE AD       ldx  $AD	Check the start of the control loop
+E948: 27 0D       beq  $E957
+E94A: A6 02       lda  (x+$02)
+E94C: 90 AC       suba $AC	Subtract the number of IRQ loops completed
+E94E: 24 01       bcc  $E951
+E950: 4F          clra 		Clear it so it can be run next loop
+E951: A7 02       sta  (x+$02)
+E953: EE 00       ldx  (x+$00)
+E955: 20 F1       bra  $E948
+
+E957: 96 B6       lda  $B6	Timer for Flashing Lamps
+E959: 90 AC       suba $AC	Subtract the IRQ's
+E95B: 22 11       bhi  $E96E
+E95D: CE 00 00    ldx  #$0000
+E960: C6 08       ldb  #$08
+E962: A6 10       lda  (x+$10)	Invert Selected Lamps.
+E964: A8 30       eora (x+$30)
+E966: A7 10       sta  (x+$10)
+E968: 08          inx  
+E969: 5A          decb 
+E96A: 26 F6       bne  $E962
+E96C: 96 B5       lda  $B5	Get Reset Value
+E96E: 97 B6       sta  $B6	Reset the Lamp Timer
+
+Read the Solenoid Queue:
+E970: 96 94       lda  $94	Solenoid Counter
+E972: 26 18       bne  $E98C	Skip if Counter hasnt Expired
+E974: CE 11 18    ldx  #$1118
+E977: 9C 98       cmpx $98
+E979: 27 11       beq  $E98C	Skip Solenoids for now
+E97B: A6 00       lda  (x+$00)	Takes lowest Solenoid # into A
+E97D: E6 01       ldb  (x+$01)  Moves the rest down into place
+E97F: E7 00       stb  (x+$00)
+E981: 08          inx  
+E982: 9C 98       cmpx $98
+E984: 26 F7       bne  $E97D
+E986: 09          dex  
+E987: DF 98       stx  $98	Adjust Pointer to end of list
+E989: BD EB 47    jsr  $EB47	Turn On/Off Solenoid (Solenoid # in A)
+
+E98C: 96 C1       lda  $C1	Sound Flag??
+E98E: 27 55       beq  $E9E5	Done With Current Sound Command, Check for another:
+E990: 96 BA       lda  $BA	
+E992: 85 10       bita #$10
+E994: 27 09       beq  $E99F
+E996: F6 21 02    ldb  $2102	Check Spare Input (Sound Board Busy??)
+E999: C4 20       andb #$20
+E99B: 27 5F       beq  $E9FC	Get Outta Here
+E99D: 20 0E       bra  $E9AD
+E99F: 96 BE       lda  $BE	Mini-Timer
+E9A1: 90 AC       suba $AC      Number of IRQ's since last loop
+E9A3: 97 BE       sta  $BE
+E9A5: 96 BD       lda  $BD
+E9A7: 82 00       sbca #$00
+E9A9: 97 BD       sta  $BD
+E9AB: 24 4F       bcc  $E9FC	Get outta Here, Not Time yet for next Sound.
+E9AD: 86 7F       lda  #$7F
+E9AF: BD ED A0    jsr  $EDA0    Send A->Sound Board (mute?)
+E9B2: 96 BA       lda  $BA	Get Sound Flags/SC2
+E9B4: 2B 1C       bmi  $E9D2
+E9B6: 7A 00 B8    dec  $00B8
+E9B9: 27 1C       beq  $E9D7	Sound Repeat Counter
+E9BB: D6 C1       ldb  $C1	Sound Flag?
+E9BD: 2B 0B       bmi  $E9CA
+E9BF: DE BF       ldx  $BF
+E9C1: DF BD       stx  $BD
+E9C3: 96 B9       lda  $B9
+E9C5: BD ED 9E    jsr  $ED9E    A -> $B9 Send A-> Sound Command
+E9C8: 20 32       bra  $E9FC	Get Outta here.
+E9CA: 8A 80       ora  #$80
+E9CC: 97 BA       sta  $BA
+E9CE: DE BF       ldx  $BF
+E9D0: DF BB       stx  $BB
+E9D2: BD ED A7    jsr  $EDA7
+E9D5: 20 25       bra  $E9FC	Get Outta Here.
+E9D7: D6 C6       ldb  $C6	Here if we are done iterating the sound command.
+E9D9: 27 0A       beq  $E9E5    Outta here!
+E9DB: 96 C7       lda  $C7
+E9DD: BD ED 53    jsr  $ED53    Play Sound Index(A),(B)Times
+E9E0: 7F 00 C6    clr  $00C6
+E9E3: 20 17       bra  $E9FC	Get Outta Here.
+
+Do the Chime Buffer:
+E9E5: 7F 00 C1    clr  $00C1	Reset the Sound Flag??
+E9E8: CE 11 27    ldx  #$1127	See if there is something in this stack
+E9EB: 86 08       lda  #$08
+E9ED: 08          inx  
+E9EE: 4A          deca 
+E9EF: 2B 0B       bmi  $E9FC	Nuttin' Honey, Skip this Sound Crap!
+E9F1: E6 00       ldb  (x+$00)
+E9F3: 27 F8       beq  $E9ED	Nuttin' Honey, Check next Entry!
+E9F5: 6A 00       dec  (x+$00)	Re-Adjust the Sound Command So Sound #00 will still work!
+E9F7: 8A 08       ora  #$08
+E9F9: BD EB FE    jsr  $EBFE    Add Points(A),Play Digit Sound
+
+Begin Control Stack Check:
+E9FC: CE 00 AD    ldx  #$00AD
+E9FF: EE 00       ldx  (x+$00)	Check to see if we have a routine to do?
+EA01: 26 03       bne  $EA06
+EA03: 7E E8 AD    jmp  $E8AD	Back to the start of the main loop
+EA06: A6 02       lda  (x+$02)	Timer expired?
+EA08: 26 F5       bne  $E9FF	No, goto next one.
+EA0A: DF B1       stx  $B1	Yes, lets do this one now.
+EA0C: DF B3       stx  $B3	Current Control Stack Routine being run
+EA0E: C6 08       ldb  #$08
+EA10: A6 03       lda  (x+$03)
+EA12: 36          psha 
+EA13: 08          inx  
+EA14: 5A          decb 
+EA15: 26 F9       bne  $EA10
+EA17: A6 04       lda  (x+$04)
+EA19: 36          psha 
+EA1A: A6 03       lda  (x+$03)
+EA1C: 36          psha 
+EA1D: A6 06       lda  (x+$06)
+EA1F: E6 07       ldb  (x+$07)
+EA21: EE 08       ldx  (x+$08)
+EA23: 39          rts  		Jump to the offending routine.
+
+------------------------ Begin Control Stack Routines ----------------------------------------
+
+EA24: 97 9C       sta  $9C
+EA26: DF 9A       stx  $9A
+EA28: 96 B7       lda  $B7
+EA2A: 30          tsx  
+EA2B: EE 00       ldx  (x+$00)
+EA2D: 20 0A       bra  $EA39
+
+Push Following Routine onto Control Stack with Timer:
+EA2F: DF 9A       stx  $9A
+EA31: 97 9C       sta  $9C
+EA33: 30          tsx  
+EA34: EE 00       ldx  (x+$00)	Return Address from RTS to $EA2F
+EA36: A6 00       lda  (x+$00)	New Timer Value
+EA38: 08          inx  
+EA39: DF 9E       stx  $9E	Now X points the the replacement address
+EA3B: DE B1       ldx  $B1	Current Control Stack Routine being run
+EA3D: A7 02       sta  (x+$02)	Timer For next Time
+EA3F: 96 9E       lda  $9E
+EA41: A7 0B       sta  (x+$0B)
+EA43: 96 9F       lda  $9F
+EA45: A7 0C       sta  (x+$0C)
+EA47: E7 0F       stb  (x+$0F)
+EA49: 96 9C       lda  $9C
+EA4B: A7 0E       sta  (x+$0E)
+EA4D: 96 9A       lda  $9A
+EA4F: A7 10       sta  (x+$10)
+EA51: 96 9B       lda  $9B
+EA53: A7 11       sta  (x+$11)
+EA55: 31          ins  
+EA56: 31          ins  
+EA57: C6 08       ldb  #$08
+EA59: 32          pula 
+EA5A: A7 0A       sta  (x+$0A)
+EA5C: 09          dex  
+EA5D: 5A          decb 
+EA5E: 26 F9       bne  $EA59
+EA60: DE B1       ldx  $B1	Current Control Stack Routine being run
+EA62: 8E 13 F7    lds  #$13F7	Restore the stack.
+EA65: 20 98       bra  $E9FF	Go check the Control Routine for another job.
+
+Remove Current Thread from Control Stack:
+EA67: CE 00 AD    ldx  #$00AD
+EA6A: DF 9C       stx  $9C
+EA6C: EE 00       ldx  (x+$00)
+EA6E: 27 8C       beq  $E9FC	Nothing on Control Stack
+EA70: 9C B1       cmpx $B1	Current Control Stack Routine being run
+EA72: 26 F6       bne  $EA6A	If $B1 != *$00AD check next entry
+EA74: 8D 56       bsr  $EACC    Remove Entry (X)($B1) From Control Stack	
+EA76: 20 EA       bra  $EA62
+
+Push Control Stack: Data in A,B,X,$AA,$A6,$A7
+EA78: DF 9A       stx  $9A
+EA7A: 0D          sec  
+EA7B: DE AF       ldx  $AF	Get Next Available Slot Address
+EA7D: 27 44       beq  $EAC3
+EA7F: 36          psha 
+EA80: A6 00       lda  (x+$00)	\
+EA82: 97 AF       sta  $AF       |---- $AF = Next Available Slot Address
+EA84: A6 01       lda  (x+$01)   |
+EA86: 97 B0       sta  $B0      /
+EA88: DF 9C       stx  $9C	Temp2 = Slot Base we are adding to
+EA8A: DE B3       ldx  $B3	This is the current routine being run
+EA8C: A6 00       lda  (x+$00)  \
+EA8E: 97 9E       sta  $9E	 |
+EA90: A6 01       lda  (x+$01)   |---- &Last  -> Temp3
+EA92: 97 9F       sta  $9F	/
+EA94: 96 9C       lda  $9C	\
+EA96: A7 00       sta  (x+$00)   |
+EA98: 96 9D       lda  $9D       |---- Next* = &New
+EA9A: A7 01       sta  (x+$01)  /
+EA9C: EE 00       ldx  (x+$00)	
+EA9E: DF B3       stx  $B3	$B3 = 
+EAA0: 96 9E       lda  $9E	\
+EAA2: A7 00       sta  (x+$00)   |
+EAA4: 96 9F       lda  $9F       |---- Set New Next Flag to None (making this one last)
+EAA6: A7 01       sta  (x+$01)  /
+EAA8: 96 9A       lda  $9A
+EAAA: A7 0B       sta  (x+$0B)
+EAAC: 96 9B       lda  $9B
+EAAE: A7 0C       sta  (x+$0C)
+EAB0: 96 AA       lda  $AA
+EAB2: A7 0D       sta  (x+$0D)
+EAB4: 96 A6       lda  $A6
+EAB6: A7 10       sta  (x+$10)
+EAB8: 96 A7       lda  $A7
+EABA: A7 11       sta  (x+$11)
+EABC: 32          pula 
+EABD: A7 0E       sta  (x+$0E)
+EABF: E7 0F       stb  (x+$0F)
+EAC1: 6F 02       clr  (x+$02)
+EAC3: 39          rts  
+
+Push Control Stack: Data in A,B,X,$A6,$A7,$AA=#06
+EAC4: 36          psha 
+EAC5: 86 06       lda  #$06
+EAC7: 97 AA       sta  $AA
+EAC9: 32          pula 
+EACA: 20 AC       bra  $EA78    Push Control Stack: Data in A,B,X,$AA,$A6,$A7
+
+Remove Entry (X)($B1) From Control Stack:
+EACC: 36          psha 
+EACD: A6 00       lda  (x+$00)	\
+EACF: 97 9A       sta  $9A	 |--  Get 'next'
+EAD1: A6 01       lda  (x+$01)   |
+EAD3: 97 9B       sta  $9B      /
+EAD5: 96 AF       lda  $AF
+EAD7: A7 00       sta  (x+$00)
+EAD9: 96 B0       lda  $B0
+EADB: A7 01       sta  (x+$01)
+EADD: DF AF       stx  $AF
+EADF: 9C B3       cmpx $B3
+EAE1: 26 04       bne  $EAE7
+EAE3: DE B1       ldx  $B1	Current Control Stack Routine being run
+EAE5: DF B3       stx  $B3
+EAE7: DE 9C       ldx  $9C
+EAE9: 96 9A       lda  $9A
+EAEB: A7 00       sta  (x+$00)
+EAED: 96 9B       lda  $9B
+EAEF: A7 01       sta  (x+$01)
+EAF1: 32          pula 
+EAF2: 39          rts  
+
+Remove 1 Thread Based on Priority:
+EAF3: 8D 0B       bsr  $EB00	Test Thread Priority
+EAF5: 25 03       bcs  $EAFA	Return with Carry Set
+EAF7: 8D D3       bsr  $EACC    Remove Entry (X)($B1) From Control Stack
+EAF9: 0C          clc  
+EAFA: 39          rts  
+
+Remove All Threads Based on Priority:
+EAFB: 8D F6       bsr  $EAF3	
+EAFD: 24 FC       bcc  $EAFB	Repeat if Carry Clear
+EAFF: 39          rts  
+
+Test Thread Priority:
+EB00: 37          pshb 
+EB01: D7 9A       stb  $9A	
+EB03: CE 00 AD    ldx  #$00AD	Load Start Address 
+EB06: DF 9C       stx  $9C	Store it
+EB08: DE AD       ldx  $AD	Load End Address
+EB0A: 0D          sec  
+EB0B: 27 14       beq  $EB21	Branch if we have reached the end of the Control Stack (Next = 0000)
+EB0D: 16          tab  
+EB0E: E8 0D       eorb (x+$0D)	EOR with Type Code in Current Routine
+EB10: 53          comb 
+EB11: D4 9A       andb $9A
+EB13: D1 9A       cmpb $9A	
+EB15: 27 06       beq  $EB1D	Branch if Bits Dont work
+EB17: DF 9C       stx  $9C
+EB19: EE 00       ldx  (x+$00)
+EB1B: 20 ED       bra  $EB0A	Goto Next Entry ->
+EB1D: 9C B1       cmpx $B1	Make sure it isn't this thread
+EB1F: 27 F6       beq  $EB17	If it is this thread, skip it!
+EB21: 33          pulb 
+EB22: 39          rts  
+
+---------------------------------End Control Stack Routines-----------------------------------------------
+
+Turn On/Off Solenoid:
+EB23: 36          psha 		Push Solenoid #
+EB24: 37          pshb 
+EB25: DF 9A       stx  $9A      Put X into Temp1
+EB27: DE 98       ldx  $98	Check Solenoid Buffer
+EB29: 8C 11 18    cmpx #$1118
+EB2C: 27 11       beq  $EB3F	Buffer Empty 
+EB2E: 0D          sec  		Carry Set if Buffer Full
+EB2F: 8C 11 28    cmpx #$1128   Buffer Full
+EB32: 27 06       beq  $EB3A
+EB34: A7 00       sta  (x+$00)	Insert Solenoid Into Buffer
+EB36: 08          inx  
+EB37: DF 98       stx  $98	Update Pointer
+EB39: 0C          clc  		Carry Cleared on Buffer Add
+EB3A: 33          pulb 
+EB3B: 32          pula 		Pull Solenoid #
+EB3C: DE 9A       ldx  $9A	Get Back X
+EB3E: 39          rts  
+EB3F: D6 94       ldb  $94	Solenoid Counter
+EB41: 26 F1       bne  $EB34
+EB43: 8D 02       bsr  $EB47	Turn On/Off Solenoid (Solenoid # in A)
+EB45: 20 F2       bra  $EB39
+
+Turn On/Off Solenoid (Solenoid # in A)
+EB47: 37          pshb 
+EB48: 16          tab  
+EB49: C4 E0       andb #$E0
+EB4B: 27 1A       beq  $EB67
+EB4D: C1 E0       cmpb #$E0
+EB4F: 27 0A       beq  $EB5B
+EB51: D7 94       stb  $94	Restore Solenoid Counter to #E0
+EB53: 8D 1C       bsr  $EB71	A = Address for Solenoid B = Solenoid Bit Pos
+EB55: DF 91       stx  $91
+EB57: D7 93       stb  $93
+EB59: 20 02       bra  $EB5D
+EB5B: 8D 14       bsr  $EB71	A = Address for Solenoid B = Solenoid Bit Pos
+EB5D: 25 0C       bcs  $EB6B	Carry Set: Special Solenoid
+EB5F: 0F          sei  
+EB60: EA 00       orb  (x+$00)	
+EB62: E7 00       stb  (x+$00)	Write Solenoid Data to PIA
+EB64: 0E          cli  
+EB65: 33          pulb 
+EB66: 39          rts  
+EB67: 8D 08       bsr  $EB71	A = Address for Solenoid B = Solenoid Bit Pos
+EB69: 25 F4       bcs  $EB5F	Carry Set: Special Solenoid
+EB6B: 53          comb 
+EB6C: 0F          sei  
+EB6D: E4 00       andb (x+$00)
+EB6F: 20 F1       bra  $EB62
+
+Get Address for Solenoid:
+EB71: 84 1F       anda #$1F	Mask to under 32 Solenoids
+EB73: 81 0F       cmpa #$0F
+EB75: 22 0B       bhi  $EB82	Get Special Solenoid Address (PIA)
+EB77: CE 22 00    ldx  #$2200	Solenoid PIA Offset
+EB7A: 81 07       cmpa #$07
+EB7C: 23 02       bls  $EB80
+EB7E: 08          inx  
+EB7F: 08          inx  
+EB80: 20 0C       bra  $EB8E    Convert Hex (A&07) into bitpos (B) 
+
+Get Special Solenoid Address:
+EB82: 80 10       suba #$10
+EB84: CE F1 22    ldx  #$F122	Special Solenoid PIA Location Table
+EB87: BD F4 8E    jsr  $F48E    X = data at (X + (A*2))
+EB8A: C6 08       ldb  #$08
+EB8C: 0D          sec  
+EB8D: 39          rts 
+
+Convert Hex (A&07) into bitpos (B) 
+EB8E: 36          psha 
+EB8F: 84 07       anda #$07
+EB91: 5F          clrb 
+EB92: 0D          sec  
+EB93: 59          rolb 
+EB94: 4A          deca 
+EB95: 2A FC       bpl  $EB93
+EB97: 32          pula 
+EB98: 39          rts  
+
+Player Bits for Master Display Flags:
+EB99: 40 04 80 08 
+EB9D: 10 01 20 02
+
+Update Master Display Toggle From Current Player:
+EBA1: C6 40       ldb  #$40	Million digit
+EBA3: 8D 2B       bsr  $EBD0    Bittest Current Player Display Toggles against B
+EBA5: 26 0C       bne  $EBB3	Branch if it is already set
+EBA7: DE CE       ldx  $CE      Start of Current Player Score Buffer
+EBA9: E6 00       ldb  (x+$00)
+EBAB: 5C          incb 
+EBAC: 27 05       beq  $EBB3	Branch if Current Player MSD's are FF
+EBAE: CE EB 99    ldx  #$EB99	EB99: 40 04 80 08
+EBB1: 8D 11       bsr  $EBC4    $60 |= ,X + Current Player
+EBB3: C6 08       ldb  #$08	1000's Digit
+EBB5: 8D 19       bsr  $EBD0    Bittest Current Player Display Toggles against B
+EBB7: 26 16       bne  $EBCF	(RTS)
+EBB9: DE CE       ldx  $CE      Start of Current Player Score Buffer
+EBBB: E6 02       ldb  (x+$02)
+EBBD: C1 F0       cmpb #$F0
+EBBF: 24 0E       bcc  $EBCF	(RTS)
+EBC1: CE EB 9D    ldx  #$EB9D	EB9D: 10 01 20 02
+
+$60 |= X + Current Player 
+EBC4: 96 CD       lda  $CD      Current Player Up (0-3)
+EBC6: BD EE FF    jsr  $EEFF    ( X = X + A )
+EBC9: A6 00       lda  (x+$00)
+EBCB: 9A 60       ora  $60
+EBCD: 97 60       sta  $60
+EBCF: 39          rts  
+
+Bittest Current Player Display Toggles against B
+EBD0: 96 CD       lda  $CD      Current Player Up (0-3)
+EBD2: CE 00 5C    ldx  #$005C
+EBD5: BD EE FF    jsr  $EEFF    ( X = X + A )
+EBD8: E5 00       bitb (x+$00)
+EBDA: 39          rts  
+
+Stop the Bonus Ball:
+EBDB: D6 CA       ldb  $CA	Check the Bonus Ball Flag
+EBDD: 26 3D       bne  $EC1C	(RTS)
+EBDF: 73 00 CA    com  $00CA	Turn off Bonus Ball Flag
+EBE2: D6 D0       ldb  $D0	Number of Extra Balls Remaining
+EBE4: 27 36       beq  $EC1C	(RTS)
+EBE6: 7A 00 D0    dec  $00D0	EB = EB - 1
+EBE9: 26 31       bne  $EC1C	(RTS)
+EBEB: 36          psha 
+EBEC: B6 E0 5F    lda  $E05F	Game ROM: Extra Ball Lamp1 Location
+EBEF: BD F1 5B    jsr  $F15B    Turn off Lamp A (encoded):
+EBF2: B6 E0 60    lda  $E060	Game ROM: Extra Ball Lamp2 Location
+EBF5: BD F1 5B    jsr  $F15B    Turn off Lamp A (encoded):
+EBF8: 32          pula 
+EBF9: 39          rts  
+
+Play Sound Index(B)Once, Add Points(A):
+EBFA: 36          psha 
+EBFB: 17          tba  
+EBFC: 20 03       bra  $EC01
+
+Add Points(A),Play Digit Sound:
+EBFE: 36          psha 
+EBFF: 84 07       anda #$07
+EC01: BD EC FC    jsr  $ECFC	Play Sound Index(A) Once
+EC04: 32          pula 
+
+Points Data is as follows: XYYYYZZZ
+		X - Don't Care?
+		Y - Increment
+		Z - Digit #
+Main Add Points Routine:
+EC05: 36          psha 
+EC06: 37          pshb 
+EC07: 7A 00 D7    dec  $00D7	Change the Random # seed
+EC0A: DF D8       stx  $D8	Store X for later
+EC0C: BD E0 A3    jsr  $E0A3	Game ROM:
+EC0F: 8D CA       bsr  $EBDB    Check the Bonus Ball Timer
+EC11: 8D 0A       bsr  $EC1D    Add Points to Current Score, Data in A:
+EC13: 8D 8C       bsr  $EBA1    Update Master Display Toggle From Current Player
+EC15: BD EC AC    jsr  $ECAC	Check Current Player Score against all Replay Levels
+EC18: DE D8       ldx  $D8	Get it back
+EC1A: 33          pulb 
+EC1B: 32          pula 
+EC1C: 39          rts 
+
+ 
+Add Points to Current Score, Data in A:
+	A: XXXXXYYY	X=Number of Increments  Y=Digit #
+EC1D: DE CE       ldx  $CE      Start of Current Player Score Buffer
+EC1F: EE 00       ldx  (x+$00)	Get XX,XX_,___
+EC21: DF DE       stx  $DE	Store it!
+EC23: DE CE       ldx  $CE      Start of Current Player Score Buffer
+EC25: C6 04       ldb  #$04	
+EC27: D7 D6       stb  $D6      Run Ball Play Timer (Audit)
+EC29: D7 A0       stb  $A0	$A0 = 04
+EC2B: 97 A2       sta  $A2
+EC2D: 5F          clrb 
+EC2E: D7 A3       stb  $A3
+EC30: D7 A1       stb  $A1
+EC32: 16          tab  
+EC33: C4 07       andb #$07
+EC35: 26 27       bne  $EC5E
+EC37: 5C          incb 
+EC38: D7 9E       stb  $9E	Store (data&07)+1
+EC3A: D6 A2       ldb  $A2
+EC3C: 54          lsrb 
+EC3D: 54          lsrb 
+EC3E: 54          lsrb 
+EC3F: 8D 45       bsr  $EC86    Convert MSD Blanks to 0's on (X+03)
+EC41: 9B 9E       adda $9E	(data&07)+1
+EC43: 8D 3A       bsr  $EC7F    Decimal Adjust A, $A1++ if A flipped
+EC45: 5A          decb 		B-
+EC46: 26 F9       bne  $EC41
+EC48: D6 A1       ldb  $A1
+EC4A: 27 26       beq  $EC72	A didn't Flip, Branch.
+EC4C: A7 03       sta  (x+$03)	Store this digit
+EC4E: 09          dex  
+EC4F: 7A 00 A0    dec  $00A0
+EC52: 27 2A       beq  $EC7E	Get Outta Here!
+EC54: 8D 30       bsr  $EC86    Convert MSD Blanks to 0's on (X+03)
+EC56: 7F 00 A1    clr  $00A1
+EC59: 1B          aba  
+EC5A: 8D 23       bsr  $EC7F    Decimal Adjust A, $A1++ if A flipped
+EC5C: 20 EA       bra  $EC48
+EC5E: 5A          decb 
+EC5F: 26 06       bne  $EC67
+EC61: C6 10       ldb  #$10
+EC63: D7 9E       stb  $9E
+EC65: 20 D3       bra  $EC3A
+EC67: 8D 1D       bsr  $EC86    Convert MSD Blanks to 0's on (X+03)
+EC69: A7 03       sta  (x+$03)
+EC6B: 7A 00 A0    dec  $00A0
+EC6E: 09          dex  
+EC6F: 5A          decb 
+EC70: 20 C3       bra  $EC35
+EC72: D6 A3       ldb  $A3
+EC74: 27 06       beq  $EC7C
+EC76: 81 10       cmpa #$10
+EC78: 24 02       bcc  $EC7C
+EC7A: 8B F0       adda #$F0
+EC7C: A7 03       sta  (x+$03)
+EC7E: 39          rts  
+
+Decimal Adjust A, $A1++ if A flipped
+EC7F: 19          daa  
+EC80: 24 03       bcc  $EC85
+EC82: 7C 00 A1    inc  $00A1
+EC85: 39          rts  
+
+Convert MSD Blanks to 0's on (X+03):
+EC86: A6 03       lda  (x+$03)
+EC88: 4C          inca 
+EC89: 27 07       beq  $EC92	Leave if both digits are blanked
+EC8B: 4A          deca 
+EC8C: 81 F0       cmpa #$F0
+EC8E: 25 05       bcs  $EC95	if A was less than #F0
+EC90: 8B 10       adda #$10	Set High Digit to a 0
+EC92: 7C 00 A3    inc  $00A3	Digit was cleared
+EC95: 39          rts  
+
+RAM($1130-(A&07))+=A>>3
+EC96: 36          psha 
+EC97: 37          pshb 
+EC98: 16          tab  
+EC99: C4 07       andb #$07
+EC9B: CE 11 30    ldx  #$1130
+EC9E: 09          dex  
+EC9F: 5A          decb 
+ECA0: 2A FC       bpl  $EC9E
+ECA2: 44          lsra 
+ECA3: 44          lsra 
+ECA4: 44          lsra 
+ECA5: AB 00       adda (x+$00)
+ECA7: A7 00       sta  (x+$00)
+ECA9: 33          pulb 
+ECAA: 32          pula 
+ECAB: 39          rts  
+
+Check Current Score against all Replay Score Levels:
+ECAC: CE 00 DE    ldx  #$00DE
+ECAF: 8D 33       bsr  $ECE4	Put High Digits into A&B, convert F's to 0's
+ECB1: D7 DE       stb  $DE
+ECB3: DE CE       ldx  $CE      Current Player Score Buffer Pointer
+ECB5: 8D 2D       bsr  $ECE4	Put High Digits into A&B, convert F's to 0's
+ECB7: 86 04       lda  #$04
+ECB9: 97 DF       sta  $DF	Check All 4 Replay Levels
+ECBB: CE 01 83    ldx  #$0183	ADJ: Replay 1 Score
+ECBE: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+ECC1: 11          cba  
+ECC2: 22 1A       bhi  $ECDE	Not High Enough, goto next score level
+ECC4: 91 DE       cmpa $DE
+ECC6: 23 16       bls  $ECDE	What is this? goto next score level
+ECC8: DF AA       stx  $AA	Store our Score Buffer Pointer
+ECCA: 86 04       lda  #$04
+ECCC: 90 DF       suba $DF	See which Replay Level we are at
+ECCE: 48          asla 		X2
+ECCF: 48          asla 		X2
+ECD0: CE 01 52    ldx  #$0152	Base of Replay Score Exceeded Audits
+ECD3: BD EE FF    jsr  $EEFF    ( X = X + A )
+ECD6: BD F7 7F    jsr  $F77F     Add 1 to data at X
+ECD9: DE AA       ldx  $AA
+ECDB: BD F6 BF    jsr  $F6BF    Replay Score Level Exceeded: Give award, sound bell.	
+ECDE: 7A 00 DF    dec  $00DF	Goto Next Score Level
+ECE1: 26 DB       bne  $ECBE
+ECE3: 39          rts  
+
+Put High Digits into A&B, Convert F's to 0's.
+ECE4: A6 00       lda  (x+$00)	
+ECE6: E6 01       ldb  (x+$01)
+ECE8: 8D 04       bsr  $ECEE	If B minus then B = B + 0x10
+ECEA: 8D 07       bsr  $ECF3    Shift A<<4 B>>4
+ECEC: 1B          aba  
+ECED: 16          tab  
+ECEE: 2A 02       bpl  $ECF2
+ECF0: CB 10       addb #$10
+ECF2: 39          rts  
+
+Shift A<<4 B>>4
+ECF3: 48          asla 
+ECF4: 48          asla 
+ECF5: 48          asla 
+ECF6: 48          asla 
+ECF7: 54          lsrb 
+ECF8: 54          lsrb 
+ECF9: 54          lsrb 
+ECFA: 54          lsrb 
+ECFB: 39          rts  
+
+Play Sound Index(A) Once:
+ECFC: 37          pshb 
+ECFD: C6 01       ldb  #$01
+ECFF: 8D 02       bsr  $ED03
+ED01: 33          pulb 
+ED02: 39          rts  
+
+
+ED03: DF AA       stx  $AA
+ED05: 36          psha 
+ED06: 37          pshb 
+ED07: D6 C1       ldb  $C1	Sound Status
+ED09: 27 1C       beq  $ED27	Goto Sound Routine #2
+ED0B: 16          tab  		A=A*3
+ED0C: 48          asla 
+ED0D: 1B          aba  
+ED0E: FE E0 53    ldx  $E053	Game ROM Table: Sounds
+ED11: BD EE FF    jsr  $EEFF    ( X = X + A )
+ED14: A6 02       lda  (x+$02)
+ED16: 4C          inca 
+ED17: 26 02       bne  $ED1B	Branch if Timer was 00-7F
+ED19: EE 00       ldx  (x+$00)
+ED1B: A6 00       lda  (x+$00)	
+ED1D: D6 BA       ldb  $BA
+ED1F: C5 40       bitb #$40
+ED21: 26 08       bne  $ED2B
+ED23: 8D 1D       bsr  $ED42    If ( (A&0f)&(B&0f)=0) & (B&20=00) ) Then Set Carry 
+ED25: 25 04       bcs  $ED2B
+ED27: 33          pulb 
+ED28: 32          pula 
+ED29: 20 2A       bra  $ED55
+ED2B: 4D          tsta 
+ED2C: 2A 6B       bpl  $ED99	pula,pulb,rts.
+ED2E: D6 C6       ldb  $C6
+ED30: 27 06       beq  $ED38
+ED32: D6 C5       ldb  $C5
+ED34: 8D 0C       bsr  $ED42    If ( (A&0f)&(B&0f)=0) & (B&20=00) ) Then Set Carry 
+ED36: 25 61       bcs  $ED99	pula,pulb,rts.
+ED38: 97 C5       sta  $C5
+ED3A: 33          pulb 
+ED3B: 32          pula 
+ED3C: 97 C7       sta  $C7
+ED3E: D7 C6       stb  $C6
+ED40: 20 59       bra  $ED9B	rts
+
+If ( (A&0f)&(B&0f)=0) & (B&20=00) ) Then Set Carry 
+ED42: 36          psha 
+ED43: 37          pshb 
+ED44: 84 0F       anda #$0F
+ED46: C4 0F       andb #$0F
+ED48: 11          cba  
+ED49: 33          pulb 
+ED4A: 32          pula 
+ED4B: 26 05       bne  $ED52
+ED4D: C5 20       bitb #$20
+ED4F: 26 01       bne  $ED52
+ED51: 0D          sec  
+ED52: 39          rts  
+
+Play Sound Index(A), (B)Times:
+ED53: DF AA       stx  $AA
+ED55: 36          psha 
+ED56: 37          pshb 
+ED57: D7 B8       stb  $B8	
+ED59: 16          tab  
+ED5A: 86 7F       lda  #$7F
+ED5C: 8D 42       bsr  $EDA0    Send #7F -> Sound Board
+ED5E: 17          tba  
+ED5F: 97 C2       sta  $C2	Sound Command Table Index
+ED61: 48          asla 
+ED62: 1B          aba  		Index * 3
+ED63: FE E0 53    ldx  $E053	Game ROM: Sound Table Pointer
+ED66: BD EE FF    jsr  $EEFF    ( X = X + A )
+ED69: A6 02       lda  (x+$02)	Sound Command
+ED6B: 81 FF       cmpa #$FF
+ED6D: 27 19       beq  $ED88	Branch if Extended Sound
+ED6F: E6 00       ldb  (x+$00)	
+ED71: C4 7F       andb #$7F
+ED73: D7 BA       stb  $BA	Sound Data0(Flags)&7F -> RAM$BA
+ED75: E6 01       ldb  (x+$01)
+ED77: D7 BE       stb  $BE	Sound Data1(Timer) -> RAM$BE
+ED79: 7F 00 BD    clr  $00BD
+ED7C: DE BD       ldx  $BD	Clear the MSB of the word counter ($BD,$BE)
+ED7E: DF BF       stx  $BF	Store the whole counter in the Common Sound Index
+ED80: C6 40       ldb  #$40
+ED82: D7 C1       stb  $C1	Sound Flag?
+ED84: 8D 18       bsr  $ED9E    A -> $B9 Send A-> Sound Command
+ED86: 20 11       bra  $ED99	rts.
+ED88: EE 00       ldx  (x+$00)	Here if Extended Sound Command
+ED8A: C6 80       ldb  #$80
+ED8C: D7 C1       stb  $C1	Set Status Flag
+ED8E: EA 00       orb  (x+$00)
+ED90: D7 BA       stb  $BA
+ED92: 08          inx  
+ED93: DF BF       stx  $BF
+ED95: DF BB       stx  $BB
+ED97: 8D 0E       bsr  $EDA7
+ED99: 33          pulb 
+ED9A: 32          pula 
+ED9B: DE AA       ldx  $AA
+ED9D: 39          rts  
+
+A -> $B9 Send A-> Sound Command
+ED9E: 97 B9       sta  $B9
+
+Send A->Sound Command
+EDA0: BD E0 A1    jsr  $E0A1	(RTS)
+EDA3: B7 21 00    sta  $2100
+EDA6: 39          rts  
+
+EDA7: DE BB       ldx  $BB
+EDA9: A6 00       lda  (x+$00)
+EDAB: 16          tab  
+EDAC: C4 C0       andb #$C0
+EDAE: 27 21       beq  $EDD1
+EDB0: 2B 12       bmi  $EDC4
+EDB2: 84 3F       anda #$3F
+EDB4: 97 C3       sta  $C3
+EDB6: 08          inx  
+EDB7: A6 00       lda  (x+$00)
+EDB9: 97 C4       sta  $C4
+EDBB: 96 BA       lda  $BA
+EDBD: 84 EF       anda #$EF
+EDBF: 97 BA       sta  $BA
+EDC1: 08          inx  
+EDC2: 20 E5       bra  $EDA9
+EDC4: 7F 00 C3    clr  $00C3
+EDC7: 84 7F       anda #$7F
+EDC9: 26 EE       bne  $EDB9
+EDCB: 96 BA       lda  $BA
+EDCD: 8A 10       ora  #$10
+EDCF: 20 EE       bra  $EDBF
+EDD1: 8D CB       bsr  $ED9E    A -> $B9 Send A-> Sound Command
+EDD3: 08          inx  
+EDD4: DF BB       stx  $BB
+EDD6: A6 00       lda  (x+$00)
+EDD8: 81 3F       cmpa #$3F
+EDDA: 26 06       bne  $EDE2
+EDDC: 96 BA       lda  $BA
+EDDE: 84 7F       anda #$7F
+EDE0: 97 BA       sta  $BA
+EDE2: DE C3       ldx  $C3
+EDE4: DF BD       stx  $BD
+EDE6: 39          rts  
+
+Checks Switch Flags:
+EDE7: 36          psha 
+EDE8: B6 E0 4D    lda  $E04D	Last Switch # for Game
+EDEB: 91 A5       cmpa $A5	Switch #
+EDED: 23 12       bls  $EE01	Out of Range!
+EDEF: C5 40       bitb #$40	Flag 40: Inactive on Game Tilt
+EDF1: 26 05       bne  $EDF8
+EDF3: 7D 00 C8    tst  $00C8	Tilt Flag
+EDF6: 26 09       bne  $EE01
+EDF8: C5 20       bitb #$20	Flag 20: Inactive on Game Over if 0
+EDFA: 26 06       bne  $EE02
+EDFC: 7D 00 C9    tst  $00C9	Game Over?
+EDFF: 27 01       beq  $EE02
+EE01: 0D          sec  		Ignore this switch when carry is set
+EE02: 32          pula 
+EE03: 39          rts  
+
+Switch Triggered:
+EE04: BD EE F7    jsr  $EEF7    ( X = Data@E051 + $A5*3 )
+EE07: E6 00       ldb  (x+$00)	GAME ROM Switch Data 1(Flags,etc)
+EE09: 96 A4       lda  $A4
+EE0B: 95 A2       bita $A2
+EE0D: 27 06       beq  $EE15	Has switch been down long enough?
+EE0F: C5 08       bitb #$08	Flag 08: Instant Trigger
+EE11: 27 2D       beq  $EE40
+EE13: 20 04       bra  $EE19
+EE15: C5 10       bitb #$10	Flag 10:
+EE17: 27 27       beq  $EE40
+EE19: 8D CC       bsr  $EDE7	Checks Switch Flags:
+EE1B: 25 23       bcs  $EE40	Yes
+EE1D: 4F          clra 
+EE1E: C5 40       bitb #$40	Flag 40: Inactive on Game Tilt
+EE20: 27 02       beq  $EE24
+EE22: 8A 04       ora  #$04
+EE24: 97 AA       sta  $AA
+EE26: 96 A5       lda  $A5	Switch # (encoded)
+EE28: EE 01       ldx  (x+$01)
+EE2A: C5 07       bitb #$07
+EE2C: 26 02       bne  $EE30	Always?
+EE2E: EE 02       ldx  (x+$02)
+EE30: 5D          tstb 
+EE31: 2A 05       bpl  $EE38	Never?
+EE33: DF A6       stx  $A6	X = Handler Address
+EE35: CE F3 CB    ldx  #$F3CB	Will put this routine into Control Stack.
+EE38: BD E0 9F    jsr  $E09F	Game ROM: (RTS)
+EE3B: BD EA 78    jsr  $EA78    Push Control Stack: Data in A,B,X,$AA,$A6,$A7
+EE3E: 25 69       bcs  $EEA9	clc, rts.(never)
+EE40: DE A0       ldx  $A0
+EE42: 96 A2       lda  $A2
+EE44: A8 61       eora (x+$61)	Clear Switch Matrix Flag (switch attended too)
+EE46: A7 61       sta  (x+$61)
+
+EE48: DE A0       ldx  $A0
+EE4A: D6 A2       ldb  $A2
+EE4C: 53          comb 
+EE4D: 17          tba  
+EE4E: E4 69       andb (x+$69)
+EE50: E7 69       stb  (x+$69)
+EE52: 16          tab  
+EE53: E4 71       andb (x+$71)
+EE55: E7 71       stb  (x+$71)
+EE57: 16          tab  
+EE58: A4 79       anda (x+$79)
+EE5A: A7 79       sta  (x+$79)
+EE5C: E4 81       andb (x+$81)
+EE5E: E7 81       stb  (x+$81)
+EE60: 39          rts  
+
+Switch Routine:
+EE61: DF A0       stx  $A0
+EE63: E6 61       ldb  (x+$61)
+EE65: D7 A4       stb  $A4
+EE67: 97 A3       sta  $A3
+EE69: 8D 2D       bsr  $EE98    Clear Carry if Switch Active or Done
+EE6B: 25 28       bcs  $EE95	get outta here!
+EE6D: 8D 3C       bsr  $EEAB    $A5 = ($A1<<3)+BitPos($A2)
+EE6F: 8D 6A       bsr  $EEDB    Gets Switch Trigger Data
+EE71: 27 1D       beq  $EE90
+EE73: 9B AC       adda $AC      Number of IRQ's since last loop
+EE75: DE 96       ldx  $96
+EE77: 8C 11 18    cmpx #$1118
+EE7A: 27 ED       beq  $EE69
+EE7C: A7 00       sta  (x+$00)
+EE7E: 96 A5       lda  $A5	Encoded Switch Number
+EE80: A7 01       sta  (x+$01)
+EE82: 08          inx  
+EE83: 08          inx  
+EE84: DF 96       stx  $96
+EE86: DE A0       ldx  $A0
+EE88: A6 81       lda  (x+$81)
+EE8A: 9A A2       ora  $A2
+EE8C: A7 81       sta  (x+$81)
+EE8E: 20 D9       bra  $EE69
+EE90: BD EE 04    jsr  $EE04
+EE93: 20 D4       bra  $EE69
+
+EE95: DE A0       ldx  $A0
+EE97: 39          rts  
+
+Clear Carry if Switch Activated (HexPostion -> $A2, $A3=00 )
+EE98: 4F          clra 
+EE99: 0D          sec  
+EE9A: D6 A3       ldb  $A3	$A3=Switch Data
+EE9C: 27 0C       beq  $EEAA
+EE9E: 49          rola 
+EE9F: 95 A3       bita $A3
+EEA1: 27 FB       beq  $EE9E
+EEA3: 97 A2       sta  $A2
+EEA5: 98 A3       eora $A3
+EEA7: 97 A3       sta  $A3
+EEA9: 0C          clc  
+EEAA: 39          rts  
+
+$A5 = ($A1<<3)+BitPos($A2) Encode the Switch Matrix Position
+EEAB: 96 A1       lda  $A1
+EEAD: 48          asla 
+EEAE: 48          asla 
+EEAF: 48          asla 
+EEB0: D6 A2       ldb  $A2
+EEB2: 56          rorb 
+EEB3: 25 03       bcs  $EEB8
+EEB5: 4C          inca 
+EEB6: 20 FA       bra  $EEB2
+EEB8: 97 A5       sta  $A5
+EEBA: 39          rts  
+
+Switch Routine: 
+EEBB: 97 A3       sta  $A3
+EEBD: DF A0       stx  $A0
+EEBF: 8D D7       bsr  $EE98    Clear Carry if Switch Activated
+EEC1: 25 D2       bcs  $EE95	ldx $A0, rts.
+EEC3: 8D E6       bsr  $EEAB    $A5(A) = ($A1<<3)+BitPos($A2) Encode Matrix Position
+EEC5: CE 11 00    ldx  #$1100
+EEC8: 9C 96       cmpx $96
+EECA: 27 F3       beq  $EEBF
+EECC: A1 01       cmpa (x+$01)	Is this switch in the buffer?
+EECE: 26 07       bne  $EED7
+EED0: 8D 3D       bsr  $EF0F    Copy Word: $96--  Data,$96 -> Data,X
+EED2: BD EE 48    jsr  $EE48
+EED5: 20 E8       bra  $EEBF
+EED7: 08          inx  
+EED8: 08          inx  
+EED9: 20 ED       bra  $EEC8
+
+Gets Switch Trigger Data:
+EEDB: 8D 1A       bsr  $EEF7    ( X = Data@ (E051 + $A5*3) )
+EEDD: A6 00       lda  (x+$00)
+EEDF: 84 07       anda #$07
+EEE1: 27 08       beq  $EEEB	Branch if Trigger type = 0
+EEE3: 48          asla 
+EEE4: CE E0 67    ldx  #$E067	Game ROM Table: Switch Trigger Table
+EEE7: 8D 16       bsr  $EEFF    ( X = X + A )
+EEE9: 20 02       bra  $EEED
+EEEB: EE 01       ldx  (x+$01)  
+EEED: 96 A4       lda  $A4	Matrix Data
+EEEF: 94 A2       anda $A2	Bit Position
+EEF1: 27 01       beq  $EEF4
+EEF3: 08          inx  
+EEF4: A6 00       lda  (x+$00)  Load Trigger Data
+EEF6: 39          rts
+  
+( X = #E051 + $A5*3 ) 
+EEF7: 96 A5       lda  $A5
+EEF9: 16          tab  
+EEFA: 48          asla 
+EEFB: 1B          aba  
+EEFC: FE E0 51    ldx  $E051	*** Table Pointer ***
+
+( X = X + A )
+EEFF: 36          psha 
+EF00: DF A6       stx  $A6
+EF02: 9B A7       adda $A7
+EF04: 97 A7       sta  $A7
+EF06: 24 03       bcc  $EF0B
+EF08: 7C 00 A6    inc  $00A6
+EF0B: DE A6       ldx  $A6
+EF0D: 32          pula 
+EF0E: 39          rts  
+
+Copy Word: $96--  Data,$96 -> Data,X 
+EF0F: DF A6       stx  $A6
+EF11: DE 96       ldx  $96
+EF13: 09          dex  
+EF14: 09          dex  
+EF15: DF 96       stx  $96
+EF17: A6 00       lda  (x+$00)
+EF19: E6 01       ldb  (x+$01)
+EF1B: DE A6       ldx  $A6
+EF1D: A7 00       sta  (x+$00)
+EF1F: E7 01       stb  (x+$01)
+EF21: 39          rts  
+
+Initially Set up the Control Stack:
+EF22: F6 E0 4B    ldb  $E04B	Max Size of Control Stack
+EF25: CE 11 A8    ldx  #$11A8
+EF28: DF AF       stx  $AF
+EF2A: DF 9C       stx  $9C
+EF2C: 96 9D       lda  $9D
+EF2E: 8B 12       adda #$12
+EF30: A7 01       sta  (x+$01)
+EF32: 86 00       lda  #$00
+EF34: 99 9C       adca $9C
+EF36: A7 00       sta  (x+$00)
+EF38: 5A          decb 
+EF39: 27 04       beq  $EF3F
+EF3B: EE 00       ldx  (x+$00)
+EF3D: 20 EB       bra  $EF2A
+EF3F: E7 00       stb  (x+$00)
+EF41: E7 01       stb  (x+$01)
+EF43: D7 AD       stb  $AD
+EF45: D7 AE       stb  $AE
+EF47: CE 00 AD    ldx  #$00AD
+EF4A: DF B3       stx  $B3
+EF4C: 39          rts  
+
+( X = X + B )
+EF4D: 36          psha 
+EF4E: 17          tba  
+EF4F: 8D AE       bsr  $EEFF    ( X = X + A )
+EF51: 32          pula 
+EF52: 39          rts  
+
+( CMOS,X++ -> A )
+EF53: 37          pshb 
+EF54: A6 00       lda  (x+$00)
+EF56: E6 01       ldb  (x+$01)
+EF58: 08          inx  
+EF59: 08          inx  
+EF5A: C4 0F       andb #$0F
+EF5C: 48          asla 
+EF5D: 48          asla 
+EF5E: 48          asla 
+EF5F: 48          asla 
+EF60: 1B          aba  
+EF61: 33          pulb 
+EF62: 39          rts  
+
+( CMOS,X++ -> B )
+EF63: 36          psha 
+EF64: 8D ED       bsr  $EF53
+EF66: 16          tab  
+EF67: 32          pula 
+EF68: 39          rts 
+ 
+( B -> CMOS,X++)
+EF69: 36          psha 
+EF6A: 17          tba  
+EF6B: 8D 42       bsr  $EFAF 	( A -> CMOS,X++)
+EF6D: 32          pula 
+EF6E: 39          rts  
+
+Reset Audits:
+EF6F: CE 00 66    ldx  #$0066	Clear RAM from 0100-0165
+EF72: 20 03       bra  $EF77
+EF74: CE 01 00    ldx  #$0100
+EF77: 6F FF       clr  (x+$FF)
+EF79: 09          dex  
+EF7A: 26 FB       bne  $EF77
+EF7C: 39          rts  
+
+Restore Factory Settings and Zero Audit Totals:
+EF7D: 8D F5       bsr  $EF74	Clear RAM 0100-01FF
+EF7F: CE 01 7D    ldx  #$017D
+EF82: DF 9A       stx  $9A
+EF84: CE E0 03    ldx  #$E003	*** Table Pointer ***
+EF87: C6 18       ldb  #$18
+EF89: 8D 59       bsr  $EFE4    Transfer Data Block at X to $9A(CMOS Pointer), Length B
+EF8B: C6 01       ldb  #$01
+EF8D: B6 21 00    lda  $2100	Read W29 Jumper Setting
+EF90: 2A 01       bpl  $EF93
+EF92: 5C          incb 
+EF93: 8D 3B       bsr  $EFD0	Load Pricing Data
+EF95: 8D 06       bsr  $EF9D	Restore Backup High Score
+EF97: CE FC A3    ldx  #$FCA3
+EF9A: 7E EA C4    jmp  $EAC4    Push Control Stack: Data in A,B,X,$A6,$A7,$AA=#06
+
+EF9D: 4F          clra 
+EF9E: BD FB 24    jsr  $FB24    Fill HSTD Digits with A
+EFA1: CE 01 81    ldx  #$0181
+EFA4: 8D AD       bsr  $EF53	( CMOS,X++ -> A )
+EFA6: 16          tab  
+EFA7: BD EC F3    jsr  $ECF3    Shift A<<4 B>>4
+EFAA: CE 01 66    ldx  #$0166   CMOS: Current HSTD
+EFAD: 8D BA       bsr  $EF69    ( B -> CMOS,X++)
+
+( A -> CMOS,X++)
+EFAF: 36          psha 
+EFB0: A7 01       sta  (x+$01)
+EFB2: 44          lsra 
+EFB3: 44          lsra 
+EFB4: 44          lsra 
+EFB5: 44          lsra 
+EFB6: A7 00       sta  (x+$00)
+EFB8: 08          inx  
+EFB9: 08          inx  
+EFBA: 32          pula 
+EFBB: 39          rts  
+
+Copy Block: Data,X -> Data,$9A  B=Length
+EFBC: 36          psha 
+EFBD: A6 00       lda  (x+$00)
+EFBF: 08          inx  
+EFC0: DF 9C       stx  $9C
+EFC2: DE 9A       ldx  $9A
+EFC4: A7 00       sta  (x+$00)
+EFC6: 08          inx  
+EFC7: DF 9A       stx  $9A
+EFC9: DE 9C       ldx  $9C
+EFCB: 5A          decb 
+EFCC: 26 EF       bne  $EFBD
+EFCE: 32          pula 
+EFCF: 39          rts  
+
+Load Pricing Data:
+EFD0: F7 01 AE    stb  $01AE
+EFD3: CE 01 AF    ldx  #$01AF
+EFD6: DF 9A       stx  $9A
+EFD8: 58          aslb 		B = B*6
+EFD9: 17          tba  
+EFDA: 48          asla 
+EFDB: 1B          aba  
+EFDC: CE E0 15    ldx  #$E015	*** Table Pointer ***
+EFDF: BD EE FF    jsr  $EEFF    ( X = X + A )
+EFE2: C6 06       ldb  #$06
+
+Transfer Data Block at X to $9A(CMOS Pointer), Length B
+EFE4: 36          psha 
+EFE5: A6 00       lda  (x+$00)
+EFE7: 08          inx  
+EFE8: DF 9C       stx  $9C
+EFEA: DE 9A       ldx  $9A	
+EFEC: 8D C1       bsr  $EFAF	( A -> CMOS,X++)
+EFEE: DF 9A       stx  $9A
+EFF0: DE 9C       ldx  $9C
+EFF2: 5A          decb 
+EFF3: 26 F0       bne  $EFE5
+EFF5: 32          pula 
+EFF6: 39          rts  
+
+***BEGIN IRQ:***
+
+EFF7: 86 FF       lda  #$FF
+EFF9: D6 89       ldb  $89
+EFFB: 56          rorb 
+EFFC: 25 31       bcs  $F02F	Branch every other IRQ
+EFFE: 7C 00 8B    inc  $008B
+F001: CE 24 00    ldx  #$2400	Lamp PIA Offset
+F004: A7 00       sta  (x+$00)	Blank Lamp Rows
+F006: E6 03       ldb  (x+$03)
+F008: 6F 03       clr  (x+$03)  
+F00A: A7 02       sta  (x+$02)  Blank Lamp Columns
+F00C: E7 03       stb  (x+$03)
+F00E: 96 8C       lda  $8C
+F010: 48          asla 
+F011: 26 05       bne  $F018
+F013: 97 8B       sta  $8B
+F015: 97 89       sta  $89
+F017: 4C          inca 
+F018: 97 8C       sta  $8C
+F01A: A7 02       sta  (x+$02)
+F01C: A1 02       cmpa (x+$02)
+F01E: 26 0F       bne  $F02F
+F020: DE 8A       ldx  $8A
+F022: A6 20       lda  (x+$20)
+F024: 16          tab  
+F025: 53          comb 
+F026: E4 10       andb (x+$10)
+F028: A4 28       anda (x+$28)
+F02A: 1B          aba  
+F02B: 43          coma 
+F02C: B7 24 00    sta  $2400	Store Lamp Row Data
+
+F02F: DE 8A       ldx  $8A
+F031: D6 89       ldb  $89
+F033: C4 07       andb #$07
+F035: 26 2F       bne  $F066	Branch on Digits 2-8 or 10-16 (scores)
+F037: 86 FF       lda  #$FF
+F039: B7 28 02    sta  $2802	Display PIA Port B
+F03C: D6 89       ldb  $89
+F03E: F7 28 00    stb  $2800	Display PIA Port A
+F041: 26 6A       bne  $F0AD
+F043: 7C 00 95    inc  $0095
+F046: 96 60       lda  $60
+F048: 97 8D       sta  $8D
+F04A: 96 5C       lda  $5C
+F04C: 97 8E       sta  $8E
+F04E: 96 5E       lda  $5E
+F050: 97 8F       sta  $8F
+F052: D6 5A       ldb  $5A
+F054: 79 00 8E    rol  $008E
+F057: 24 02       bcc  $F05B
+F059: D6 5B       ldb  $5B
+F05B: 96 58       lda  $58
+F05D: 79 00 8F    rol  $008F
+F060: 24 43       bcc  $F0A5
+F062: 96 59       lda  $59
+F064: 20 3F       bra  $F0A5
+F066: D7 90       stb  $90
+
+F068: 5A          decb 
+F069: 27 04       beq  $F06F
+F06B: C0 03       subb #$03
+F06D: 26 0D       bne  $F07C
+F06F: 79 00 8D    rol  $008D	Commas...
+F072: 56          rorb 
+F073: 79 00 8D    rol  $008D
+F076: 56          rorb 
+F077: FA 21 02    orb  $2102	Store Commas
+F07A: 20 05       bra  $F081
+F07C: F6 21 02    ldb  $2102	Get Comma Data
+F07F: C4 3F       andb #$3F	Blank them out.
+F081: F7 21 02    stb  $2102	Store the data.
+F084: 86 FF       lda  #$FF
+F086: B7 28 02    sta  $2802	Blank the Display Digits
+F089: 96 89       lda  $89
+F08B: B7 28 00    sta  $2800	Send Display Strobe
+F08E: A6 38       lda  (x+$38)	Buffer 0 
+F090: 79 00 8E    rol  $008E	
+F093: 24 02       bcc  $F097	
+F095: A6 48       lda  (x+$48)	Buffer 1
+F097: E6 40       ldb  (x+$40)	Buffer 0
+F099: 79 00 8F    rol  $008F
+F09C: 24 02       bcc  $F0A0
+F09E: E6 50       ldb  (x+$50)	Buffer 1
+F0A0: 76 00 90    ror  $0090
+F0A3: 25 22       bcs  $F0C7
+F0A5: 54          lsrb 		Show BA
+F0A6: 54          lsrb 
+F0A7: 54          lsrb 
+F0A8: 54          lsrb 
+F0A9: 84 F0       anda #$F0
+F0AB: 20 20       bra  $F0CD	Goto Display End
+F0AD: 96 5D       lda  $5D
+F0AF: 97 8E       sta  $8E
+F0B1: 96 5F       lda  $5F
+F0B3: 97 8F       sta  $8F
+F0B5: D6 5A       ldb  $5A
+F0B7: 79 00 8E    rol  $008E
+F0BA: 24 02       bcc  $F0BE
+F0BC: D6 5B       ldb  $5B
+F0BE: 96 58       lda  $58
+F0C0: 79 00 8F    rol  $008F
+F0C3: 24 02       bcc  $F0C7
+F0C5: 96 59       lda  $59
+F0C7: 48          asla 		Show AB
+F0C8: 48          asla 
+F0C9: 48          asla 
+F0CA: 48          asla 
+F0CB: C4 0F       andb #$0F	Fall through to end
+F0CD: 1B          aba  
+F0CE: B7 28 02    sta  $2802	Store Digit BCD Data
+F0D1: 96 89       lda  $89
+F0D3: 4C          inca 
+F0D4: 97 89       sta  $89
+F0D6: 46          rora 
+
+F0D7: 25 23       bcs  $F0FC
+F0D9: 86 01       lda  #$01
+F0DB: B7 30 02    sta  $3002	Store Switch Column Drives
+F0DE: CE 00 00    ldx  #$0000
+F0E1: A6 61       lda  (x+$61)
+F0E3: B8 30 00    eora $3000	Switch Row Return Data
+F0E6: 16          tab  
+F0E7: A4 69       anda (x+$69)
+F0E9: AA 71       ora  (x+$71)
+F0EB: A7 71       sta  (x+$71)
+F0ED: E7 69       stb  (x+$69)
+F0EF: 53          comb 
+F0F0: E4 71       andb (x+$71)
+F0F2: EA 79       orb  (x+$79)
+F0F4: E7 79       stb  (x+$79)
+F0F6: 08          inx  
+F0F7: 78 30 02    asl  $3002	Shift to Next Column Drive
+F0FA: 24 E5       bcc  $F0E1
+
+Solenoid Stuff:
+F0FC: 96 94       lda  $94	Solenoid Counter
+F0FE: 27 0D       beq  $F10D
+F100: 7A 00 94    dec  $0094	Solenoid Counter
+F103: 26 08       bne  $F10D
+F105: DE 91       ldx  $91
+F107: A6 00       lda  (x+$00)
+F109: 98 93       eora $93
+F10B: A7 00       sta  (x+$00)
+F10D: 3B          rti  
+*** End IRQ ***
+
+PIA DDR Data:
+F10E: 7F 3E C0 3E 	$2100
+F112: FF 3C FF 34 	$2200
+F116: FF 3C FF 3C 	$2400
+F11A: FF 3C FF 3C		$2800
+F11E: 00 3C FF 3C 	$3000
+
+Special Soleniod Locations:
+F122: 24 03		ST1
+F124: 24 01  	ST2
+F126: 30 03  	ST3
+F128: 30 01  	ST4
+F12A: 22 01  	ST5
+F12C: 28 03  	ST6
+F12E: 21 03  	ST7
+F130: 21 01 	ST8
+F132: 22 03  	ST9
+
+Lamp Buffer Locations:
+F134: 00 10  00 30  00 28  00 20 
+
+Turn on Lamp A (encoded):
+F13C: DF 9E       stx  $9E
+F13E: CE 00 10    ldx  #$0010
+F141: 37          pshb 
+F142: 8D 58       bsr  $F19C    (X = X + A>>3), B = (bitpos(A&07))
+F144: 37          pshb 
+F145: EA 00       orb  (x+$00)
+F147: E7 00       stb  (x+$00)
+F149: DF 9C       stx  $9C
+F14B: D6 9D       ldb  $9D	Lamp RAM Location: #10-#17
+F14D: C1 18       cmpb #$18
+F14F: 33          pulb 
+F150: 24 05       bcc  $F157
+F152: 53          comb 
+F153: E4 20       andb (x+$20)
+F155: E7 20       stb  (x+$20)
+F157: 33          pulb 
+F158: DE 9E       ldx  $9E
+F15A: 39          rts 
+ 
+Turn off Lamp A(encoded):
+F15B: DF 9E       stx  $9E
+F15D: CE 00 10    ldx  #$0010
+F160: 37          pshb 
+F161: 8D 39       bsr  $F19C    (X = X + A>>3), B = (bitpos(A&07))
+F163: 37          pshb 
+F164: 53          comb 
+F165: E4 00       andb (x+$00)
+F167: 20 DE       bra  $F147
+
+Flash Lamp A(encoded):
+F169: DF 9E       stx  $9E
+F16B: CE 00 30    ldx  #$0030
+F16E: 20 D1       bra  $F141
+
+Invert Lamp A(encoded):
+F170: DF 9E       stx  $9E
+F172: CE 00 10    ldx  #$0010
+F175: 37          pshb 
+F176: 8D 24       bsr  $F19C    (X = X + A>>3), B = (bitpos(A&07))
+F178: E8 00       eorb (x+$00)
+F17A: E7 00       stb  (x+$00)
+F17C: 20 D9       bra  $F157
+
+F17E: CE 00 20    ldx  #$0020
+F181: 20 BE       bra  $F141
+
+F183: CE 00 20    ldx  #$0020
+F186: 20 D8       bra  $F160
+
+F188: CE 00 20    ldx  #$0020
+F18B: 20 E8       bra  $F175
+
+F18D: CE 00 28    ldx  #$0028
+F190: 20 AF       bra  $F141
+
+F192: CE 00 28    ldx  #$0028
+F195: 20 C9       bra  $F160
+
+F197: CE 00 28    ldx  #$0028
+F19A: 20 D9       bra  $F175
+
+(X = X + A>>3), B = (bitpos(A&07))
+F19C: 36          psha 
+F19D: 44          lsra 
+F19E: 44          lsra 
+F19F: 44          lsra 
+F1A0: BD EE FF    jsr  $EEFF    ( X = X + A )
+F1A3: 32          pula 
+F1A4: 7E EB 8E    jmp  $EB8E    Convert Hex (A&07) into bitpos (B) 
+
+Macro 19,29- Turn OFF All lamps in Range:
+F1A7: 8D 71       bsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F1A9: 17          tba  
+F1AA: 43          coma 
+F1AB: A4 00       anda (x+$00)
+F1AD: 8D 07       bsr  $F1B6	Turn off Flashing State for this lamp
+F1AF: BD F2 55    jsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F1B2: 24 F5       bcc  $F1A9	Loop it!
+F1B4: 20 5D       bra  $F213
+
+Turn off Flashing State for this lamp:
+F1B6: A7 00       sta  (x+$00)
+F1B8: DF 9C       stx  $9C
+F1BA: 96 9D       lda  $9D
+F1BC: 81 18       cmpa #$18	If we are not using Buffer $0010 then skip this
+F1BE: 24 06       bcc  $F1C6
+F1C0: 17          tba  
+F1C1: 43          coma 
+F1C2: A4 20       anda (x+$20)
+F1C4: A7 20       sta  (x+$20)
+F1C6: 39          rts  
+
+Macro 1F,2F:
+F1C7: 8D 51       bsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F1C9: 17          tba  
+F1CA: A8 00       eora (x+$00)
+F1CC: A7 00       sta  (x+$00)
+F1CE: BD F2 55    jsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F1D1: 24 F6       bcc  $F1C9
+F1D3: 20 3E       bra  $F213
+
+F1D5: 8D 4F       bsr  $F226	A = Last Lamp Level, B = Last Lamp BitPos
+F1D7: 26 3A       bne  $F213
+F1D9: BD F2 64    jsr  $F264	Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+F1DC: 25 08       bcs  $F1E6
+F1DE: 27 F9       beq  $F1D9
+F1E0: 17          tba  
+F1E1: 43          coma 
+F1E2: A4 00       anda (x+$00)
+F1E4: A7 00       sta  (x+$00)
+F1E6: 8D 6D       bsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F1E8: EA 00       orb  (x+$00)
+F1EA: E7 00       stb  (x+$00)
+F1EC: 20 25       bra  $F213
+
+Macro 1A,2A:
+F1EE: 8D 2A       bsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F1F0: 27 F6       beq  $F1E8
+F1F2: 8D 61       bsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F1F4: 25 1D       bcs  $F213
+F1F6: 20 F8       bra  $F1F0
+
+Macro 1B,2B: 
+F1F8: 8D 20       bsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F1FA: 27 EC       beq  $F1E8
+F1FC: 8D 57       bsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F1FE: 24 FA       bcc  $F1FA
+F200: DE 9E       ldx  $9E
+F202: 96 A0       lda  $A0
+F204: D6 A1       ldb  $A1
+F206: 20 9F       bra  $F1A7	Turn OFF All lamps in Range
+
+Macro 18,28:
+F208: 8D 10       bsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F20A: 17          tba  
+F20B: AA 00       ora  (x+$00)
+F20D: 8D A7       bsr  $F1B6	  Turn off Flashing State for this lamp
+F20F: 8D 44       bsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F211: 24 F7       bcc  $F20A
+F213: 96 A0       lda  $A0
+F215: D6 A1       ldb  $A1
+F217: DE 9E       ldx  $9E
+F219: 39          rts  
+
+A = Start Lamp Level, B = Start Lamp BitPos:
+F21A: BD F2 2C    jsr  $F22C    Set up Lamp: $A2=start $A3=last B=Number Of lamps X=Buffer
+F21D: 96 A2       lda  $A2	Starting lamp in range
+F21F: BD F1 9C    jsr  $F19C    (X = X + A>>3), B = (bitpos(A&07))
+F222: 17          tba  
+F223: A4 00       anda (x+$00)
+F225: 39          rts  
+
+A = Last Lamp Level, B = Last Lamp BitPos:
+F226: 8D 04       bsr  $F22C    Set up Lamp: $A2=start $A3=last B=Number Of lamps X=Buffer
+F228: 96 A3       lda  $A3	End Lamp In range
+F22A: 20 F3       bra  $F21F
+
+Set up Lamp: $A2=start $A3=last B=Number Of lamps X=Buffer
+Returns:
+$A2,$A3: Lamp Range Data
+X: Lamp Buffer Pointer
+B: Number of Lamps in Effect
+
+F22C: DF 9E       stx  $9E
+F22E: 97 A0       sta  $A0
+F230: D7 A1       stb  $A1
+F232: FE E0 4F    ldx  $E04F	Game ROM: Lamp Range Table 
+F235: 16          tab  
+F236: 58          aslb 
+F237: C4 7F       andb #$7F
+F239: BD EF 4D    jsr  $EF4D    ( X = X + B )
+F23C: EE 00       ldx  (x+$00)
+F23E: DF A2       stx  $A2	Save Lamp Range
+F240: CE F1 34    ldx  #$F134	Lamp Buffer Locations
+F243: 49          rola 
+F244: 49          rola 
+F245: 49          rola 
+F246: 48          asla 
+F247: 84 07       anda #$07
+F249: BD EE FF    jsr  $EEFF    ( X = X + A )
+F24C: EE 00       ldx  (x+$00)	Get the Buffer Pointer Specified
+F24E: D6 A3       ldb  $A3
+F250: D0 A2       subb $A2
+F252: D7 9A       stb  $9A	Store how many lamps affected
+F254: 39          rts  
+
+Shift Lamp Bit Left, De-increment Lamp Counter, Write it:
+F255: 58          aslb 
+F256: 24 02       bcc  $F25A
+F258: 59          rolb 
+F259: 08          inx  
+F25A: 96 9A       lda  $9A
+F25C: 80 01       suba #$01
+F25E: 97 9A       sta  $9A
+F260: 17          tba  
+F261: A4 00       anda (x+$00)
+F263: 39          rts  
+
+Shift Lamp Bit Right, De-increment Lamp Counter, Write it:
+F264: 54          lsrb 
+F265: 24 F3       bcc  $F25A
+F267: 56          rorb 
+F268: 09          dex  
+F269: 20 EF       bra  $F25A
+
+Macro 1C,2C: 
+F26B: 8D B9       bsr  $F226	A = Last Lamp Level, B = Last Lamp BitPos
+F26D: 26 06       bne  $F275
+F26F: 8D F3       bsr  $F264	Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+F271: 24 FA       bcc  $F26D
+F273: 20 9E       bra  $F213
+F275: 53          comb 
+F276: E4 00       andb (x+$00)
+F278: E7 00       stb  (x+$00)
+F27A: 20 97       bra  $F213
+
+Macro 1E,2E:
+F27C: 8D 9C       bsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F27E: DF 9C       stx  $9C
+F280: D7 9B       stb  $9B
+F282: 97 A4       sta  $A4
+F284: 8D CF       bsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F286: 25 04       bcs  $F28C
+F288: 8D 1A       bsr  $F2A4
+F28A: 20 F6       bra  $F282
+F28C: DE 9C       ldx  $9C
+F28E: D6 9B       ldb  $9B
+F290: 8D 12       bsr  $F2A4
+F292: 20 38       bra  $F2CC
+
+Macro 1D,2D:
+F294: 8D 90       bsr  $F226	A = Last Lamp Level, B = Last Lamp BitPos
+F296: DF 9C       stx  $9C
+F298: D7 9B       stb  $9B
+F29A: 97 A4       sta  $A4
+F29C: 8D C6       bsr  $F264	Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+F29E: 25 EC       bcs  $F28C
+F2A0: 8D 02       bsr  $F2A4
+F2A2: 20 F6       bra  $F29A
+
+F2A4: 36          psha 
+F2A5: 17          tba  
+F2A6: 43          coma 
+F2A7: A4 00       anda (x+$00)
+F2A9: 7D 00 A4    tst  $00A4
+F2AC: 27 01       beq  $F2AF
+F2AE: 1B          aba  
+F2AF: A7 00       sta  (x+$00)
+F2B1: 32          pula 
+F2B2: 39          rts  
+
+F2B3: BD F2 26    jsr  $F226	A = Last Lamp Level, B = Last Lamp BitPos
+F2B6: 26 06       bne  $F2BE
+F2B8: 8D AA       bsr  $F264	Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+F2BA: 25 10       bcs  $F2CC
+F2BC: 27 FA       beq  $F2B8
+F2BE: 17          tba  
+F2BF: A8 00       eora (x+$00)
+F2C1: A7 00       sta  (x+$00)
+F2C3: BD F2 64    jsr  $F264	Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+F2C6: 25 04       bcs  $F2CC
+F2C8: EA 00       orb  (x+$00)
+F2CA: E7 00       stb  (x+$00)
+F2CC: 7E F2 13    jmp  $F213
+
+F2CF: BD F2 1A    jsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F2D2: 27 07       beq  $F2DB
+F2D4: BD F2 55    jsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F2D7: 24 F9       bcc  $F2D2
+F2D9: 20 F1       bra  $F2CC
+F2DB: 0C          clc  
+F2DC: 20 EE       bra  $F2CC
+
+F2DE: BD F2 1A    jsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F2E1: 26 F8       bne  $F2DB
+F2E3: BD F2 55    jsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F2E6: 24 F9       bcc  $F2E1
+F2E8: 20 E2       bra  $F2CC
+
+Check Encoded #(A) with $0061:
+F2EA: CE 00 61    ldx  #$0061
+F2ED: 20 0D       bra  $F2FC
+
+Check Encoded #(A) with $0030:
+F2EF: CE 00 30    ldx  #$0030
+F2F2: 20 08       bra  $F2FC
+
+Check Encoded #(A) with $0028:
+F2F4: CE 00 28    ldx  #$0028
+F2F7: 20 03       bra  $F2FC
+
+Bit Test B with Lamp Data (A):
+F2F9: CE 00 10    ldx  #$0010
+F2FC: BD F1 9C    jsr  $F19C    (X = X + A>>3), B = (bitpos(A&07))
+F2FF: E5 00       bitb (x+$00)
+F301: 39          rts  
+
+F302: 84 3F       anda #$3F
+F304: BD F2 1A    jsr  $F21A    A = Start Lamp Level, B = Start Lamp BitPos
+F307: 97 AA       sta  $AA
+F309: 17          tba  
+F30A: 43          coma 
+F30B: A4 18       anda (x+$18)
+F30D: 9A AA       ora  $AA
+F30F: A7 18       sta  (x+$18)
+F311: BD F2 55    jsr  $F255    Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+F314: 24 F1       bcc  $F307
+F316: 20 B4       bra  $F2CC
+
+F318: EF 
+
+F319: Main Switch Lookup:
+(i0) F3 D3  Table at F339
+(i1) F3 F4  Lamp Stuff???
+(i2) F4 36  
+(i3) F4 42  Trigger Solenoids: B = number of solenoids
+(i4) F4 4F  
+(i5) F4 A1  Jump to Address From Table: (LSD(A)*2),$F36B:
+(i6) F5 40  
+(i7) F5 44 
+(i8) F5 48  
+(i9) F5 58  
+(iA) F5 62  
+(iB) F5 6B  
+(iC) F5 78  
+(iD) F5 7D  
+(iE) F5 87  Play Sound (A)
+(iF) F5 87  Play Sound (A)
+
+F339: Table For Routine $F3D3:
+(M 00) F3 DB  $D1 = $D1 - 1
+(M 01) F3 B5  Nothing, continue to next.
+(M 02) F3 AF  Pull A->$D1, Pull A->$D2
+(M 03) EA 67  
+(M 04) F3 E2  Start CPU Execution at Next Data Address, Restore A and B.
+(M 05) F3 EA  Award Special
+(M 06) F3 EF  Award Extra Ball
+ 
+F347: Table For Routine $F3F4: (A < 8)
+(M 18) F2 08  
+(M 19) F1 A7  
+(M 1A) F1 EE  
+(M 1B) F1 F8  
+(M 1C) F2 6B  
+(M 1D) F2 94  
+(M 1E) F2 7C  
+(M 1F) F1 C7
+ 
+F357: Table For Routine $F3F4: (A >= 8)
+(M 14) F1 3C  Turn on Lamp
+(M 15) F1 5B  Turn off Lamp
+(M 16) F1 70  Invert Lamp
+(M 17) F1 69  Flash Lamp   Data: Pointer to RAM where lamp # is stored
+
+F35F: Table For Routine $F436:
+(M 20) F1 7E  
+(M 21) F1 83  
+(M 22) F1 88
+
+F365: Table For Routine $F44F:
+(41)(M 23) EC 96  
+(42)(M 24) EC 05  
+(43)(M 25) EB FE
+  
+F36B: Table For Routine $F4A1
+(i0) F4 AA  Add and Copy: $00,B = $00,LSD(A) + $00,MSD(A)
+(i1) F4 BF  Copy Game Data: From LSD(A) to MSD(A)
+(i2) F4 CA  
+(i3) F4 D2  
+(i4) F4 EF  
+(i5) F4 F6  
+(i6) F4 FD	Next Two Bytes -> $D1, Push Pointer to next data 
+(i7) F5 27 
+(i8) F5 CD  
+(i9) F5 CD  
+(iA) F5 CD  
+(iB) F5 CD  
+(iC) F5 4F  
+(iD) F5 A4  
+(iE) F5 BC  
+(iF) F5 66
+
+F38B: Table For $F5F8 (Complex Branches)
+(i0) F6 53  
+(i1) F6 5A  
+(i2) F4 95  
+(i3) F6 36  
+(i4) F6 3B  
+(i5) F6 47  
+(i6) F6 4E  
+(i7) F6 61 
+(i8) F6 66  
+(i9) F6 70  
+(iA) F6 6B  
+(iB) F6 72  
+(iC) F6 77  
+(iD) F6 7C  
+(iE) F6 7F  
+(iF) F6 86 
+
+Save MRA and MRB, MRTS:
+F3AB: 97 00       sta  $00
+F3AD: D7 01       stb  $01
+F3AF: 32          pula 
+F3B0: 97 D1       sta  $D1
+F3B2: 32          pula 
+F3B3: 97 D2       sta  $D2
+
+Start Executing Macros:
+F3B5: BD E0 A9    jsr  $E0A9	Game ROM: (RTS)
+F3B8: BD F4 95    jsr  $F495    Macro Data: A = Next Byte $D1+1
+F3BB: 16          tab  
+F3BC: 54          lsrb 
+F3BD: 54          lsrb 
+F3BE: 54          lsrb 
+F3BF: C4 1E       andb #$1E
+F3C1: CE F3 19    ldx  #$F319
+F3C4: BD EF 4D    jsr  $EF4D 	( X = X + B)
+F3C7: EE 00       ldx  (x+$00)
+F3C9: 6E 00       jmp  (x+$00)
+
+Main Routine for Switch Closures (put into control loop)
+F3CB: DF D1       stx  $D1
+F3CD: 97 00       sta  $00
+F3CF: D7 01       stb  $01
+F3D1: 20 E2       bra  $F3B5
+
+F3D3: CE F3 39    ldx  #$F339
+F3D6: BD F4 8E    jsr  $F48E    X = data at (X + (A*2))
+F3D9: 6E 00       jmp  (x+$00)
+
+MPC = MPC - 100:
+F3DB: DE D1       ldx  $D1
+F3DD: 09          dex  
+F3DE: DF D1       stx  $D1
+F3E0: 20 D3       bra  $F3B5
+
+Return to CPU execution at MPC, Get MRA and MRB:
+F3E2: DE D1       ldx  $D1
+F3E4: 96 00       lda  $00
+F3E6: D6 01       ldb  $01
+F3E8: 6E 00       jmp  (x+$00)
+
+F3EA: BD F6 A5    jsr  $F6A5	Award Special
+F3ED: 20 C6       bra  $F3B5
+
+F3EF: BD F6 D5    jsr  $F6D5    Award Extra Ball
+F3F2: 20 C1       bra  $F3B5
+
+Main Routine Code (Macro 1X)
+F3F4: 16          tab  
+F3F5: C4 0F       andb #$0F
+F3F7: C0 08       subb #$08
+F3F9: 25 1D       bcs  $F418	Branch for Macros 10-17 
+F3FB: 58          aslb 
+F3FC: CE F3 47    ldx  #$F347
+F3FF: BD EF 4D    jsr  $EF4D 	( X = X + B)
+F402: EE 00       ldx  (x+$00)
+F404: 16          tab  		Original Command #
+F405: 58          aslb 
+F406: 58          aslb 
+F407: C4 80       andb #$80
+F409: BD F4 95    jsr  $F495    Macro Data: A = Next Byte $D1+1
+F40C: 36          psha 
+F40D: 84 7F       anda #$7F
+F40F: 1B          aba  
+F410: AD 00       jsr  (x+$00)
+F412: 32          pula 
+F413: 4D          tsta 
+F414: 2B F3       bmi  $F409
+F416: 20 9D       bra  $F3B5
+
+Here for Macros 10-17:
+F418: CE F3 57    ldx  #$F357
+F41B: 16          tab  		A = still instruction #
+F41C: 84 03       anda #$03
+F41E: BD F4 8E    jsr  $F48E    X = data at (X + (A*2))
+F421: C5 04       bitb #$04
+F423: 26 03       bne  $F428	Branch on 14-17
+F425: 5F          clrb 
+F426: 20 E1       bra  $F409
+F428: 8D 6B       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F42A: 16          tab  
+F42B: BD F5 18    jsr  $F518    $00,LSD(A)->A
+F42E: AD 00       jsr  (x+$00)
+F430: 5D          tstb 
+F431: 2B F5       bmi  $F428
+F433: 7E F3 B5    jmp  $F3B5
+
+Here for Macros 2X:
+F436: 16          tab  		A= macro 
+F437: C4 0F       andb #$0F
+F439: C0 08       subb #$08
+F43B: 24 BE       bcc  $F3FB	Branch for Macros 28-2F
+F43D: CE F3 5F    ldx  #$F35F
+F440: 20 D9       bra  $F41B
+
+Macro Turn On/Off Solenoids: 
+F442: 16          tab  
+F443: C4 0F       andb #$0F	16 Solenoids Max Range
+F445: 8D 4E       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F447: BD EB 23    jsr  $EB23    Turn On/Off Solenoid
+F44A: 5A          decb 
+F44B: 26 F8       bne  $F445
+F44D: 20 E4       bra  $F433
+
+Macro 40- Play Sound Index(Byte1)Once, Add Points(Byte2):
+F44F: 84 0F       anda #$0F
+F451: 26 08       bne  $F45B
+F453: BD F4 EA    jsr  $F4EA    Macro Data: Next Two Bytes into B & A:
+F456: BD EB FA    jsr  $EBFA    Play Sound Index(B)Once, Add Points(A)
+F459: 20 D8       bra  $F433    jmp $F3B5
+
+F45B: 81 04       cmpa #$04
+F45D: 24 0C       bcc  $F46B	Branch for Macros 44-4F
+F45F: CE F3 63    ldx  #$F363
+F462: BD F4 8E    jsr  $F48E    X = data at (X + (A*2))
+F465: 8D 2E       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F467: AD 00       jsr  (x+$00)
+F469: 20 C8       bra  $F433	jmp $F3B5
+
+Macros 44-4F (Execute)
+F46B: 16          tab  
+F46C: C0 02       subb #$02
+F46E: CE 11 30    ldx  #$1130
+F471: 8D 22       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F473: A7 00       sta  (x+$00)
+F475: 08          inx  
+F476: 5A          decb 
+F477: 26 F8       bne  $F471	Add B bytes to Buffer at #1130
+F479: 86 7E       lda  #$7E
+F47B: A7 00       sta  (x+$00)
+F47D: 86 F3       lda  #$F3
+F47F: A7 01       sta  (x+$01)
+F481: 86 CD       lda  #$CD     Tack a JMP $F3CD at the end of the routine
+F483: A7 02       sta  (x+$02)
+F485: 96 00       lda  $00
+F487: D6 01       ldb  $01
+F489: 7E 11 30    jmp  $1130	Go there Now, put return A and B into RAM $00 and $01
+
+X = data at (X + LSD(A)*2)
+F48C: 84 0F       anda #$0F
+F48E: 48          asla 
+F48F: BD EE FF    jsr  $EEFF    ( X = X + A )
+F492: EE 00       ldx  (x+$00)
+F494: 39          rts  
+
+Macro Data: A = Next Byte $D1+1
+F495: DF 9A       stx  $9A
+F497: DE D1       ldx  $D1
+F499: A6 00       lda  (x+$00)
+F49B: 08          inx  
+F49C: DF D1       stx  $D1
+F49E: DE 9A       ldx  $9A
+F4A0: 39          rts  
+
+Jump to Address From Table: (LSD(A)*2),$F36B:
+F4A1: CE F3 6B    ldx  #$F36B
+F4A4: 16          tab  		Move our Data into B
+F4A5: BD F4 8C    jsr  $F48C    X = data at (X + LSD(A)*2)
+F4A8: 6E 00       jmp  (x+$00)
+
+$00,B = $00,LSD(A) + $00,MSD(A) 
+F4AA: 8D E9       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F4AC: 16          tab  
+F4AD: 8D 69       bsr  $F518    $00,LSD(A)->A
+F4AF: 97 9E       sta  $9E
+F4B1: 54          lsrb 
+F4B2: 54          lsrb 
+F4B3: 54          lsrb 
+F4B4: 54          lsrb 
+F4B5: 17          tba  
+F4B6: 8D 60       bsr  $F518    $00,LSD(A)->A
+F4B8: 9B 9E       adda $9E
+F4BA: 8D 4D       bsr  $F509    A->$00,LSD(B)
+F4BC: 7E F3 B5    jmp  $F3B5
+
+Copy Game Data: From LSD(A) to MSD(A): 
+F4BF: 8D D4       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F4C1: 16          tab  
+F4C2: 8D 54       bsr  $F518    $00,LSD(A)->A
+F4C4: 54          lsrb 
+F4C5: 54          lsrb 
+F4C6: 54          lsrb 
+F4C7: 54          lsrb 
+F4C8: 20 F0       bra  $F4BA	A->$00,LSD(B),jmp $F3B5
+
+F4CA: 8D C9       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F4CC: DE B1       ldx  $B1	Current Control Stack Routine being run
+F4CE: A7 0D       sta  (x+$0D)
+F4D0: 20 EA       bra  $F4BC	jmp $F3BC
+
+F4D2: 8D C1       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F4D4: 97 B7       sta  $B7
+F4D6: DE D1       ldx  $D1
+F4D8: 96 00       lda  $00
+F4DA: D6 01       ldb  $01
+F4DC: BD EA 24    jsr  $EA24	Push Next Address onto Control Stack, Timer at $B7
+F4DF: 7E F3 CB    jmp  $F3CB
+
+Macro Data: Load X with Next Two Bytes
+F4E2: 8D 06       bsr  $F4EA    Macro Data: Next Two Bytes into B & A:
+F4E4: D7 9A       stb  $9A
+F4E6: 97 9B       sta  $9B
+F4E8: 20 B4       bra  $F49E
+
+Macro Data: Next Two Bytes into B & A:
+F4EA: 8D A9       bsr  $F495    Macro Data: A = Next Byte $D1+1
+F4EC: 16          tab  
+F4ED: 20 A6       bra  $F495    Macro Data: A = Next Byte $D1+1
+
+Macro 54:
+F4EF: 8D F9       bsr  $F4EA    Macro Data: Next Two Bytes into B & A:
+F4F1: BD EA F3    jsr  $EAF3
+F4F4: 20 C6       bra  $F4BC    jmp $F3B5
+
+Macro 55:
+F4F6: 8D F2       bsr  $F4EA    Macro Data: Next Two Bytes into B & A:
+F4F8: BD EA FB    jsr  $EAFB
+F4FB: 20 BF       bra  $F4BC	jmp  $F3B5
+
+Next Two Bytes -> $D1, Push $D1,$D2:
+F4FD: 8D E3       bsr  $F4E2    Macro Data: Load X with Next Two Bytes
+F4FF: 96 D2       lda  $D2
+F501: 36          psha 
+F502: 96 D1       lda  $D1
+F504: 36          psha 
+F505: DF D1       stx  $D1
+F507: 20 B3       bra  $F4BC	jmp  $F3B5
+
+A->$00,LSB(B)):
+F509: DF 9A       stx  $9A
+F50B: C4 0F       andb #$0F
+F50D: D7 9D       stb  $9D
+F50F: 7F 00 9C    clr  $009C
+F512: DE 9C       ldx  $9C
+F514: A7 00       sta  (x+$00)
+F516: 20 86       bra  $F49E
+
+$00,LSD(A)->A
+F518: DF 9A       stx  $9A
+F51A: 84 0F       anda #$0F
+F51C: 97 9D       sta  $9D
+F51E: 7F 00 9C    clr  $009C
+F521: DE 9C       ldx  $9C
+F523: A6 00       lda  (x+$00)
+F525: 20 EF       bra  $F516	ldx $9A, rts.
+
+A->$00,B->$01 JSR to Next 2 Data Bytes, Store return value(A) at $00:
+F527: 8D B9       bsr  $F4E2    Macro Data: Load X with Next Two Bytes
+F529: 96 D2       lda  $D2
+F52B: 36          psha 
+F52C: 96 D1       lda  $D1
+F52E: 36          psha 		Push Macro PC
+F52F: 96 00       lda  $00
+F531: D6 01       ldb  $01
+F533: AD 00       jsr  (x+$00)
+F535: 97 00       sta  $00
+F537: 32          pula 
+F538: 97 D1       sta  $D1	Pull Macro PC
+F53A: 32          pula 
+F53B: 97 D2       sta  $D2
+F53D: 7E F3 CF    jmp  $F3CF
+
+F540: 8D D6       bsr  $F518    $00,LSD(A)->A
+F542: 20 90       bra  $F4D4
+
+F544: 84 0F       anda #$0F
+F546: 20 8C       bra  $F4D4
+
+Jump LSD(A)+NextByte:
+F548: 8D 44       bsr  $F58E    Add LSD(A)+NextByte to $D1,$D2 -> X
+F54A: DF D1       stx  $D1
+F54C: 7E F3 B5    jmp  $F3B5
+
+F54F: BD F4 E2    jsr  $F4E2    Macro Data: Load X with Next Two Bytes
+F552: 96 00       lda  $00
+F554: D6 01       ldb  $01
+F556: 6E 00       jmp  (x+$00)
+
+Jump LSD(A)+NextByte, Push old $D1,D2 onto Stack:
+F558: 8D 34       bsr  $F58E    Add LSD(A)+NextByte to $D1,$D2 -> X
+F55A: D6 D2       ldb  $D2	
+F55C: 37          pshb 
+F55D: D6 D1       ldb  $D1
+F55F: 37          pshb 
+F560: 20 E8       bra  $F54A	Store X -> $D1,D2
+
+F562: 8D 2A       bsr  $F58E    Add LSD(A)+NextByte to $D1,$D2 -> X
+F564: 20 C3       bra  $F529
+
+F566: BD F4 E2    jsr  $F4E2    Macro Data: Load X with Next Two Bytes
+F569: 20 DF       bra  $F54A
+
+F56B: 16          tab  
+F56C: 8D AA       bsr  $F518    RAM Data (A&0f)->A
+F56E: 97 9C       sta  $9C
+F570: 8D 58       bsr  $F5CA
+F572: 9B 9C       adda $9C
+F574: 8D 93       bsr  $F509    A->RAM(B&0f)
+F576: 20 D4       bra  $F54C
+
+F578: 16          tab  
+F579: 8D 4F       bsr  $F5CA
+F57B: 20 F7       bra  $F574
+
+Play Sound(A), (NextByte): Times 
+F57D: 84 0F       anda #$0F
+F57F: 16          tab  
+F580: 8D 48       bsr  $F5CA	Macro Data: A = Next Byte $D1+1
+F582: BD ED 03    jsr  $ED03
+F585: 20 C5       bra  $F54C	jmp  $F3B5
+
+Play Sound (A):
+F587: 84 1F       anda #$1F
+F589: BD EC FC    jsr  $ECFC	Play Sound Index(A) Once
+F58C: 20 BE       bra  $F54C
+
+Add LSD(A)+NextByte to $D1,$D2 -> X:
+F58E: 84 0F       anda #$0F
+F590: 85 08       bita #$08
+F592: 27 02       beq  $F596
+F594: 8A F0       ora  #$F0
+F596: 16          tab  
+F597: 8D 31       bsr  $F5CA    Macro Data: A = Next Byte $D1+1
+F599: 9B D2       adda $D2
+F59B: 97 9B       sta  $9B
+F59D: D9 D1       adcb $D1
+F59F: D7 9A       stb  $9A
+F5A1: DE 9A       ldx  $9A
+F5A3: 39          rts  
+
+Manually Trigger Switches: 
+F5A4: 8D 0A       bsr  $F5B0
+F5A6: EA 00       orb  (x+$00)
+F5A8: E7 00       stb  (x+$00)
+F5AA: 96 A8       lda  $A8
+F5AC: 2B F6       bmi  $F5A4
+F5AE: 20 17       bra  $F5C7	jmp  $F3B5
+
+F5B0: 8D 18       bsr  $F5CA	Macro Data: A = Next Byte $D1+1
+F5B2: 97 A8       sta  $A8
+F5B4: 84 3F       anda #$3F
+F5B6: CE 00 61    ldx  #$0061
+F5B9: 7E F1 9C    jmp  $F19C    (X = X + A>>3), B = (bitpos(A&07))
+
+Manually Clear Switches:
+F5BC: 8D F2       bsr  $F5B0
+F5BE: 53          comb 
+F5BF: E4 00       andb (x+$00)
+F5C1: E7 00       stb  (x+$00)
+F5C3: 96 A8       lda  $A8
+F5C5: 2B F5       bmi  $F5BC
+F5C7: 7E F3 B5    jmp  $F3B5
+F5CA: 7E F4 95    jmp  $F495    Macro Data: A = Next Byte $D1+1
+
+Main Branch Macro:
+F5CD: 37          pshb 		
+F5CE: 8D 28       bsr  $F5F8    Gets Main Result
+F5D0: BD F6 92    jsr  $F692	Returns #80 or #81 in (A) based on Test of A 
+F5D3: 33          pulb 		Get Back Command in B
+F5D4: 1B          aba  
+F5D5: 36          psha 
+F5D6: C5 02       bitb #$02	Relative or Absolute Branch Flag
+F5D8: 26 05       bne  $F5DF
+F5DA: BD F4 E2    jsr  $F4E2    Macro Data: Load X with Next Two Bytes
+F5DD: 20 12       bra  $F5F1
+F5DF: 8D E9       bsr  $F5CA	Macro Data: A = Next Byte $D1+1
+F5E1: C6 FF       ldb  #$FF
+F5E3: 81 80       cmpa #$80
+F5E5: C9 00       adcb #$00
+F5E7: 9B D2       adda $D2
+F5E9: D9 D1       adcb $D1
+F5EB: 97 9B       sta  $9B
+F5ED: D7 9A       stb  $9A
+F5EF: DE 9A       ldx  $9A
+F5F1: 32          pula 		Get our result from above push
+F5F2: 46          rora 		Test LSB
+F5F3: 24 D2       bcc  $F5C7	If result was #80, then ignore this branch (jmp  $F3B5)
+F5F5: 7E F5 05    jmp  $F505	Else, we will branch now. (stx  $D1, jmp $F3B5)
+
+Gets Branch Data:
+F5F8: 8D D0       bsr  $F5CA	Macro Data: A = Next Byte $D1+1
+F5FA: 81 D0       cmpa #$D0	
+F5FC: 25 3C       bcs  $F63A	(rts) if data is below #D0
+F5FE: 81 F0       cmpa #$F0
+F600: 24 13       bcc  $F615  	Branch if #F0 or above (Complex)
+F602: 81 E0       cmpa #$E0
+F604: 25 03       bcs  $F609	Branch if less than #E0
+F606: 7E F5 18    jmp  $F518    RAM Data (A&0f)->A (Data is E_)
+F609: CE 01 93    ldx  #$0193	Pointer to Bottom of Game Adjustments
+F60C: 84 0F       anda #$0F	A = Index for Game Adjustment Lookup
+F60E: 48          asla 
+F60F: BD EE FF    jsr  $EEFF    ( X = X + A )
+F612: 7E EF 53    jmp  $EF53    ( CMOS,X++ -> A )
+
+Complex Branch Main Routine:
+F615: 81 F3       cmpa #$F3
+F617: 25 13       bcs  $F62C	data is below #F3 (not complex)
+F619: 36          psha 		Push Current Branch Inst.
+F61A: 8D DC       bsr  $F5F8    Gets Encoded Data Type
+F61C: 16          tab  
+F61D: D7 9A       stb  $9A
+F61F: 32          pula 
+F620: 81 F9       cmpa #$F9
+F622: 25 08       bcs  $F62C	Branch if below #F9 (Lamp or Bit Test)
+F624: 36          psha 
+F625: 37          pshb 
+F626: 8D D0       bsr  $F5F8    Gets Encoded Data Type
+F628: 97 9A       sta  $9A
+F62A: 33          pulb 
+F62B: 32          pula 
+F62C: CE F3 8B    ldx  #$F38B
+F62F: BD F4 8C    jsr  $F48C    X = data at (X + LSD(A)*2)
+F632: 96 9A       lda  $9A
+F634: 6E 00       jmp  (x+$00)
+
+Macro F3 - Invert Result
+F636: 8D 5A       bsr  $F692
+F638: 88 01       eora #$01
+F63A: 39          rts  
+
+Macro F4 - Lamp On or Flashing
+F63B: BD F2 F9    jsr  $F2F9    Bit Test B with Lamp Data (A)
+F63E: 26 1E       bne  $F65E    lda  #$81, rts
+F640: BD F2 EF    jsr  $F2EF    Check Encoded #(A) with $0030
+F643: 26 19       bne  $F65E    lda  #$81, rts
+F645: 20 10       bra  $F657    lda  #$80, rts
+
+Macro Code (Lamp Range All Off):
+F647: BD F2 DE    jsr  $F2DE
+F64A: 25 12       bcs  $F65E    lda  #$81, rts
+F64C: 20 09       bra  $F657    lda  #$80, rts
+
+Macro Code(Lamp Range All On):
+F64E: BD F2 CF    jsr  $F2CF
+F651: 20 F7       bra  $F64A
+
+Branch Code F0: (Check Tilt Flag)
+F653: 96 C8       lda  $C8	Tilt Flag
+F655: 26 07       bne  $F65E    lda  #$81, rts
+F657: 86 80       lda  #$80
+F659: 39          rts  
+
+Branch Code F1: (Check GameOver Flag)
+F65A: 96 C9       lda  $C9	Game Over
+F65C: 27 F9       beq  $F657    lda  #$80, rts
+F65E: 86 81       lda  #$81
+F660: 39          rts  
+
+Macro Code (RAM Matrix $0028):
+F661: BD F2 F4    jsr  $F2F4    Check Encoded #(A) with $0028
+F664: 20 DD       bra  $F643	False return #80, True return #81
+
+Macro Code (Check Encoded Switch):
+F666: BD F2 EA    jsr  $F2EA    Check Encoded #(A) with $0061:
+F669: 20 D8       bra  $F643	False return #80, True return #81
+
+Macro Code(Logical AND):
+F66B: 8D 1E       bsr  $F68B
+F66D: 94 9A       anda $9A
+F66F: 39          rts  
+
+Macro Code (A = A + B):
+F670: 1B          aba  
+F671: 39          rts  
+
+Macro Code (Logical OR):
+F672: 8D 17       bsr  $F68B
+F674: 9A 9A       ora  $9A
+F676: 39          rts  
+
+Macro Code (A = B):
+F677: 11          cba  
+F678: 27 E4       beq  $F65E    lda  #$81, rts
+F67A: 20 DB       bra  $F657    lda  #$80, rts
+
+Macro Code(A >= B):
+F67C: 11          cba  
+F67D: 20 CB       bra  $F64A
+
+Macro Code(Check for Priority Thread):
+F67F: BD EB 00    jsr  $EB00
+F682: 24 DA       bcc  $F65E    lda  #$81, rts
+F684: 20 D1       bra  $F657    lda  #$80, rts
+
+Macro Code(A && B):
+F686: D7 9A       stb  $9A
+F688: 94 9A       anda $9A
+F68A: 39          rts  
+
+F68B: 36          psha 
+F68C: 17          tba  
+F68D: 8D 03       bsr  $F692
+
+F68F: 97 9A       sta  $9A
+F691: 32          pula
+ 
+F692: 4D          tsta 
+F693: 2B F5       bmi  $F68A	rts
+F695: BD F2 F9    jsr  $F2F9    Bit Test B with Lamp Data (A)
+F698: 27 BD       beq  $F657    lda  #$80, rts
+F69A: 81 40       cmpa #$40	Check Encoded Lamp #
+F69C: 24 C0       bcc  $F65E    lda  #$81, rts
+F69E: BD F2 EF    jsr  $F2EF	Bittest with $0030
+F6A1: 26 B4       bne  $F657    lda  #$80, rts
+F6A3: 20 B9       bra  $F65E    lda  #$81, rts
+
+Award Special:
+F6A5: 36          psha 
+F6A6: B6 01 8E    lda  $018E	ADJ: Special Award-00=Credit 01=EB 02=Points
+F6A9: 84 0F       anda #$0F
+F6AB: 27 0B       beq  $F6B8	Special
+F6AD: 46          rora 
+F6AE: 25 26       bcs  $F6D6	Extra Ball
+F6B0: B6 E0 56    lda  $E056	*Here if Points* Data byte from Game ROM
+F6B3: BD EB FE    jsr  $EBFE    Add Points(A),Play Digit Sound
+F6B6: 32          pula 
+F6B7: 39          rts  
+F6B8: DF DC       stx  $DC	*Here if Special*
+F6BA: CE 01 12    ldx  #$0112	AUD: Special Credits
+F6BD: 20 0C       bra  $F6CB
+
+Replay Score Level Exceeded:
+F6BF: 36          psha 
+F6C0: B6 01 90    lda  $0190	ADJ: Replay Award-00=Credit 01=Extra Ball
+F6C3: 46          rora 
+F6C4: 25 10       bcs  $F6D6	Extra Ball
+F6C6: DF DC       stx  $DC
+F6C8: CE 01 16    ldx  #$0116	AUD: Replay Score Credits
+
+F6CB: BD F7 7F    jsr  $F77F    Add 1 to data at X	
+F6CE: BD E0 A7    jsr  $E0A7	Game ROM: (RTS)
+F6D1: 86 01       lda  #$01
+F6D3: 20 2C       bra  $F701	
+
+Award Extra Ball:
+F6D5: 36          psha 
+F6D6: DF DA       stx  $DA	*Here if Extra Ball*
+F6D8: CE 01 A9    ldx  #$01A9	ADJ: Max Extra Balls
+F6DB: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+F6DE: 91 D0       cmpa $D0	Number of Extra Balls Remaining
+F6E0: 23 18       bls  $F6FA
+F6E2: BD E0 A5    jsr  $E0A5
+F6E5: B6 E0 5F    lda  $E05F	*** Game ROM data ***
+F6E8: BD F1 3C    jsr  $F13C    Turn on Lamp A (encoded):
+F6EB: B6 E0 60    lda  $E060	*** Game ROM data ***
+F6EE: BD F1 3C    jsr  $F13C    Turn on Lamp A (encoded):
+F6F1: 7C 00 D0    inc  $00D0
+F6F4: CE 01 22    ldx  #$0122	AUD: Total Extra Balls
+F6F7: BD F7 7F    jsr  $F77F    Add 1 to data at X
+F6FA: DE DA       ldx  $DA
+F6FC: 32          pula 
+F6FD: 39          rts  
+
+Add Credits if Possible
+F6FE: DF DC       stx  $DC	Save X
+F700: 36          psha 
+F701: 37          pshb 
+F702: 8D 45       bsr  $F749	Check Max Credits (Carry Set if Okay)
+F704: 24 22       bcc  $F728	No more if Carry Clear.
+F706: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F709: 09          dex  
+F70A: 09          dex  
+F70B: 1B          aba  		Add the new credits.
+F70C: 19          daa  		Adjust
+F70D: 24 02       bcc  $F711
+F70F: 86 99       lda  #$99	If it rolled, set it to 99
+F711: BD EF AF    jsr  $EFAF    ( A -> CMOS,X++)
+F714: D1 5A       cmpb $5A	Actual Credits 
+F716: 26 0E       bne  $F726	Check against shown credits
+F718: C6 0E       ldb  #$0E
+F71A: D7 AA       stb  $AA
+F71C: CE F7 5F    ldx  #$F75F   Add on Queued Credits
+F71F: BD EA 78    jsr  $EA78    Push Control Stack: Data in A,B,X,$AA,$A6,$A7
+F722: 24 02       bcc  $F726
+F724: 97 5A       sta  $5A	Actual Credits
+F726: 8D 04       bsr  $F72C    Check Max Credits, Adjust Coin Lockout If Necessary
+F728: DE DC       ldx  $DC	Restore X
+F72A: 20 30       bra  $F75C	pulb,pula,rts
+
+Check Max Credits, Adjust Coin Lockout If Necessary:
+F72C: 36          psha 
+F72D: BD F7 49    jsr  $F749    Check Max Credits (Carry Set if Okay)
+F730: 86 EF       lda  #$EF	Lockout Coils On
+F732: 25 02       bcs  $F736
+F734: 86 0F       lda  #$0F	Lockout Coils Off
+F736: BD EB 23    jsr  $EB23	Turn Off Lockout Coils
+F739: B6 E0 61    lda  $E061	Game ROM: Last Lamp Used
+F73C: BD F1 5B    jsr  $F15B    Turn off Lamp A (encoded):
+F73F: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F742: 27 03       beq  $F747
+F744: BD F1 3C    jsr  $F13C    Turn on Lamp A (encoded):
+F747: 32          pula 
+F748: 39          rts  
+
+Check Max Credits(Carrry Set if okay)
+F749: 36          psha 
+F74A: 37          pshb 
+F74B: CE 01 AB    ldx  #$01AB	ADJ: Max Credits
+F74E: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F751: CE 01 6E    ldx  #$016E   CMOS: Current Credits
+F754: 5D          tstb 		Max Credits allowed
+F755: 0D          sec  
+F756: 27 04       beq  $F75C
+F758: BD FE 1F    jsr  $FE1F    ( CMOS, X -> A )
+F75B: 11          cba  
+F75C: 33          pulb 
+F75D: 32          pula 
+F75E: 39          rts  
+
+Add on Queued Credits:
+F75F: CE 01 6E    ldx  #$016E	CMOS: Current Credits
+F762: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F765: D1 5A       cmpb $5A
+F767: 27 13       beq  $F77C
+F769: 96 5A       lda  $5A
+F76B: 8B 01       adda #$01
+F76D: 19          daa  
+F76E: 97 5A       sta  $5A
+F770: FE E0 B7    ldx  $E0B7	Game ROM:
+F773: 11          cba  
+F774: 27 04       beq  $F77A
+F776: AD 00       jsr  (x+$00)	JSR to Game ROM/Bell?
+F778: 20 E5       bra  $F75F    Loop it.
+F77A: AD 00       jsr  (x+$00)  JSR to Game ROM/bell?
+F77C: 7E EA 67    jmp  $EA67    Remove Current Thread from Control Stack
+
+Add 1 to data at X:
+F77F: 36          psha 
+F780: 86 01       lda  #$01
+F782: 20 01       bra  $F785
+
+Add A to data at X:
+F784: 36          psha 
+F785: 37          pshb 
+F786: DF 9A       stx  $9A
+F788: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F78B: 37          pshb 
+F78C: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F78F: 1B          aba  
+F790: 19          daa  
+F791: 16          tab  
+F792: 32          pula 
+F793: 89 00       adca #$00
+F795: 19          daa  
+F796: DE 9A       ldx  $9A
+F798: BD EF AF    jsr  $EFAF    ( A -> CMOS,X++)
+F79B: BD EF 69    jsr  $EF69    ( B -> CMOS,X++)
+F79E: DE 9A       ldx  $9A
+F7A0: 20 BA       bra  $F75C	pula, pulb, rts.
+
+Coin Accepted
+F7A2: 90 03 	MJSR $F7A7
+F7A4: 7E EA 67  Push $EA67 into Control Loop with delay of #0E
+F7A7: 52 0E 	Set this loops priority to #0E
+F7A9: 53 20 	Push $F7AB into Control Loop with Delay of 20
+
+F7AB: 04	Resume CPU execution
+F7AC: 43          coma 
+F7AD: 8B 06       adda #$06
+F7AF: 48          asla 
+F7B0: 16          tab  
+F7B1: 58          aslb 
+F7B2: CE 01 02    ldx  #$0102	AUD: Coins Left/Center/Right Chute Base
+F7B5: BD EF 4D    jsr  $EF4D 	( X = X + B)
+F7B8: BD F7 7F    jsr  $F77F    Add 1 to data at X
+F7BB: CE 01 AF    ldx  #$01AF	AUD: Coin Slot Multiplier Base
+F7BE: BD EE FF    jsr  $EEFF    ( X = X + A )
+F7C1: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F7C4: 8D 6E       bsr  $F834    Convert Decimal(B) to Hex(B)
+F7C6: CE 01 62    ldx  #$0162	
+F7C9: 8D 44       bsr  $F80F    Add B to CMOS $0162
+F7CB: 8D 42       bsr  $F80F    Add B to CMOS $0164
+F7CD: CE 01 B9    ldx  #$01B9	ADJ: Minimum Coin Units
+F7D0: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F7D3: 11          cba  
+F7D4: 25 33       bcs  $F809
+F7D6: CE 01 B5    ldx  #$01B5	ADJ: Coin Units required for Credit
+F7D9: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F7DC: 8D 56       bsr  $F834    Convert Decimal(B) to Hex(B)
+F7DE: 8D 36       bsr  $F816
+F7E0: 97 9A       sta  $9A
+F7E2: CE 01 64    ldx  #$0164	
+F7E5: BD EF 69    jsr  $EF69    ( B -> CMOS,X++)
+F7E8: CE 01 B7    ldx  #$01B7	ADJ: Coin Unit Bonus Point
+F7EB: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+F7EE: CE 01 62    ldx  #$0162	
+F7F1: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+F7F4: 8D 3E       bsr  $F834    Convert Decimal(B) to Hex(B)
+F7F6: 8D 1E       bsr  $F816
+F7F8: 4D          tsta 
+F7F9: 27 02       beq  $F7FD
+F7FB: 8D 2C       bsr  $F829
+F7FD: 9B 9A       adda $9A
+F7FF: 19          daa  
+F800: CE 01 0E    ldx  #$010E	AUD: Total Paid Credits
+F803: BD F7 84    jsr  $F784    Add A to data at X:
+F806: 7E F6 FE    jmp  $F6FE    Add Credits if Possible
+
+F809: B6 E0 5E    lda  $E05E	Game ROM Data: Credit Sound
+F80C: 7E EC FC    jmp  $ECFC	Play Sound Index(A) Once
+
+Add B to Data at X++
+F80F: BD FE 1F    jsr  $FE1F    ( CMOS, X -> A )
+F812: 1B          aba  
+F813: 7E EF AF    jmp  $EFAF	( A -> CMOS,X++)
+
+
+F816: D7 9D       stb  $9D
+F818: 27 0D       beq  $F827
+F81A: 16          tab  
+F81B: 86 99       lda  #$99
+F81D: 8B 01       adda #$01
+F81F: 19          daa  
+F820: D0 9D       subb $9D
+F822: 24 F9       bcc  $F81D
+F824: DB 9D       addb $9D
+F826: 39          rts  
+F827: 17          tba  
+F828: 39          rts  
+
+F829: CE 00 00    ldx  #$0000
+F82C: FF 01 64    stx  $0164
+F82F: FF 01 62    stx  $0162
+F832: 39          rts
+  
+F833: 42	Data Byte
+
+Convert Decimal(B) to Hex(B):
+F834: 36          psha 
+F835: 17          tba  
+F836: 5F          clrb 
+F837: 4D          tsta 
+F838: 27 5E       beq  $F898	pula, rts.
+F83A: 8B 99       adda #$99
+F83C: 19          daa  
+F83D: 5C          incb 
+F83E: 20 F7       bra  $F837
+
+Store A from X to X+B
+F840: A7 00       sta  (x+$00)
+F842: 08          inx  
+F843: 5A          decb 
+F844: 26 FA       bne  $F840    Store A from X to X+B
+F846: 39          rts  
+
+Init Player 1:
+F847: FE E0 B9    ldx  $E0B9	Game ROM Pointer:
+F84A: AD 00       jsr  (x+$00)  JSR to Game ROM
+F84C: BD F9 94    jsr  $F994
+F84F: 8D 49       bsr  $F89A    Blank all Player Displays (buffer 0)
+F851: 8D 25       bsr  $F878	Remove one Credit, init some game variables
+F853: 8D 03       bsr  $F858	Add one Player
+F855: 7E F8 D2    jmp  $F8D2
+
+Add a player:
+F858: BD E0 AD    jsr  $E0AD	(RTS)
+F85B: 7C 00 CC    inc  $00CC	Add One Player
+F85E: D6 CC       ldb  $CC
+F860: 8D 4B       bsr  $F8AD    Put the Default(game start) data into Current Players Game Data Buffer
+F862: CE E0 57    ldx  #$E057   Game ROM Table: Player Start Sounds
+F865: BD EF 4D    jsr  $EF4D 	( X = X + B)
+F868: A6 00       lda  (x+$00)
+F86A: BD EC FC    jsr  $ECFC	Play Player Start Sound From Game ROM Table
+F86D: 58          aslb 
+F86E: 58          aslb 
+F86F: CE 00 38    ldx  #$0038
+F872: BD EF 4D    jsr  $EF4D 	( X = X + B)
+F875: 6F 03       clr  (x+$03)	Put in "00" onto new player display
+F877: 39          rts  
+
+Subtract credit, init some game variables:
+F878: 4F          clra 
+F879: 97 D6       sta  $D6      Ball in Play Flag
+F87B: 97 D0       sta  $D0	Number of Extra Balls Remaining
+F87D: 97 CD       sta  $CD      Current Player Up (0-3)
+F87F: 97 C9       sta  $C9	Game Play On
+F881: 97 60       sta  $60
+F883: C6 08       ldb  #$08
+F885: BD EA FB    jsr  $EAFB
+F888: 4A          deca 
+F889: 97 CC       sta  $CC	Subtract one Credit
+F88B: 86 F1       lda  #$F1	
+F88D: 97 58       sta  $58	Set Display to Ball 1
+F88F: C6 0C       ldb  #$0C
+F891: CE 00 1C    ldx  #$001C	Clear RAM $001C-0027
+
+Clear RAM from X to X+B
+F894: 36          psha 
+F895: 4F          clra 
+F896: 8D A8       bsr  $F840    Store A from X to X+B
+F898: 32          pula 
+F899: 39          rts  
+
+Blank all Player Display (buffer 0)
+F89A: 86 FF       lda  #$FF
+F89C: C6 10       ldb  #$10
+F89E: CE 00 38    ldx  #$0038
+F8A1: 8D 9D       bsr  $F840    Store A from X to X+B
+F8A3: 4F          clra 
+Store A into Display Buffer Toggles:
+F8A4: 97 5C       sta  $5C	These are the Display Buffer Toggles
+F8A6: 97 5D       sta  $5D
+F8A8: 97 5E       sta  $5E
+F8AA: 97 5F       sta  $5F
+F8AC: 39          rts  
+
+Put the Default(game start) data into Current Players Game Data Buffer:
+F8AD: 36          psha 
+F8AE: 37          pshb 
+F8AF: 8D 0B       bsr  $F8BC    Set up the Pointer to the Players Buffer
+F8B1: 8D 15       bsr  $F8C8    Copy Default Player Data into Player Buffer (X)
+F8B3: DE 9A       ldx  $9A
+F8B5: C6 06       ldb  #$06
+F8B7: 8D DB       bsr  $F894    Clear Remaining Part of Player Game Data Buffer
+F8B9: 33          pulb 
+F8BA: 32          pula 
+F8BB: 39          rts  
+
+X=#1126+((B+1)*#1A))
+F8BC: 86 1A       lda  #$1A
+F8BE: CE 11 26    ldx  #$1126
+F8C1: BD EE FF    jsr  $EEFF    ( X = X + A )
+F8C4: 5A          decb 
+F8C5: 2A FA       bpl  $F8C1
+F8C7: 39          rts  
+
+Copy Default Player Data into Player Buffer (X)
+F8C8: DF 9A       stx  $9A
+F8CA: CE E0 77    ldx  #$E077	*** Table Pointer ***
+F8CD: C6 14       ldb  #$14
+F8CF: 7E EF BC    jmp  $EFBC    Copy Block: Data,X -> Data,$9A  B=Length
+
+Init New Player Up:
+F8D2: 8D 5F       bsr  $F933	Initialize Data for New Player Up
+F8D4: D6 CD       ldb  $CD      Current Player Up (0-3)
+F8D6: 8D 7A       bsr  $F952    Reset Player Game Data:
+F8D8: FE E0 BB    ldx  $E0BB	Game ROM: Pointer
+F8DB: AD 00       jsr  (x+$00)	JSR to Game ROM
+Flash Display in B:
+F8DD: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+F8E0: 05 -  Flash Rate       
+
+Blank Score Digits for Active Player (Flashing)
+F8E1: 8D 36       bsr  $F919    Get Active Player Display Toggle Data
+F8E3: 43          coma 
+F8E4: 94 60       anda $60
+F8E6: 97 60       sta  $60
+F8E8: 8D 3C       bsr  $F926    Blank Current Player Score Display (Buffer 1)
+F8EA: DE B1       ldx  $B1	Current Control Stack Routine being run
+F8EC: 86 07       lda  #$07
+F8EE: A7 0D       sta  (x+$0D)
+F8F0: CE 00 5C    ldx  #$005C	Start of Display Toggles
+F8F3: BD EF 4D    jsr  $EF4D 	( X = X + B)
+F8F6: A6 00       lda  (x+$00)
+F8F8: 8A 7F       ora  #$7F
+F8FA: A7 00       sta  (x+$00)
+F8FC: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+F8FF: 05 - Flash Rate         
+
+Unblank Active Player Display:
+F900: BD E0 AB    jsr  $E0AB	(RTS)
+F903: A6 00       lda  (x+$00)	
+F905: 84 80       anda #$80
+F907: A7 00       sta  (x+$00)
+F909: BD EB A1    jsr  $EBA1    Update Master Display Toggle From Current Player
+F90C: DE B1       ldx  $B1	Current Control Stack Routine being run
+F90E: 86 04       lda  #$04
+F910: A7 0D       sta  (x+$0D)
+F912: 96 D6       lda  $D6      Ball in Play Flag
+F914: 27 C7       beq  $F8DD	End This Routine, Replace with next routine, next byte is timer.
+
+F916: 7E EA 67    jmp  $EA67    Remove Current Thread from Control Stack	
+
+Get Active Player Display Toggle Data:
+F919: D6 CD       ldb  $CD      Current Player Up (0-3)
+F91B: CE EB 99    ldx  #$EB99	ROM Lookup: 			
+F91E: BD EF 4D    jsr  $EF4D 	( X = X + B)			
+F921: A6 00       lda  (x+$00)	EB99: 40 04 80 08
+F923: AA 04       ora  (x+$04)	EB9D: 10 01 20 02
+F925: 39          rts  
+
+Blank Current Player Score Display (Buffer 1)
+F926: DE CE       ldx  $CE      Start of Current Player Score Buffer
+F928: 86 FF       lda  #$FF
+F92A: A7 10       sta  (x+$10)
+F92C: A7 11       sta  (x+$11)
+F92E: A7 12       sta  (x+$12)
+F930: A7 13       sta  (x+$13)
+F932: 39          rts  
+
+Initialize Data for New Player Up:
+F933: 96 61       lda  $61
+F935: 84 FC       anda #$FC
+F937: 97 61       sta  $61	Blank the Tilt Lines?
+F939: 4F          clra 
+F93A: 97 C8       sta  $C8	Clear Tilt Flag
+F93C: 97 D3       sta  $D3	Clear Plumb Bob Tilts
+F93E: 97 CA       sta  $CA	Enable Bonus Ball
+F940: 86 18       lda  #$18	
+F942: BD EB 23    jsr  $EB23	Turn on Solenoid 24 (Flipper Enable?)
+F945: 96 CD       lda  $CD      Current Player Up (0-3)
+F947: 48          asla 
+F948: 48          asla 
+F949: CE 00 38    ldx  #$0038
+F94C: BD EE FF    jsr  $EEFF    X= P1:0038 P2:003C P3:0040 P4:0044
+F94F: DF CE       stx  $CE	Pointer to Start of Score Buffer 0
+F951: 39          rts  
+
+Reset Player Game Data:
+F952: CE 00 10    ldx  #$0010
+F955: DF 9A       stx  $9A	$9A Points to Base of Lamp Matrix Data
+F957: BD F8 BC    jsr  $F8BC    X=#1126+((B+1)*#1A))
+F95A: DF 9C       stx  $9C	$9C Points to Base of Player Game Data Buffer
+F95C: CE E0 77    ldx  #$E077	X points to base of default player data
+F95F: A6 14       lda  (x+$14)	Get Game Data Reset Data
+F961: 16          tab  
+F962: 53          comb 
+F963: E4 00       andb (x+$00)	AND !B with Players Last Lamps
+F965: 08          inx  
+F966: DF 9E       stx  $9E	X points to base of default player data +1
+F968: DE 9C       ldx  $9C	Player Game Data Buffer 
+F96A: A4 00       anda (x+$00)
+F96C: 08          inx  
+F96D: DF 9C       stx  $9C
+F96F: 1B          aba  
+F970: DE 9A       ldx  $9A
+F972: A7 00       sta  (x+$00)
+F974: 08          inx  
+F975: 8C 00 1C    cmpx #$001C
+F978: 26 03       bne  $F97D
+F97A: CE 00 30    ldx  #$0030
+F97D: DF 9A       stx  $9A
+F97F: DE 9E       ldx  $9E
+F981: 8C E0 8B    cmpx #$E08B	End of Default Player Game Data
+F984: 26 D9       bne  $F95F	Loop it!
+F986: CE 00 02    ldx  #$0002
+F989: DF 9A       stx  $9A
+F98B: DE 9C       ldx  $9C
+F98D: C6 06       ldb  #$06
+F98F: 8D 52       bsr  $F9E3	Copy Data Block: Current Game Data 0-6 -> Player Game Data 0-6
+F991: 7E F7 2C    jmp  $F72C    Check Max Credits, Adjust Coin Lockout If Necessary
+ 
+Clear Sound Queue:
+F994: CE 11 28    ldx  #$1128
+F997: 86 0F       lda  #$0F
+F999: E6 00       ldb  (x+$00)
+F99B: 27 07       beq  $F9A4
+F99D: BD EC 05    jsr  $EC05    Main Add Points Routine
+F9A0: 6A 00       dec  (x+$00)
+F9A2: 26 F9       bne  $F99D
+F9A4: 08          inx  
+F9A5: 4A          deca 
+F9A6: 85 08       bita #$08
+F9A8: 26 EF       bne  $F999
+F9AA: 39          rts  
+
+Main Outhole Thread:
+F9AB: 8D E7       	bsr  $F994	Clear Sound Queue
+F9AD: BD F3 AB    	jsr  $F3AB    Start Executing Macros
+	F9B0: 71          	Delay 1
+	F9B1: 5A FE 01 01 FA 	Branch if Priority #01 to $F9B0
+	F9B6: 55 0A 00  	Reset Threads Based on Priority #0A	
+	F9B9: 04 		Resume CPU Execution
+F9BA: FE E0 BD    ldx  $E0BD	Game ROM: Pointer
+F9BD: AD 00       jsr  (x+$00)  JSR to GameROM
+F9BF: 7F 00 D6    clr  $00D6	Ball in Play Flag (Stop Timer)
+F9C2: D6 CD       ldb  $CD      Current Player Up (0-3)
+F9C4: 8D 05       bsr  $F9CB    Save Player Data to Buffer
+F9C6: 8D 1E       bsr  $F9E6	Do Outhole Processing (EB, Bonus Ball)
+F9C8: 7E F8 D2    jmp  $F8D2	Init New Player Up
+
+Save Player Data to Buffer:
+F9CB: BD F8 BC    jsr  $F8BC    X=#1126+((B+1)*#1A))
+F9CE: DF 9A       stx  $9A
+F9D0: CE 00 10    ldx  #$0010
+F9D3: C6 0C       ldb  #$0C
+F9D5: 8D 0C       bsr  $F9E3	Copy Block: Data,X -> Data,$9A  B=Length
+F9D7: CE 00 30    ldx  #$0030
+F9DA: C6 08       ldb  #$08
+F9DC: 8D 05       bsr  $F9E3
+F9DE: CE 00 02    ldx  #$0002
+F9E1: C6 06       ldb  #$06
+F9E3: 7E EF BC    jmp  $EFBC    Copy Block: Data,X -> Data,$9A  B=Length
+
+Outhole 
+F9E6: 96 CA       lda  $CA	Check the Bonus Ball Flag (00=free balls)
+F9E8: 27 20       beq  $FA0A
+F9EA: CE 01 2A    ldx  #$012A	AUD: Total Balls Played
+F9ED: BD F7 7F    jsr  $F77F    Add 1 to data at X
+F9F0: 96 D0       lda  $D0	Number of Extra Balls Remaining
+F9F2: 26 16       bne  $FA0A
+F9F4: 96 CD       lda  $CD      Current Player Up (0-3)       
+F9F6: 91 CC       cmpa $CC	Number of Players Playing
+F9F8: 4C          inca 
+F9F9: 25 0D       bcs  $FA08
+F9FB: B6 01 94    lda  $0194	ADJ: Balls per game
+F9FE: 98 58       eora $58
+FA00: 84 0F       anda #$0F
+FA02: 27 1A       beq  $FA1E	End of Game
+FA04: 7C 00 58    inc  $0058	Increment Ball #
+FA07: 4F          clra 
+FA08: 97 CD       sta  $CD      Current Player Up (0-3)
+FA0A: 39          rts  
+
+Puts HSTD in All Player Displays(Buffer 1):
+FA0B: CE 00 48    ldx  #$0048	Score Buffer 1 Base Index
+FA0E: DF 9A       stx  $9A
+FA10: 86 04       lda  #$04
+FA12: C6 04       ldb  #$04
+FA14: CE 01 66    ldx  #$0166	CMOS: Current HSTD
+FA17: BD FF D1    jsr  $FFD1    Copy Block from X -> $9A, Length = B
+FA1A: 4A          deca 
+FA1B: 26 F5       bne  $FA12
+FA1D: 39          rts  	
+	
+Here if Game Now over:
+FA1E: BD E0 AF    jsr  $E0AF	
+FA21: CE 00 30    ldx  #$0030
+FA24: C6 08       ldb  #$08
+FA26: BD F8 94    jsr  $F894	Clear RAM $30-37 (Lamp Inverts)
+FA29: 8D 67       bsr  $FA92	Check HSTD
+FA2B: BD FB 39    jsr  $FB39	Match Routine
+FA2E: B6 E0 5D    lda  $E05D    Game ROM: Game Over Sound
+FA31: BD EC FC    jsr  $ECFC	Play Sound Index(A) Once
+Power-Up Init:
+FA34: B6 E0 65    lda  $E065	Game ROM: Game Over Lamp Location
+FA37: F6 E0 64    ldb  $E064	Game ROM: Ball in Play Lamp Location
+FA3A: BD F3 AB    jsr  $F3AB    Start Macro Execution-
+FA3D: 31 F8 	Turn Off Solenoid: Flippers Disabled
+FA3F: 17 00 	Flash Lamp: Lamp Locatation at RAM $00
+FA41: 15 01 	Turn off Lamp: Lamp Location is at RAM $01
+FA43: 04 	Resume CPU execution
+
+Set Game Over, Push Routine onto Control Stack:
+FA44: 7C 00 C9    inc  $00C9	Set Game Over
+FA47: FE E0 67    ldx  $E067	Game ROM: Init Pointer
+FA4A: BD EA C4    jsr  $EAC4    Push Control Stack: Data in A,B,X,$A6,$A7,$AA=#06
+FA4D: CE 01 81    ldx  #$0181	CMOS: Backup HSTD
+FA50: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FA53: 26 03       bne  $FA58	If there is a HSTD, Show it now.
+FA55: 7E EA 67    jmp  $EA67    Remove Current Thread from Control Stack	
+
+Attract Mode Display: Show Scores
+FA58: 4F          clra 
+FA59: BD F8 A4    jsr  $F8A4 	( A -> Display Buffer Toggle )
+FA5C: B6 E0 62    lda  $E062	Game ROM: High Score Lamp Location
+FA5F: BD F1 5B    jsr  $F15B    Turn off Lamp A (encoded):
+FA62: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+Attract Mode: Change Displays to HSTD
+FA65: 90 (Timer Data)
+FA66: 8D A3       bsr  $FA0B    Puts HSTD in All Player Displays(Buffer 1) 
+FA68: D6 60       ldb  $60
+FA6A: 43          coma 
+FA6B: 7D 00 48    tst  $0048
+FA6E: 26 0A       bne  $FA7A
+FA70: 97 48       sta  $48
+FA72: 97 4C       sta  $4C
+FA74: 97 50       sta  $50
+FA76: 97 54       sta  $54
+FA78: 86 33       lda  #$33
+FA7A: 97 60       sta  $60
+FA7C: 86 7F       lda  #$7F
+FA7E: BD F8 A4    jsr  $F8A4 	( A -> Display Buffer Toggle )
+FA81: B6 E0 62    lda  $E062	Game ROM: High Score Lamp Location
+FA84: BD F1 69    jsr  $F169	Flash Lamp A(encoded)
+FA87: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+Attract Mode: Clear HSTD, Show Scores.
+FA8A: 70 	  
+FA8B: BD E0 B1    jsr  $E0B1
+FA8E: D7 60       stb  $60
+FA90: 20 C6       bra  $FA58
+
+Check for HSTD Beaten:
+FA92: CE 01 81    ldx  #$0181	CMOS: Backup HSTD
+FA95: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FA98: 27 5A       beq  $FAF4	No award if backup HSTD is 0,000,000
+FA9A: 7F 00 A1    clr  $00A1
+FA9D: C6 04       ldb  #$04
+FA9F: D7 A0       stb  $A0
+FAA1: CE 00 35    ldx  #$0035	Start High and work down low on the digits
+FAA4: DF A4       stx  $A4
+FAA6: C6 04       ldb  #$04
+FAA8: D7 A8       stb  $A8	Number of score Bytes Per Player
+FAAA: CE 01 66    ldx  #$0166	CMOS: Current HSTD
+FAAD: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+FAB0: DF A6       stx  $A6
+FAB2: DE A4       ldx  $A4
+FAB4: BD EC 86    jsr  $EC86    Convert MSD Blanks to 0's on (X+03)
+FAB7: 11          cba  
+FAB8: 22 3B       bhi  $FAF5	HSTD beat by this digit, adjust HSTD so we dont have 
+				multiple awards by each player beating HSTD.
+FABA: 26 57       bne  $FB13	$A4=$A4+$A8, bra $FAC6
+FABC: 08          inx  		Next Digit
+FABD: DF A4       stx  $A4	Store it
+FABF: DE A6       ldx  $A6	Next HSDT Digit (pointer)
+FAC1: 7A 00 A8    dec  $00A8	Goto Next Set of Digits
+FAC4: 26 E7       bne  $FAAD	Loop for all (4)2 digits
+FAC6: 7A 00 A0    dec  $00A0	Goto Next Player
+FAC9: 26 DB       bne  $FAA6	Loop for all 4 Players
+FACB: 96 A1       lda  $A1
+FACD: 27 25       beq  $FAF4	(RTS)
+FACF: B6 E0 5C    lda  $E05C	Game ROM Data: High Score Sound 
+FAD2: BD EC FC    jsr  $ECFC	Play Sound Index(A) Once
+FAD5: 8D 59       bsr  $FB30	jsr $EA24 Push Next Address onto Control Stack, Timer at $B7
+
+Add HSTD Credits,adjust if over 9,999,999:
+FAD7: CE 01 A7    ldx  #$01A7	Adjustment: HSTD Award
+FADA: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FADD: CE 01 4E    ldx  #$014E	Audit: HSTD Credits Awarded
+FAE0: BD F7 84    jsr  $F784    Add A to data at X:
+FAE3: BD F6 FE    jsr  $F6FE    Add Credits if Possible
+FAE6: B6 01 66    lda  $0166    HSTD High Digit
+FAE9: 84 0F       anda #$0F
+FAEB: 27 07       beq  $FAF4	Branch if Score is under 10 million
+FAED: 86 99       lda  #$99
+FAEF: 8D 33       bsr  $FB24    Set HSTD to 9,999,999
+FAF1: 7F 01 66    clr  $0166	Clear 10 Million Digit
+FAF4: 39          rts  
+
+Update HSTD, make sure we don't have multiple players getting award!
+FAF5: CE 01 66    ldx  #$0166	Current HSTD
+FAF8: 7C 00 A1    inc  $00A1
+FAFB: DF 9A       stx  $9A
+FAFD: 8D 18       bsr  $FB17    Add Byte to Word: $A4=$A4+$A8 00->$A8
+FAFF: C6 04       ldb  #$04
+FB01: 09          dex  
+FB02: BD EF E4    jsr  $EFE4    Transfer Data Block at X to $9A(CMOS Pointer), Length B
+FB05: 7C 01 66    inc  $0166	Adjust HSTD to new player score
+FB08: B6 01 67    lda  $0167
+FB0B: 4C          inca 
+FB0C: 84 0F       anda #$0F
+FB0E: 26 B6       bne  $FAC6	Go Check Next Player Score
+FB10: 7F 01 67    clr  $0167
+FB13: 8D 02       bsr  $FB17    Add Byte to Word: $A4=$A4+$A8 00->$A8
+FB15: 20 AF       bra  $FAC6	Go Check Next Player Score
+
+Add Byte to Word: $A4=$A4+$A8 00->$A8
+FB17: DE A4       ldx  $A4
+FB19: 96 A8       lda  $A8
+FB1B: 7F 00 A8    clr  $00A8
+FB1E: BD EE FF    jsr  $EEFF    ( X = X + A )
+FB21: DF A4       stx  $A4
+FB23: 39          rts  
+
+Fill HSTD Digits with A:
+FB24: CE 01 66    ldx  #$0166	CMOS: Current HSTD
+FB27: C6 04       ldb  #$04
+FB29: BD EF AF    jsr  $EFAF    ( A -> CMOS,X++)
+FB2C: 5A          decb 
+FB2D: 26 FA       bne  $FB29
+FB2F: 39          rts  
+
+FB30: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+FB33: 02          
+
+FB34: 96 C1       lda  $C1	Sound Flag?
+FB36: 26 F8       bne  $FB30
+FB38: 39          rts  
+
+FB39: B6 01 8C    lda  $018C	Adjustment: Match 00=on 01=off
+FB3C: 46          rora 
+FB3D: 25 E4       bcs  $FB23	Branch if Match off (RTS)
+FB3F: 8D 3F       bsr  $FB80	Get Random Number??
+FB41: 48          asla 
+FB42: 48          asla 
+FB43: 48          asla 
+FB44: 48          asla 
+FB45: 81 A0       cmpa #$A0
+FB47: 24 F6       bcc  $FB3F	If A>= 0xA0 then try again.
+FB49: 97 58       sta  $58	Store Match # in Match/BallinPlay
+FB4B: 7F 00 9A    clr  $009A
+FB4E: C6 04       ldb  #$04
+FB50: D7 9B       stb  $9B
+FB52: CE 00 38    ldx  #$0038	Player Score Buffers
+FB55: A1 03       cmpa (x+$03)
+FB57: 26 03       bne  $FB5C
+FB59: 7C 00 9A    inc  $009A	Yes, a Match!
+FB5C: BD EF 4D    jsr  $EF4D 	( X = X + B)	Set to next player
+FB5F: 7A 00 9B    dec  $009B	
+FB62: 26 F1       bne  $FB55	Do it 4 Times.
+FB64: D6 9A       ldb  $9A	Number of Matches
+FB66: 27 12       beq  $FB7A	None, Get outta here.
+FB68: B6 E0 5B    lda  $E05B	Game ROM Data: Match Sound
+FB6B: BD EC FC    jsr  $ECFC	Play Sound Index(A) Once
+FB6E: 8D C0       bsr  $FB30
+FB70: 17          tba  
+FB71: CE 01 1A    ldx  #$011A	Audit: Match Credits
+FB74: BD F7 84    jsr  $F784    Add Matches to Audit
+FB77: BD F6 FE    jsr  $F6FE    Add Credits if Possible
+FB7A: B6 E0 63    lda  $E063	Game ROM: Match Lamp Location
+FB7D: 7E F1 3C    jmp  $F13C    Turn on Lamp A (encoded):
+
+Return Random Number:
+FB80: 37          pshb 
+FB81: 96 D7       lda  $D7	This is changed by Switch Closures
+FB83: 16          tab  
+FB84: 56          rorb 
+FB85: 56          rorb 
+FB86: 97 9A       sta  $9A	Use some Temp variables for data
+FB88: D8 9A       eorb $9A
+FB8A: 59          rolb 
+FB8B: 49          rola 
+FB8C: 97 D7       sta  $D7
+FB8E: 9B 89       adda $89	Throw in some switch matrix stuff
+FB90: 33          pulb 
+FB91: 39          rts  
+
+Press Credit Button:
+FB92: CE 01 AB    ldx  #$01AB	CMOS: Max. Credits
+FB95: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B )
+FB98: CE 01 6E    ldx  #$016E	CMOS: Current Credits
+FB9B: BD FE 1F    jsr  $FE1F    ( CMOS, X -> A )
+FB9E: 26 03       bne  $FBA3
+FBA0: 5D          tstb 		No credits, check for free play
+FBA1: 26 16       bne  $FBB9	No Free Play, get outta here.
+FBA3: D6 C9       ldb  $C9	Game Over?
+FBA5: 26 15       bne  $FBBC	Start New Game
+FBA7: D6 58       ldb  $58	Ball #
+FBA9: C1 F1       cmpb #$F1	First Ball?
+FBAB: 26 0F       bne  $FBBC	Start New Game
+FBAD: D6 CC       ldb  $CC	Current # of Players
+FBAF: F1 E0 4E    cmpb $E04E	Max # of Players (Game ROM data)
+FBB2: 24 05       bcc  $FBB9	Already 4 players, outta here.
+FBB4: 8D 0B       bsr  $FBC1	Subtract a credit
+FBB6: BD F8 58    jsr  $F858	Add a player.
+FBB9: 7E EA 67    jmp  $EA67    Remove Current Thread from Control Stack	
+
+Here to Start up a new game:
+FBBC: 8D 03       bsr  $FBC1	Subtract a credit
+FBBE: 7E F8 47    jmp  $F847    Init Player 1
+
+FBC1: 4D          tsta 
+FBC2: 27 0D       beq  $FBD1	Is it Zero?
+FBC4: 8B 99       adda #$99     Subtract 1 credit
+FBC6: 19          daa  		dont' forget to adjust
+FBC7: BD EF AF    jsr  $EFAF    ( A -> CMOS,X++)
+FBCA: 96 5A       lda  $5A	Current Credits
+FBCC: 8B 99       adda #$99	Subtract 1
+FBCE: 19          daa  
+FBCF: 97 5A       sta  $5A	Store Credits
+FBD1: BD F7 2C    jsr  $F72C    Check Max Credits, Adjust Coin Lockout If Necessary
+FBD4: BD F8 29    jsr  $F829	Clear some stuff
+FBD7: CE 01 1E    ldx  #$011E	Audit: Total Credits 
+FBDA: 7E F7 7F    jmp  $F77F    Add 1 to data at X
+
+Plumb Bob Tilt:
+FBDD: 7C 00 D3    inc  $00D3	Add 1 Tilt
+FBE0: B6 01 92    lda  $0192	ADJ: Max Plumb Bob Tilts
+FBE3: 84 0F       anda #$0F
+FBE5: 91 D3       cmpa $D3	Current # of Plumb Bob Tilts
+FBE7: 22 A8       bhi  $FB91	RTS
+Set Tilt Mode:
+FBE9: B6 E0 66    lda  $E066	Game ROM: Tilt Lamp Location
+FBEC: 97 C8       sta  $C8	Tilt Flag
+FBEE: BD F3 AB    jsr  $F3AB    Start Macro Execution-
+	FBF1: 14 00 	Turn on Tilt Lamp
+	FBF3: 55 0C 00  Get Rid of non-tilt threads
+	FBF6: 31 F8 	Disable Flippers
+	FBF8: 04	Return to Program Execution 
+FBF9: 39          rts
+
+*** Begin Self Test Routines ***
+FBFA: FE 43 	Display Test
+FBFC: FE 62 	Sound Line Test
+FBFE: FE 8D 	Lamp Test
+FC00: FE CB		Solenoid Test
+FC02: FE F0 	Switch Test
+
+FC04: 00 FD 23 	Test 00: Game Version Info
+FC07: 01 FD 30 
+FC0A: 0C FD A9 
+FC0D: 0D FD B1 
+FC10: 12 FE 26 
+FC13: 13 FD EF 
+FC16: 14 FE 09 
+FC19: 1A FE 33 
+FC1C: 2A FD 2E 
+FC1F: 32 FE 3E 
+FC22: 33    
+
+FC23: 8D 45       bsr  $FC6A    Advance: + if Triggered
+FC25: 2B 03       bmi  $FC2A
+FC27: 7E EA 67    jmp  $EA67    Kill Current Thread
+FC2A: 8D 54       bsr  $FC80
+FC2C: 8D 47       bsr  $FC75    $2802 -> B:
+FC2E: 2B 75       bmi  $FCA5
+FC30: 4F          clra 
+FC31: 7F 00 0E    clr  $000E
+FC34: CE FB FA    ldx  #$FBFA	Macro Pointer
+FC37: 36          psha 
+FC38: BD F4 8E    jsr  $F48E    X = data at (X + (A*2))
+FC3B: 32          pula 
+FC3C: 16          tab  
+FC3D: 5A          decb 
+FC3E: D7 5A       stb  $5A	Credit Display
+FC40: BD EA C4    jsr  $EAC4    Push Control Stack: Data in A,B,X,$A6,$A7,$AA=#06
+FC43: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+FC46: 10          
+FC47: 8D 21       bsr  $FC6A    Advance: + if Triggered
+FC49: 2A FC       bpl  $FC47
+FC4B: 8D 28       bsr  $FC75    $2802 -> B:
+FC4D: 2B 45       bmi  $FC94
+FC4F: D7 0E       stb  $0E
+FC51: 8D 17       bsr  $FC6A    Advance: + if Triggered
+FC53: 2B FC       bmi  $FC51
+FC55: 20 F0       bra  $FC47
+
+FC57: 36          psha 
+FC58: 96 CB       lda  $CB	
+FC5A: 2B 0C       bmi  $FC68
+FC5C: 8D 17       bsr  $FC75    $2802 -> B:
+FC5E: 2B 08       bmi  $FC68
+FC60: 96 0E       lda  $0E
+FC62: 27 04       beq  $FC68
+FC64: 4F          clra 
+FC65: 97 0E       sta  $0E
+FC67: 4A          deca 
+FC68: 32          pula 
+FC69: 39          rts  
+
+$2800 -> B:
+FC6A: F6 28 00    ldb  $2800	
+FC6D: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+FC70: 02          
+
+$2801 -> B:
+FC71: F6 28 01    ldb  $2801
+FC74: 39          rts  
+
+$2802 -> B:
+FC75: F6 28 02    ldb  $2802
+FC78: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+FC7B: 02          Data
+
+$2803 -> B:
+FC7C: F6 28 03    ldb  $2803
+FC7F: 39          rts  
+
+
+FC80: 5F          clrb 
+FC81: BD EA FB    jsr  $EAFB	Remove All Threads Based on Priority
+FC84: 86 18       lda  #$18
+FC86: BD EB 23    jsr  $EB23	Turn Off Solenoid 24 (Flipper Enable)
+FC89: 7C 00 CB    inc  $00CB	Set Test Flag
+FC8C: CE 00 00    ldx  #$0000
+FC8F: C6 89       ldb  #$89
+FC91: 7E F8 94    jmp  $F894    Clear RAM from $0000-0089
+FC94: C6 28       ldb  #$28
+FC96: CE 00 10    ldx  #$0010
+FC99: 8D F6       bsr  $FC91	Clear RAM from $0010-0038
+FC9B: BD EA FB    jsr  $EAFB	Remove All Threads Based on Priority
+FC9E: 4C          inca 
+FC9F: 81 05       cmpa #$05
+FCA1: 26 8E       bne  $FC31
+FCA3: 8D DB       bsr  $FC80
+FCA5: 7F 00 58    clr  $0058
+FCA8: 86 04       lda  #$04
+FCAA: 97 5A       sta  $5A
+FCAC: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+FCAF: 10          
+FCB0: BD F8 9A    jsr  $F89A    Blank all Player Displays (buffer 0)
+FCB3: 8D 36       bsr  $FCEB    #08 -> $0F
+FCB5: D6 58       ldb  $58	
+FCB7: BD F8 34    jsr  $F834    Convert Decimal(B) to Hex(B)
+FCBA: CE FC 01    ldx  #$FC01
+FCBD: 08          inx  
+FCBE: 08          inx  
+FCBF: 08          inx  
+FCC0: E1 03       cmpb (x+$03)
+FCC2: 24 F9       bcc  $FCBD
+FCC4: EE 01       ldx  (x+$01)
+FCC6: AD 00       jsr  (x+$00)
+FCC8: BD FC 6A    jsr  $FC6A    Advance: + if Triggered
+FCCB: 2A FB       bpl  $FCC8
+FCCD: 8D 1C       bsr  $FCEB    #08 -> $0F
+FCCF: BD FC 6A    jsr  $FC6A    Advance: + if Triggered
+FCD2: 2A DC       bpl  $FCB0
+FCD4: 8D 1A       bsr  $FCF0
+FCD6: 26 F7       bne  $FCCF
+FCD8: 8D 31       bsr  $FD0B
+FCDA: 9B 58       adda $58	
+FCDC: 19          daa  
+FCDD: 81 51       cmpa #$51
+FCDF: 27 35       beq  $FD16    Blank Match/Ball in Play and Credits Buffer 0
+FCE1: 81 99       cmpa #$99
+FCE3: 26 02       bne  $FCE7
+FCE5: 86 50       lda  #$50
+FCE7: 97 58       sta  $58	
+FCE9: 20 E4       bra  $FCCF
+
+#08 -> $0F
+FCEB: 86 08       lda  #$08
+FCED: 97 0F       sta  $0F
+FCEF: 39          rts  
+
+FCF0: 96 0F       lda  $0F
+FCF2: 27 05       beq  $FCF9
+FCF4: 7A 00 0F    dec  $000F
+FCF7: 81 08       cmpa #$08
+FCF9: 39          rts 
+ 
+FCFA: 8D EF       bsr  $FCEB    #08 -> $0F
+FCFC: BD FC 6A    jsr  $FC6A    Advance: + if Triggered
+FCFF: 2B CC       bmi  $FCCD
+FD01: 96 69       lda  $69
+FD03: 85 04       bita #$04
+FD05: 27 F3       beq  $FCFA
+FD07: 8D E7       bsr  $FCF0	
+FD09: 26 F1       bne  $FCFC
+FD0B: 86 99       lda  #$99
+FD0D: BD FC 75    jsr  $FC75    $2802 -> B:
+FD10: 2A 02       bpl  $FD14
+FD12: 86 01       lda  #$01
+FD14: 16          tab  
+FD15: 39          rts  
+
+Blank Match/Ball in Play and Credits Buffer 0:
+FD16: 86 FF       lda  #$FF
+FD18: 97 58       sta  $58	
+FD1A: 97 5A       sta  $5A
+FD1C: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+FD1F: 50          
+
+FD20: 7E E8 00    jmp  $E800	Goto Reset Entry
+
+Game# -> $39,3A ROM Rev -> $3B,3C 
+FD23: FE E0 00    ldx  $E000
+FD26: DF 39       stx  $39	Game # -> Player 1 Display
+FD28: B6 E0 02    lda  $E002
+FD2B: 97 3B       sta  $3B	ROM Rev -> Player Display
+FD2D: 39          rts  
+
+Show Audit Info on Displays, Audit in B:
+FD2E: C0 1E       subb #$1E
+FD30: 58          aslb 
+FD31: 58          aslb 
+FD32: CE 00 FE    ldx  #$00FE
+FD35: BD EF 4D    jsr  $EF4D 	( X = X + B)
+FD38: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FD3B: 97 3A       sta  $3A
+FD3D: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FD40: 97 3B       sta  $3B	Show Data in Player 1 Display
+FD42: C1 20       cmpb #$20
+FD44: 27 01       beq  $FD47	If on Audit 08, Keep Going
+FD46: 39          rts  		Else... you got it... get outta here!
+FD47: CE 01 4E    ldx  #$014E	Audit: HSTD Credits Awarded
+FD4A: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FD4D: 97 3E       sta  $3E	
+FD4F: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FD52: 97 3F       sta  $3F      
+FD54: CE 01 12    ldx  #$0112	Audit: Special Credits
+FD57: C6 03       ldb  #$03
+FD59: D7 9A       stb  $9A
+FD5B: BD EF 63    jsr  $EF63    ( CMOS,X++ -> B ) 
+FD5E: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FD61: 9B 3F       adda $3F
+FD63: 19          daa  		\
+FD64: 97 3F       sta  $3F	 |
+FD66: 17          tba  		 |--  Add up HSTD,Special,Replay,Match Credits
+FD67: 99 3E       adca $3E       |
+FD69: 19          daa           /
+FD6A: 97 3E       sta  $3E	Store Result (Player 2 Display)
+FD6C: 7A 00 9A    dec  $009A
+FD6F: 26 EA       bne  $FD5B
+FD71: CE 00 46    ldx  #$0046
+FD74: C6 07       ldb  #$07
+FD76: BD F8 94    jsr  $F894    Clear RAM from X to X+B
+FD79: DE 3E       ldx  $3E
+FD7B: DF 48       stx  $48	RAM $48 = Total Free Credits (Player 1 Display)
+FD7D: 86 99       lda  #$99
+FD7F: 97 4D       sta  $4D	RAM $4D = #99 (Player 2 Display)
+FD81: 16          tab  
+FD82: 90 3B       suba $3B
+FD84: D0 3A       subb $3A
+FD86: 8B 01       adda #$01
+FD88: 19          daa  
+FD89: 97 4F       sta  $4F	$4F = 
+FD8B: 17          tba  
+FD8C: 89 00       adca #$00
+FD8E: 19          daa  
+FD8F: 97 4E       sta  $4E
+FD91: D6 47       ldb  $47
+FD93: CE 00 46    ldx  #$0046
+FD96: 0C          clc  
+FD97: A6 04       lda  (x+$04)
+FD99: A9 09       adca (x+$09)
+FD9B: 19          daa  
+FD9C: A7 04       sta  (x+$04)
+FD9E: 09          dex  
+FD9F: 8C 00 41    cmpx #$0041
+FDA2: 26 F3       bne  $FD97
+FDA4: D1 47       cmpb $47
+FDA6: 26 E9       bne  $FD91
+FDA8: 39          rts  
+
+FDA9: BD FA 0B    jsr  $FA0B    Puts HSTD in All Player Displays(Buffer 1)
+FDAC: 86 7F       lda  #$7F
+FDAE: 97 5C       sta  $5C
+FDB0: 39          rts  
+
+Display Replay Level info, Audit # in B:
+FDB1: CE 01 81    ldx  #$0181	Offset to Replay Levels
+FDB4: C0 0D       subb #$0D	Subtract 13 to get correct base
+FDB6: 58          aslb 		*2  2 bytes data per level(replay score)
+FDB7: BD EF 4D    jsr  $EF4D 	( X = X + B)
+FDBA: DF D1       stx  $D1	Pointer to Current Replay Level Data
+FDBC: 58          aslb 		*2  4 bytes data per level(times exceeded)
+FDBD: CE 01 4E    ldx  #$014E	Offset to Replay Level Times Exceeded
+FDC0: BD EF 4D    jsr  $EF4D 	( X = X + B)
+FDC3: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FDC6: 97 3E       sta  $3E	Show Times Exceeded MSD's in Player 2 Display
+FDC8: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FDCB: 97 3F       sta  $3F	Show Times Exceeded LSD's in Player 2 Display
+FDCD: 5F          clrb 		
+FDCE: DE D1       ldx  $D1	reload current offset * 2
+FDD0: 8D 14       bsr  $FDE6    Decimal Add B to CMOS,X(nopostinc), Tst A
+FDD2: 16          tab  
+FDD3: BD EC F3    jsr  $ECF3    Shift the digits around for display
+FDD6: 84 F0       anda #$F0	Blank MSD (10,000,000 digit)
+FDD8: D7 38       stb  $38	Show it.
+FDDA: 97 39       sta  $39
+FDDC: 5F          clrb 
+FDDD: D7 3A       stb  $3A	Lay down some Zero's
+FDDF: D7 3B       stb  $3B
+FDE1: BD FC FC    jsr  $FCFC
+FDE4: 20 E8       bra  $FDCE
+
+Decimal Add B to CMOS,X(nopostinc), Tst A:
+FDE6: 8D 37       bsr  $FE1F    ( CMOS, X -> A )
+FDE8: 1B          aba  
+FDE9: 19          daa  
+FDEA: BD EF AF    jsr  $EFAF    ( A -> CMOS,X++)
+FDED: 20 33       bra  $FE22	dex,dex,tsta,rts.
+
+FDEF: 5F          clrb 
+FDF0: CE 01 AD    ldx  #$01AD	Standard/Custom Pricing Control
+FDF3: BD FD E6    jsr  $FDE6    Decimal Add B to CMOS,X(nopostinc), Tst A
+FDF6: C6 99       ldb  #$99
+FDF8: 81 09       cmpa #$09
+FDFA: 24 F4       bcc  $FDF0	Custom Pricing = 09?
+FDFC: 97 3B       sta  $3B
+FDFE: 16          tab  
+FDFF: 27 03       beq  $FE04
+FE01: BD EF D0    jsr  $EFD0
+FE04: BD FC FC    jsr  $FCFC
+FE07: 20 E7       bra  $FDF0
+FE09: CE 01 AF    ldx  #$01AF	Coin Slot Multiplier
+FE0C: C0 14       subb #$14
+FE0E: 58          aslb 
+FE0F: BD EF 4D    jsr  $EF4D 	( X = X + B)
+FE12: BD FE 1F    jsr  $FE1F    ( CMOS, X -> A )
+FE15: 97 3B       sta  $3B
+FE17: B6 01 AE    lda  $01AE	Standard/Custom Pricing Control
+FE1A: 84 0F       anda #$0F
+FE1C: 27 0B       beq  $FE29
+FE1E: 39          rts  
+
+( CMOS,X -> A )
+FE1F: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FE22: 09          dex  
+FE23: 09          dex  
+FE24: 4D          tsta 
+FE25: 39          rts  
+
+FE26: CE 01 AB    ldx  #$01AB	RAM Pointer Base
+FE29: 5F          clrb 
+FE2A: 8D BA       bsr  $FDE6    Decimal Add B to CMOS,X(nopostinc), Tst A
+FE2C: 97 3B       sta  $3B
+FE2E: BD FC FC    jsr  $FCFC
+FE31: 20 F7       bra  $FE2A
+
+FE33: CE 01 8B    ldx  #$018B	RAM Pointer Base
+FE36: C0 1A       subb #$1A
+FE38: 58          aslb 
+FE39: BD EF 4D    jsr  $EF4D 	( X = X + B)
+FE3C: 20 EB       bra  $FE29
+
+FE3E: CE 01 70    ldx  #$0170	RAM Pointer Base
+FE41: 20 E6       bra  $FE29
+
+Display Test Begin:
+FE43: 4F          clra 
+FE44: CE 00 38    ldx  #$0038
+FE47: C6 24       ldb  #$24
+FE49: BD F8 40    jsr  $F840    RAM $38-$5B = #00: Clear all Displays
+FE4C: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+FE4F: 18          
+
+FE50: BD FC 57    jsr  $FC57    Check Auto/Manual, return + if Manual
+FE53: 2A EF       bpl  $FE44
+FE55: 73 00 60    com  $0060
+FE58: 8B 11       adda #$11
+FE5A: 19          daa  
+FE5B: 24 E7       bcc  $FE44
+FE5D: D6 CB       ldb  $CB
+FE5F: 2A E2       bpl  $FE43    Clear All Displays
+FE61: 39          rts  
+
+Sound Test Begin:
+FE62: BD F8 9A    jsr  $F89A    Blank all Player Displays (buffer 0)
+FE65: 4F          clra 
+FE66: 97 60       sta  $60	Master Display Toggle
+FE68: 97 58       sta  $58	Match/Ball in Play Display = 00
+FE6A: 86 FE       lda  #$FE
+FE6C: C6 FF       ldb  #$FF
+FE6E: F7 21 00    stb  $2100	Play Sound #1F
+FE71: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+FE74: 00        (Timer)  
+FE75: B7 21 00    sta  $2100	Play Selected Sound
+FE78: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+FE7B: 40  	(Timer)        
+FE7C: BD FC 57    jsr  $FC57	Check Auto/Manual, return + if Manual
+FE7F: 2A EB       bpl  $FE6C
+FE81: 7C 00 58    inc  $0058	Increment Match/Ball in Play Display
+FE84: 48          asla 
+FE85: 4C          inca 		
+FE86: 2B E4       bmi  $FE6C
+FE88: D6 CB       ldb  $CB
+FE8A: 2A D9       bpl  $FE65	Start Over
+FE8C: 39          rts  
+
+Lamp Test:
+FE8D: C6 AA       ldb  #$AA
+FE8F: D7 58       stb  $58	Match/Ball in Play Display Buffer 0
+FE91: D7 0F       stb  $0F
+FE93: 96 10       lda  $10
+FE95: 43          coma 
+FE96: CE 00 10    ldx  #$0010
+FE99: C6 08       ldb  #$08
+FE9B: BD F8 40    jsr  $F840    Store A from $0010-0017
+FE9E: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+FEA1: 1B           
+FEA2: 7A 00 0F    dec  $000F
+FEA5: 26 EC       bne  $FE93
+FEA7: D6 CB       ldb  $CB	
+FEA9: 2A E8       bpl  $FE93
+FEAB: 39          rts 
+
+Set-Up Auto Cycle Mode: 
+FEAC: BD FC 80    jsr  $FC80
+FEAF: 5A          decb 
+FEB0: D7 CB       stb  $CB
+FEB2: 8D 8F       bsr  $FE43    Clear All Displays
+FEB4: 7F 00 5A    clr  $005A
+FEB7: 8D A9       bsr  $FE62
+FEB9: 7C 00 5A    inc  $005A
+FEBC: 8D CF       bsr  $FE8D
+FEBE: 7C 00 5A    inc  $005A
+FEC1: 8D 08       bsr  $FECB
+FEC3: CE 01 4A    ldx  #$014A	 Audit: Unknown
+FEC6: BD F7 7F    jsr  $F77F     Add 1 to data at X
+FEC9: 20 E7       bra  $FEB2
+
+Solenoid Test:
+FECB: C6 01       ldb  #$01
+FECD: D7 58       stb  $58	 
+FECF: 86 20       lda  #$20	
+FED1: BD EB 23    jsr  $EB23	Turn On Outhole Solenoid
+FED4: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+
+FED7: 40          
+
+FED8: BD FC 57    jsr  $FC57    Check Auto/Manual, return + if Manual
+FEDB: 2A F4       bpl  $FED1
+FEDD: 16          tab  
+FEDE: 96 58       lda  $58
+FEE0: 8B 01       adda #$01
+FEE2: 19          daa  
+FEE3: 97 58       sta  $58
+FEE5: 17          tba  
+FEE6: 4C          inca 
+FEE7: 81 39       cmpa #$39
+FEE9: 25 E6       bcs  $FED1
+FEEB: D6 CB       ldb  $CB
+FEED: 2A DC       bpl  $FECB
+FEEF: 39          rts  
+
+Switch Test:
+FEF0: 86 FF       lda  #$FF
+FEF2: 97 58       sta  $58
+FEF4: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+FEF7: 00   	(Timer)       
+FEF8: B6 E0 4D    lda  $E04D	Game ROM: Last Switch Used
+FEFB: 4A          deca 
+FEFC: CE 00 69    ldx  #$0069
+FEFF: BD F1 9C    jsr  $F19C    (X = X + A>>3), B = (bitpos(A&07))
+FF02: E5 00       bitb (x+$00)
+FF04: 27 14       beq  $FF1A	Branch if Switch Open
+FF06: 36          psha 
+FF07: 4C          inca 
+FF08: C6 01       ldb  #$01
+FF0A: BD F8 16    jsr  $F816
+FF0D: 97 58       sta  $58
+FF0F: 4F          clra 
+FF10: C6 01       ldb  #$01
+FF12: BD ED 53    jsr  $ED53	Play Sound Command A, B Times:
+FF15: 32          pula 
+FF16: BD EA 2F    jsr  $EA2F    End This Routine, Replace with next routine, next byte is timer.
+FF19: 40    	(Timer)      
+FF1A: 4A          deca 
+FF1B: 2B D3       bmi  $FEF0	Start Back at the top switch
+FF1D: 20 DD       bra  $FEFC	Do Next Switch
+
+*** Begin NMI Routines ***
+
+Which RAM Byte is the error in:
+FF1F: C6 20       ldb  #$20		High Byte
+FF21: A8 00       eora (x+$00)
+FF23: 84 F0       anda #$F0
+FF25: 27 54       beq  $FF7B
+FF27: C6 10       ldb  #$10		Low Byte
+FF29: 20 50       bra  $FF7B		Show Error
+
+*** NMI Entry ***
+
+FF2B: 0F          sei  
+FF2C: CE 28 00    ldx  #$2800
+FF2F: 6F 01       clr  (x+$01)
+FF31: 86 F0       lda  #$F0
+FF33: A7 00       sta  (x+$00)
+FF35: C6 3C       ldb  #$3C
+FF37: E7 01       stb  (x+$01)
+FF39: A7 00       sta  (x+$00)	Blank Diagnostic Display
+FF3B: 4F          clra 	
+FF3C: CE 10 00    ldx  #$1000	     \
+FF3F: A7 00       sta  (x+$00)	|
+FF41: 08          inx  		 	| Clear RAM $1000-13FF
+FF42: 8C 14 00    cmpx #$1400    	|
+FF45: 26 F8       bne  $FF3F       /
+FF47: 35          txs  
+FF48: 09          dex  
+FF49: A1 00       cmpa (x+$00)	Test
+FF4B: 26 D2       bne  $FF1F		Bad RAM
+FF4D: 8C 10 00    cmpx #$1000
+FF50: 26 F6       bne  $FF48
+FF52: 43          coma 			Test with #FF
+FF53: 26 E7       bne  $FF3C
+FF55: C6 20       ldb  #$20		Begin ROM Test
+FF57: CE FF FF    ldx  #$FFFF
+FF5A: DF 9A       stx  $9A
+FF5C: CB 10       addb #$10
+FF5E: C1 70       cmpb #$70
+FF60: 22 1F       bhi  $FF81
+FF62: 26 05       bne  $FF69
+FF64: B6 E0 4C    lda  $E04C		Check to see if we need to test additional ROM
+FF67: 2B 18       bmi  $FF81
+FF69: 96 9A       lda  $9A
+FF6B: 80 08       suba #$08
+FF6D: 97 9A       sta  $9A
+FF6F: 4F          clra 
+FF70: A9 00       adca (x+$00)
+FF72: 09          dex  
+FF73: 9C 9A       cmpx $9A
+FF75: 26 F9       bne  $FF70
+FF77: 81 80       cmpa #$80	CSUM must be = #80 
+FF79: 27 DF       beq  $FF5A
+
+Show Error:
+FF7B: 53          comb 
+FF7C: F7 28 00    stb  $2800	Dump Error to Display
+FF7F: 20 FE       bra  $FF7F	Stay Here forever
+
+FF81: C6 90       ldb  #$90	Begin CMOS RAM Test
+FF83: B6 01 BB    lda  $01BB
+FF86: 7C 01 BB    inc  $01BB
+FF89: B1 01 BB    cmpa $01BB
+FF8C: 27 ED       beq  $FF7B	Wrong!
+FF8E: C6 80       ldb  #$80
+FF90: CE 12 00    ldx  #$1200
+FF93: DF 9A       stx  $9A
+FF95: CE 01 00    ldx  #$0100
+FF98: 8D 37       bsr  $FFD1    Copy Block from X -> $9A, Length = B
+FF9A: 86 F1       lda  #$F1
+FF9C: 97 9E       sta  $9E
+FF9E: CE 01 00    ldx  #$0100
+FFA1: 96 9E       lda  $9E
+FFA3: A7 00       sta  (x+$00)
+FFA5: 8D 4B       bsr  $FFF2
+FFA7: 08          inx  
+FFA8: 8C 02 00    cmpx #$0200
+FFAB: 26 F6       bne  $FFA3
+FFAD: CE 01 00    ldx  #$0100
+FFB0: 96 9E       lda  $9E
+FFB2: 16          tab  
+FFB3: E8 00       eorb (x+$00)
+FFB5: C4 0F       andb #$0F
+FFB7: 26 12       bne  $FFCB
+FFB9: 8D 37       bsr  $FFF2
+FFBB: 08          inx  
+FFBC: 8C 02 00    cmpx #$0200
+FFBF: 26 F1       bne  $FFB2
+FFC1: 7C 00 9E    inc  $009E
+FFC4: 26 D8       bne  $FF9E
+FFC6: 8D 1D       bsr  $FFE5
+FFC8: 7E E8 00    jmp  $E800	Goto Reset Entry, Everything OK.
+FFCB: 8D 18       bsr  $FFE5
+FFCD: C6 80       ldb  #$80
+FFCF: 20 AA       bra  $FF7B
+
+Copy Block from X -> $9A, Length = B:
+FFD1: 36          psha 
+FFD2: BD EF 53    jsr  $EF53  	( CMOS,X++ -> A )
+FFD5: DF 9C       stx  $9C
+FFD7: DE 9A       ldx  $9A
+FFD9: A7 00       sta  (x+$00)
+FFDB: 08          inx  
+FFDC: DF 9A       stx  $9A
+FFDE: DE 9C       ldx  $9C
+FFE0: 5A          decb 
+FFE1: 26 EF       bne  $FFD2
+FFE3: 32          pula 
+FFE4: 39          rts  
+
+FFE5: CE 01 00    ldx  #$0100
+FFE8: DF 9A       stx  $9A
+FFEA: CE 12 00    ldx  #$1200
+FFED: C6 80       ldb  #$80
+FFEF: 7E EF E4    jmp  $EFE4    Transfer Data Block at X to $9A(CMOS Pointer), Length B
+
+FFF2: 4C          inca 
+FFF3: 26 02       bne  $FFF7
+FFF5: 86 F1       lda  #$F1
+FFF7: 39          rts  
+
+FFF8: E0 BF       IRQ 	Entry
+FFFA: E0 C2       SWI	Entry
+FFFC: FF 2B       NMI 	Entry
+FFFE: E8 00       Reset Entry

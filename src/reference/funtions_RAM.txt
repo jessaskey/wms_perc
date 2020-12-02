@@ -1,0 +1,61 @@
+Audit and Adjustment RAM locations...
+
+Function	RAM Location	Description
+
+00		017D-0180	Game #, ROM Revision
+01		0102-0105	Coins, Left Chute
+02		0106-0109	Coins, Center Chute
+03		010A-010D	Coins, Right Chute
+04		010E-0111	Total Paid Credits
+05		0112-0115	Special Credits
+06		0116-0119	Replay Score Credits
+07		011A-011D	Match Credits
+08		011E-0121	Total Credits
+08 - 2nd 	Calculated	Free Credits
+09		0122-0125	Total Extra Balls
+10		0126-0129	Ball Time in Minutes
+11		012A-012D	Total Balls Played
+12		0166-016D	Current HSTD
+13		0181-0182	Backup HSTD
+13 - 2nd	014E-014F	HSTD Credits Awarded
+14 		0183-0184	Replay 1 Score
+14 - 2nd	0150-0153	Times Exceeded
+15		0185-0186	Replay 2 Score
+15 - 2nd	0154-0157	Times Exceeded
+16		0187-0188	Replay 3 Score
+16 - 2nd	0158-015B	Times Exceeded
+17		0189-018A	Replay 4 Score
+17 - 2nd	015C-015F	Times Exceeded
+18		01AB-01AC	Maximum Credits
+19		01AD-01AE	Standard/Custom Pricing Control
+20		01AF-01B0	Left Coin Slot Multiplier
+21		01B1-01B2	Center Coin Slot Multiplier
+22		01B3-01B4	Right Coin Slot Multiplier
+23		01B5-01B6	Coin Units Required for Credit
+24		01B7-01B8	Coin Units Bonus Point
+25		01B9-01BA	Minimum Coin Units
+26		018B-018C	Match: 	00=On 01=OFF
+27		018D-018E	Special:00=Awards Credit 01=Extra Ball 02=Awards Points
+28		018F-0190	Replay Scores: 00=Awards Credit 01=Extra Ball
+29		0191-0192	Max Plumb Bob Tilts
+30		0193-0194	Number of Balls (3 or 5)
+31		0195-0196	Game Specific Adjustment
+32		0197-0198	Game Specific Adjustment 
+33		0199-019A	Game Specific Adjustment
+34		019B-019C	Game Specific Adjustment	
+35		019D-019E	Game Specific Adjustment
+36		019F-01A0	Game Specific Adjustment 
+37		01A1-01A2	Game Specific Adjustment
+38		01A3-01A4	Game Specific Adjustment	
+39		01A5-01A6	Game Specific Adjustment
+40		01A7-01A8	High Score Credit Award 
+41		01A9-019A	Maximum Extra Balls 00=No Extra Balls
+42		012E-0131	Not Used
+43		0132-0135	Not Used
+44		0136-0139	Not Used
+45		013A-013D	Not Used
+46		013E-0141	Not Used
+47		0142-0145	Not Used
+48		0146-0149	Not Used
+49		014A-014D	Not Used
+50		0170-0171	Command Entry

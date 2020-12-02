@@ -1,0 +1,87 @@
+|----------------------------------------------------------------------------------------------------------------|
+|  Williams Level 7 Pinball Commands - Compiled by Jess M. Askey 2013         Version 0.83                       |
+|----------------------------------------------------------------------------------------------------------------|
+|  PERC  | Addressing |  Data  |                                                                    | Assembly   |
+|  Code  |   Mode     | Bytes  |      Function                                                      | Mnemonic   |
+|----------------------------------------------------------------------------------------------------------------|
+|   00   |  IMPLIED   |   0    |  Macro Program Counter -= 0x100                                    | PC100_     |
+|   01   |  IMPLIED   |   0    |  NOP                                                               | NOP_       |
+|   02   |  IMPLIED   |   0    |  Save MRA and MRB, MRTS	               	                      | MRTS_      |
+|   03   |  IMPLIED   |   0    |  Remove Thread from Control Stack                                  | KILL_      |
+|   04   |  IMPLIED   |   0    |  Resume CPU Execution                                              | CPUX_      |
+|   05   |  IMPLIED   |   0    |  Award Special                                                     | SPEC_      |
+|   06   |  IMPLIED   |   0    |  Award Extra Ball                                                  | EB_        |
+|----------------------------------------------------------------------------------------------------------------|
+| Individual Lamp/Bit Commands                                                                                   |
+|----------------------------------------------------------------------------------------------------------------|
+|   10   | IMMEDIATE  |   1+   |  Turn ON Lamp     1 Data: Lamp #                                   | BITON_     |
+|   11   | IMMEDIATE  |   1+   |  Turn OFF Lamp	   1 Data: Lamp #                                   | BITOFF_    |
+|   12   | IMMEDIATE  |   1+   |  Invert Lamp	   1 Data: Lamp #                                   | BITINV_    |
+|   13   | IMMEDIATE  |   1+   |  Flash Lamp   	   1 Data: Lamp #                                   | BITFL_     |
+|   14   |    ABS     |   1+   |  Turn ON  Lamp    Pointer RAM$00                                   | BITONP_    |
+|   15   |    ABS     |   1+   |  Turn OFF Lamp    Pointer RAM$00                                   | BITOFFP_   |
+|   16   |    ABS     |   1+   |  Invert Lamp      Pointer RAM$00                                   | BITINVP_   |
+|   17   |    ABS     |   1+   |  Flash Lamp       Pointer RAM$00                                   | BITFLP_    |
+|----------------------------------------------------------------------------------------------------------------|
+| Lamp Group Effects - These act upon Lamp Buffer 0 or Bitflags with flag $40 set. Data are lamp group indexes.  |
+|----------------------------------------------------------------------------------------------------------------|
+|   18   | IMMEDIATE  |   1+   |  Lamp Effect      Turn ON all Lamps in Group                       | RSET0_     |
+|   19   | IMMEDIATE  |   1+   |  Lamp Effect      Turn OFF all Lamps in Group                      | RCLR0_     |
+|   1A   | IMMEDIATE  |   1+   |  Lamp Effect      Turn ON next lamp in Group                       | RSET1R0_   |
+|   1B   | IMMEDIATE  |   1+   |  Lamp Effect      Turn ON next lamp in group,reset group if all ON | RSET1RC0_  |
+|   1C   | IMMEDIATE  |   1+   |  Lamp Effect      Turn OFF previous lamp in group                  | RCLR1L0_   |
+|   1D   | IMMEDIATE  |   1+   |  Lamp Effect      Shift Range Left                                 | RROL0_     |
+|   1E   | IMMEDIATE  |   1+   |  Lamp Effect      Shift Range Right                                | RROR0_     |
+|   1F   | IMMEDIATE  |   1+   |  Lamp Effect      Invert all Lamps in Group                        | RINV0_     |
+|----------------------------------------------------------------------------------------------------------------|
+|   20   | IMMEDIATE  |   1+   |                                                                    |            |
+|   21   | IMMEDIATE  |   1+   |                                                                    |            |
+|----------------------------------------------------------------------------------------------------------------|
+| Lamp Group Effects - These act upon Lamp Buffer 1 or BufSel with flag $40 set. Data are lamp group indexes.    |
+|----------------------------------------------------------------------------------------------------------------|
+|   28   | IMMEDIATE  |   1+   |  Lamp Effect      Turn ON all Lamps in Group                       | RSET1_     |
+|   29   | IMMEDIATE  |   1+   |  Lamp Effect      Turn OFF all Lamps in Group                      | RCLR1_     |
+|   2A   | IMMEDIATE  |   1+   |  Lamp Effect      Turn ON next lamp in Group                       | RSET1R1_   |
+|   2B   | IMMEDIATE  |   1+   |  Lamp Effect      Turn ON next lamp in group,reset group if all ON | RSET1RC1_  |
+|   2C   | IMMEDIATE  |   1+   |  Lamp Effect      Turn OFF previous lamp in group                  | RCLR1L1_   |
+|   2D   | IMMEDIATE  |   1+   |  Lamp Effect      Shift Range Left                                 | RROL1_     |
+|   2E   | IMMEDIATE  |   1+   |  Lamp Effect      Shift Range Right                                | RROR1_     |
+|   2F   | IMMEDIATE  |   1+   |  Lamp Effect      Invert all Lamps in Group                        | RINV1_     |
+|----------------------------------------------------------------------------------------------------------------|
+|   3X   | IMMEDIATE  |   2+   |  Adjust Solenoid                                                   | SOL_       |
+|----------------------------------------------------------------------------------------------------------------|
+|   40   | IMMEDIATE  |   2    |  Play Sound Index(B1)Once,Add Points(B2)     | PTSSND_    |
+|   41   | IMMEDIATE  |   1    |  Add Points to Scoring/Sound Queue Buffer    | PTSQUE_    |
+|   42   | IMMEDIATE  |   1    |  Add Points Immediate                        | POINTS_    |
+|   43   | IMMEDIATE  |   1    |  Add Points & Play DigitSound                | PTSDIG_    |
+|------------------------------------------------------------------------------------------|
+|  44-4F | IMMEDIATE  |  var   |  CPU Execute Next X-2 bytes                  | EXE_       |
+|------------------------------------------------------------------------------------------|
+|   50   | IMMEDIATE  |   1    |  Add RAM: $00,MSD(A) += $00,LSD(A)           | RAMADD_    |
+|   51   | IMMEDIATE  |   1    |  Copy Game Data: From LSD(A) to MSD(A)	      | RAMCPY_    |
+|   52   | IMMEDIATE  |   1    |  Set ID flags for this thread                | PRI_       |
+|   53   | IMMEDIATE  |   1    |  Thread Sleep (Byte)                         | SLEEP_     |
+|   54   | IMMEDIATE  |   2    |  Remove Single Thread Based on ID flags      | REMTHREAD_ |
+|   55   | IMMEDIATE  |   2    |  Remove Multiple Threads Based on ID flags   | REMTHREADS_|
+|   56   |    ABS     |   2    |  Jump Subroutine                             | JSR_       |
+|   57   |    ABS     |   2    |  Jump Subroutine with Data                   | JSRD_      |
+|   58   |    ABS     |  var   |  Branch Equal to Zero				| BEQA_      |
+|   59   |    ABS     |  var   |  Branch NOT Equal to Zero                    | BNEA_      |
+|   5A   |  RELATIVE  |  var   |  Branch Equal to Zero                        | BEQ_       |
+|   5B   |  RELATIVE  |  var   |  Branch NOT Equal to Zero                    | BNE_       |
+|------------------------------------------------------------------------------------------|
+|  5C    |    ABS     |   2    |  Jump to CPU code                            | JMPD_      |
+|  5D    | IMMEDIATE  |   1+   |  Set Switch                                  | SWSET_     |
+|  5E    | IMMEDIATE  |   1+   |  Clear Switch                                | SWCLR_     |
+|  5F    |    ABS     |   2    |  Jump Absolute                               | JMP_       |
+|------------------------------------------------------------------------------------------|
+|  6X    |    ZP      |   0    |  Thread Sleep (RAM $00,LSD(A))               | SLEEPI_    |
+|  7X    | IMMEDIATE  |   0    |  Thread Sleep (Nybble)                       | SLEEP_     |
+|  8X    | RELATIVE   |   1    |  JMP  Relative (LSD(A)+NextByte)	        	| JMPR_      |
+|  9X    | RELATIVE   |   1    |  JSR  Relative (LSD(A)+NextByte)             | JSRR_      |
+|  AX    | RELATIVE   |   1    |  JSR(to code) Relative (LSD(A)+NextByte)     | JSRDR_     |
+|  BX    | IMMEDIATE  |   1    |  Add NextByte to RAM LSD(command)            | ADDRAM_    |
+|  CX    | IMMEDIATE  |   1    |  Set RAM LSD(command) to NextByte            | SETRAM_    |
+|  DX    | IMMEDIATE  |   1    |  Play Index Sound (NextByte)Times            | RSND_      |
+| EX-FX  | IMMEDIATE  |   0    |  Play Index Sound Once (A&1F)	            | SND _      |
+|------------------------------------------------------------------------------------------|

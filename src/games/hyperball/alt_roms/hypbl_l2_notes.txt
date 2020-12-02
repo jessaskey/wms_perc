@@ -1,0 +1,14 @@
+Hyperball ROMs L2 Code Differences Comparison
+Jess Askey
+
+ROM Image Filenames:
+
+509-9_R2
+509-8_R2
+509-7_R2
+
+
+Thread Limit is $19 in L2 rather than $1C in L4
+Lighning Bolts have a minimimum of 125ms between starts compared to 375ms in L4
+Lighting Bolts lightning bolts move faster in L2
+

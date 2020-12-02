@@ -1,0 +1,211 @@
+System 7 RAM locations and their uses:
+
+0000:	Accumulator A
+0001:	Accumulator B
+0002:	Working RAM
+0003:	Working RAM
+0004:	Working RAM
+0005:	Working RAM
+0006:	Working RAM
+0007:	Working RAM
+0008:	Working RAM
+0009:	Working RAM
+000A:	Working RAM
+000B:	Working RAM
+000C:	Working RAM
+000D:	Working RAM
+000E:	Working RAM
+000F:	Working RAM
+
+10-17: Lamp Buffer 0 Data 	(64 Lamps)
+18-1F: Bit Flags 			(64 Flags)
+20-27: Lamp Buffer Selection	(64 Lamps)
+28-2F: Lamp Buffer 1 Data 	(64 Lamps)
+30-37: Lamp Flash Bitflags	(64 Lamps)
+Score Buffers:
+38-3B: P1 Buffer 0
+3C-3F: P2 Buffer 0
+40-43: P3 Buffer 0
+44-47: P4 Buffer 0
+48-4B: P1 Buffer 1
+4C-4F: P2 Buffer 1
+50-53: P3 Buffer 1
+54-57: P4 Buffer 1
+58: Match/Ball in Play Buffer 0
+59: Match/Ball in Play Buffer 1
+5A: Credits Buffer 0
+5B: Credits Buffer 1
+
+Display Toggles: 
+5C: Player 1
+5D: Player 2	goes to $8E
+5E: Player 3
+5F: Player 4	goes to $8F
+
+60: Master Display Toggle
+    Player 1 = 1010 1111 
+    Player 2 = 1111 1010
+    Player 3 = 0101 1111
+    Player 4 = 1111 0101
+
+61-68: Switch Register
+69-70: Switch Register
+71-78: Switch Register
+79-80: Switch Register
+81-88: Switch Register
+
+8A-8B: Holds word value of $0000 for quickly loading X with zero's
+8C:	 Current Lamp Strobe Bit
+8D: Temp Comma Working Variable
+8E: Credits & P1/P2 Buffer Select
+8F: Match/Ball in Play & P3/P4 Buffer Select
+90: Swap P1/P2 & P3/P4 Flag
+
+91-92:	Solenoid Address
+93:	Solenoid Bit Pos
+94:	Solenoid Counter
+95:	IRQcounter
+96-97:	??       Buffer Pointer	
+98-99:  Solenoid Buffer Pointer
+
+9A-9B:	Temp 1
+9C-9D:	Temp 2
+9E-9F:	Temp 3
+
+A0:	System Temp 1
+A1:	System Temp 2
+A2:	System Temp 3
+A3:	System Temp 4
+A4:	System Temp Word1
+A6:	System Temp Word2
+A8:	System Temp Word3
+
+AA:	Thread Priority Holder
+
+AC:		Number of IRQ's run since last main loop
+AD-AE:	Pointer to Start of Control Stack
+AF-B0:	Pointer to Next VM slot
+
+B1-B2:	Pointer to Control Routine that is currently being run
+B3-B4:  
+
+B5:		Lamp Flash Rate
+B6:		Lamp Flash Counter
+B7:		Thread Timer Byte
+
+B8:		Sound Repeat Counter
+B9:		Last Sound Command Sent
+BA: 		Sound Byte 0
+BB-BC:	Exteneded Sound Address Pointer
+BD-BE: 	Sound IRQ Timer
+BF-C0:  	Common Sound Index(Simple=Counter, Extended=Pointer)	
+C1: 		Sound Flags (80- Playing Extended Sound) (40-playing simple sound)
+C2: 		Sound Command Table Index
+C5:
+C6:
+C7:
+
+C8: 		Tilt Flag != 00
+C9: 		Game Over Flag != 00
+CA:		Bonus Ball Flag  (00=Free Balls)
+CB:		Self Test Flag
+CC: 		Number of Players Playing
+CD: 		Player Up (0-3)
+CE-CF:	Start of Current Player Score Buffer
+D0: 		Number of Extra Balls Remaining
+D1-D2:	Macro Program Counter
+D3:		Current Plumb Bob Tilts
+D4-D5:	Minute Timer (#0F00 = 1 minute)
+D6:		Ball in Play Flag (for timer)
+D7: 		Seed for Random Number Generator?
+D8:   	Temp for holding X in score routine
+D9:
+DA-DB:	Extra Ball Routine Temp X Holder
+DC-DD:	Credit Routines Temp X holder
+DE-DF:
+
+E0: 		Something with displays ($60)
+
+RAM		Test
+Locations 	Function	Description
+                            
+017D-0180	00		Game #, ROM Revision
+0102-0105	01		Coins, Left Chute
+0106-0109	02		Coins, Center Chute
+010A-010D	03		Coins, Right Chute
+010E-0111	04		Total Paid Credits
+0112-0115	05		Special Credits
+0116-0119	06		Replay Score Credits
+011A-011D	07		Match Credits
+011E-0121	08		Total Credits
+Calculated	08 - 2nd	Free Credits
+0122-0125	09		Total Extra Balls
+0126-0129	10		Ball Time in Minutes
+012A-012D	11		Total Balls Played
+0166-016D	12		Current HSTD
+0181-0182	13		Backup HSTD
+014E-014F	13 - 2nd	HSTD Credits Awarded
+0183-0184	14 		Replay 1 Score
+0150-0153	14 - 2nd	Times Exceeded
+0185-0186	15		Replay 2 Score
+0154-0157	15 - 2nd	Times Exceeded
+0187-0188	16		Replay 3 Score
+0158-015B	16 - 2nd	Times Exceeded
+0189-018A	17		Replay 4 Score
+015C-015F	17 - 2nd	Times Exceeded
+01AB-01AC	18		Maximum Credits
+01AD-01AE	19		Standard/Custom Pricing Control
+01AF-01B0	20		Left Coin Slot Multiplier
+01B1-01B2	21		Center Coin Slot Multiplier
+01B3-01B4	22		Right Coin Slot Multiplier
+01B5-01B6	23		Coin Units Required for Credit
+01B7-01B8	24		Coin Units Bonus Point
+01B9-01BA	25		Minimum Coin Units
+018B-018C	26		Match: 	00=On 01=OFF
+018D-018E	27		Special:00=Awards Credit 01=Extra Ball 02=Awards Points
+018F-0190	28		Replay Scores: 00=Awards Credit 01=Extra Ball
+0191-0192	29		Max Plumb Bob Tilts
+0193-0194	30		Number of Balls (3 or 5)
+0195-0196	31		Game Specific Adjustment#0
+0197-0198	32		Game Specific Adjustment#1
+0199-019A	33		Game Specific Adjustment#2
+019B-019C	34		Game Specific Adjustment#3	
+019D-019E	35		Game Specific Adjustment#4
+019F-01A0	36		Game Specific Adjustment#5 
+01A1-01A2	37		Game Specific Adjustment#6
+01A3-01A4	38		Game Specific Adjustment#7	
+01A5-01A6	39		Game Specific Adjustment#8
+01A7-01A8	40		High Score Credit Award 
+01A9-019A	41		Maximum Extra Balls 00=No Extra Balls
+012E-0131	42		Game Specific Audit#0
+0132-0135	43		Game Specific Audit#1
+0136-0139	44		Game Specific Audit#2
+013A-013D	45		Game Specific Audit#3
+013E-0141	46		Game Specific Audit#4
+0142-0145	47		Game Specific Audit#5
+0146-0149	48		Game Specific Audit#6
+014A-014D	49		Game Specific Audit#7
+0170-0171	50		Command Entry
+
+
+1100-1108: Switch To-Do List (Words pointing to that switch's routine)
+1118-1127: Solenoid Buffer
+1128-112F: Sound/Points Buffer (1 location for each scoring digit)
+1130-113F: Temp CPU Exe Buffer
+
+Player Data Buffers:
+1140-1159: Player 1
+115A-1173: Player 2
+1174-118D: Player 3
+118E-11A7: Player 4
+
+Player Data Format:
+ 00-0B: RAM 0010-001B 	Game Variables
+ 0C-13: RAM 0030-0037	Flashing Lamp data?
+ 14-19:	RAM 0002-0007	Other variables?
+ 
+11A8-Variable	Thread Area
+
+Leftover RAM is used for the CPU Stack. The thread area can be changed at
+design time by setting the MAX_THREADS variable in the game ROM. Designer
+must be careful that the CPU stack and the THREADS do not ever overlap.

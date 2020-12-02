@@ -1,0 +1,835 @@
+: Time Fantasy Sound ROM
+: Jess M. Askey
+
+F800: 45          
+
+Reset Entry:
+SWI Entry:
+F801: 0F          sti  
+F802: 8E 00 7F    lds  #$007F
+F805: CE 04 00    ldx  #$0400
+F808: 6F 01       clr  (x+$01)
+F80A: 6F 03       clr  (x+$03)
+F80C: 86 FF       lda  #$FF
+F80E: A7 00       sta  (x+$00)
+F810: C6 80       ldb  #$80
+F812: E7 02       stb  (x+$02)
+F814: 86 37       lda  #$37
+F816: A7 03       sta  (x+$03)
+F818: 86 3C       lda  #$3C
+F81A: A7 01       sta  (x+$01)
+F81C: 97 0A       sta  $0A
+F81E: E7 02       stb  (x+$02)
+F820: 4F          clra 
+F821: 97 07       sta  $07
+F823: 97 08       sta  $08
+F825: 97 04       sta  $04
+F827: 97 05       sta  $05
+F829: 97 06       sta  $06
+F82B: 0E          cli  
+F82C: 20 FE       bra  $F82C		;Hang Here if Until Sound Interrupt
+
+Sounds #18-1F (Routine 1):
+F82E: 16          tab  			Sound #, 18=00 1F=07
+F82F: 48          asla 
+F830: 48          asla 
+F831: 48          asla 
+F832: 1B          aba  
+F833: CE 00 14    ldx  #$0014
+F836: DF 10       stx  $10
+F838: CE FD 15    ldx  #$FD15
+F83B: BD FC 55    jsr  $FC55		Add A to X
+F83E: C6 09       ldb  #$09
+F840: 7E F9 17    jmp  $F917		Copy B bytes from X to *$0010
+
+Sounds #18-1F (Routine 2):
+F843: 96 1C       lda  $1C
+F845: B7 04 00    sta  $0400		Output to DAC
+F848: 96 14       lda  $14
+F84A: 97 1D       sta  $1D
+F84C: 96 15       lda  $15
+F84E: 97 1E       sta  $1E
+F850: DE 19       ldx  $19
+F852: 96 1D       lda  $1D
+F854: 73 04 00    com  $0400		Do the other half of wave
+F857: 09          dex  
+F858: 27 10       beq  $F86A
+F85A: 4A          deca 
+F85B: 26 FA       bne  $F857
+F85D: 73 04 00    com  $0400		Output to DAC
+F860: 96 1E       lda  $1E
+F862: 09          dex  
+F863: 27 05       beq  $F86A
+F865: 4A          deca 
+F866: 26 FA       bne  $F862
+F868: 20 E8       bra  $F852
+F86A: B6 04 00    lda  $0400		Output to DAC
+F86D: 2B 01       bmi  $F870
+F86F: 43          coma 
+F870: 8B 00       adda #$00
+F872: B7 04 00    sta  $0400		Output to DAC
+F875: 96 1D       lda  $1D
+F877: 9B 16       adda $16
+F879: 97 1D       sta  $1D
+F87B: 96 1E       lda  $1E
+F87D: 9B 17       adda $17
+F87F: 97 1E       sta  $1E
+F881: 91 18       cmpa $18
+F883: 26 CB       bne  $F850
+F885: 96 1B       lda  $1B
+F887: 27 06       beq  $F88F
+F889: 9B 14       adda $14
+F88B: 97 14       sta  $14
+F88D: 26 B9       bne  $F848
+F88F: 39          rts  
+
+Sound #16: (Explosion)
+F890: 86 01       lda  #$01
+F892: 97 1B       sta  $1B
+F894: C6 03       ldb  #$03
+F896: 20 0A       bra  $F8A2	Noise Based Main
+
+Sound #0E: (long Sweeping Up Noise, HSTD)
+F898: 86 FF       lda  #$FF
+F89A: 97 1B       sta  $1B
+F89C: 86 60       lda  #$60
+F89E: C6 FF       ldb  #$FF
+F8A0: 20 00       bra  $F8A2	Noise Based Main
+
+Main Routine for noise based sounds:
+F8A2: 97 1A       sta  $1A
+F8A4: 86 FF       lda  #$FF
+F8A6: B7 04 00    sta  $0400		Output to DAC
+F8A9: D7 16       stb  $16
+F8AB: D6 16       ldb  $16
+F8AD: 96 0B       lda  $0B
+F8AF: 44          lsra 
+F8B0: 44          lsra 
+F8B1: 44          lsra 
+F8B2: 98 0B       eora $0B
+F8B4: 44          lsra 
+F8B5: 76 00 0A    ror  $000A
+F8B8: 76 00 0B    ror  $000B
+F8BB: 24 03       bcc  $F8C0
+F8BD: 73 04 00    com  $0400		Output to DAC
+F8C0: 96 1A       lda  $1A
+F8C2: 4A          deca 
+F8C3: 26 FD       bne  $F8C2
+F8C5: 5A          decb 
+F8C6: 26 E5       bne  $F8AD
+F8C8: 96 1A       lda  $1A
+F8CA: 9B 1B       adda $1B
+F8CC: 97 1A       sta  $1A
+F8CE: 26 DB       bne  $F8AB
+F8D0: 39          rts  
+
+Sound #13: (Reverse Sweeping Noise, Laser Shot?)
+F8D1: 86 20       lda  #$20
+F8D3: 97 16       sta  $16
+F8D5: 97 19       sta  $19
+F8D7: 86 01       lda  #$01
+F8D9: CE 00 01    ldx  #$0001
+F8DC: C6 FF       ldb  #$FF
+F8DE: 20 00       bra  $F8E0
+F8E0: 97 14       sta  $14
+F8E2: DF 17       stx  $17
+F8E4: D7 15       stb  $15
+F8E6: D6 16       ldb  $16
+F8E8: 96 0B       lda  $0B
+F8EA: 44          lsra 
+F8EB: 44          lsra 
+F8EC: 44          lsra 
+F8ED: 98 0B       eora $0B
+F8EF: 44          lsra 
+F8F0: 76 00 0A    ror  $000A
+F8F3: 76 00 0B    ror  $000B
+F8F6: 86 00       lda  #$00
+F8F8: 24 02       bcc  $F8FC
+F8FA: 96 15       lda  $15
+F8FC: B7 04 00    sta  $0400		Output to DAC
+F8FF: DE 17       ldx  $17
+F901: 09          dex  
+F902: 26 FD       bne  $F901
+F904: 5A          decb 
+F905: 26 E1       bne  $F8E8
+F907: D6 15       ldb  $15
+F909: D0 14       subb $14
+F90B: 27 09       beq  $F916
+F90D: DE 17       ldx  $17
+F90F: 08          inx  
+F910: 96 19       lda  $19
+F912: 27 D0       beq  $F8E4
+F914: 20 CC       bra  $F8E2
+F916: 39          rts
+
+Copy B bytes from X to *$0010:  
+F917: 36          psha 
+F918: A6 00       lda  (x+$00)
+F91A: DF 0E       stx  $0E
+F91C: DE 10       ldx  $10
+F91E: A7 00       sta  (x+$00)
+F920: 08          inx  
+F921: DF 10       stx  $10
+F923: DE 0E       ldx  $0E
+F925: 08          inx  
+F926: 5A          decb 
+F927: 26 EF       bne  $F918
+F929: 32          pula 
+F92A: 39          rts  
+
+Chime Sound Routine:
+F92B: 84 1F       anda #$1F		Strip off BitFlags
+F92D: 27 FE       beq  $F92D		Halt on Sound#40
+F92F: 84 0F       anda #$0F
+F931: CE 00 14    ldx  #$0014
+F934: DF 10       stx  $10
+F936: CE FC F7    ldx  #$FCF7
+F939: BD FC 55    jsr  $FC55		Add A to X
+F93C: A6 00       lda  (x+$00)
+F93E: 97 24       sta  $24
+F940: CE FC E7    ldx  #$FCE7
+F943: C6 10       ldb  #$10
+F945: BD F9 17    jsr  $F917		Copy B bytes from X to *$0010:
+F948: CE FD 07    ldx  #$FD07
+F94B: E6 00       ldb  (x+$00)
+F94D: D7 26       stb  $26
+F94F: DF 10       stx  $10
+F951: CE 00 14    ldx  #$0014
+F954: C6 08       ldb  #$08
+F956: D7 25       stb  $25
+F958: A6 00       lda  (x+$00)
+F95A: D6 24       ldb  $24
+F95C: 7D 00 26    tst  $0026
+F95F: 26 06       bne  $F967
+F961: A0 08       suba (x+$08)
+F963: A7 00       sta  (x+$00)
+F965: C0 03       subb #$03
+F967: 08          inx  
+F968: B7 04 00    sta  $0400		Output to DAC
+F96B: 5A          decb 
+F96C: 26 FD       bne  $F96B
+F96E: 7A 00 25    dec  $0025
+F971: 26 E5       bne  $F958
+F973: 7A 00 26    dec  $0026
+F976: 2A D9       bpl  $F951
+F978: DE 10       ldx  $10
+F97A: 08          inx  
+F97B: E6 00       ldb  (x+$00)
+F97D: 26 CE       bne  $F94D
+F97F: 20 FE       bra  $F97F
+
+Sound #0F: (Thud, FANTASY target already lit)
+F981: CE FD 6F    ldx  #$FD6F
+F984: DF 16       stx  $16
+F986: DE 16       ldx  $16
+F988: A6 00       lda  (x+$00)
+F98A: 27 33       beq  $F9BF		Return
+F98C: E6 01       ldb  (x+$01)
+F98E: C4 F0       andb #$F0
+F990: D7 15       stb  $15
+F992: E6 01       ldb  (x+$01)
+F994: 08          inx  
+F995: 08          inx  
+F996: DF 16       stx  $16
+F998: 97 14       sta  $14
+F99A: C4 0F       andb #$0F
+F99C: 96 15       lda  $15
+F99E: B7 04 00    sta  $0400		Output to DAC
+F9A1: 96 14       lda  $14
+F9A3: CE 00 05    ldx  #$0005
+F9A6: 09          dex  
+F9A7: 26 FD       bne  $F9A6
+F9A9: 4A          deca 
+F9AA: 26 F7       bne  $F9A3
+F9AC: 7F 04 00    clr  $0400		Output to DAC
+F9AF: 96 14       lda  $14
+F9B1: CE 00 05    ldx  #$0005
+F9B4: 09          dex  
+F9B5: 26 FD       bne  $F9B4
+F9B7: 4A          deca 
+F9B8: 26 F7       bne  $F9B1
+F9BA: 5A          decb 
+F9BB: 26 DF       bne  $F99C
+F9BD: 20 C7       bra  $F986
+F9BF: 39          rts  
+
+Sound #10: Increment TimeFantasy BG Sound
+F9C0: 96 05       lda  $05
+F9C2: 8A 80       ora  #$80
+F9C4: 97 05       sta  $05
+F9C6: D6 04       ldb  $04
+F9C8: C4 7F       andb #$7F
+F9CA: C1 24       cmpb #$24
+F9CC: 26 01       bne  $F9CF
+F9CE: 5F          clrb 
+F9CF: 5C          incb 
+F9D0: D7 04       stb  $04
+F9D2: 39          rts 
+
+Time Fantasy Style BG Sounds: 
+F9D3: 86 07       lda  #$07
+F9D5: BD F8 2E    jsr  $F82E		Play Background Sound
+F9D8: D6 04       ldb  $04
+F9DA: C1 20       cmpb #$20		If $04 = 20
+F9DC: 23 02       bls  $F9E0
+F9DE: C6 20       ldb  #$20
+F9E0: CE 00 38    ldx  #$0038
+F9E3: 86 20       lda  #$20
+F9E5: 10          sba  
+F9E6: 16          tab  
+F9E7: C1 0F       cmpb #$0F
+F9E9: 23 08       bls  $F9F3
+F9EB: 86 10       lda  #$10
+F9ED: BD FC 55    jsr  $FC55		Add #10 to X
+F9F0: 5A          decb 
+F9F1: 20 F4       bra  $F9E7
+F9F3: 86 08       lda  #$08
+F9F5: BD FC 55    jsr  $FC55		Add #08 to X
+F9F8: 5A          decb 
+F9F9: 26 F8       bne  $F9F3
+F9FB: DF 19       stx  $19
+F9FD: 96 0A       lda  $0A
+F9FF: 48          asla 
+FA00: 9B 0A       adda $0A
+FA02: 8B 0B       adda #$0B
+FA04: 97 0A       sta  $0A
+FA06: 97 14       sta  $14
+FA08: BD F8 43    jsr  $F843		Repeat Sound
+FA0B: 20 FB       bra  $FA08
+
+Sound #12: Stop Backgroud Sound
+FA0D: 7F 00 04    clr  $0004
+FA10: 7F 00 05    clr  $0005
+FA13: 39          rts 
+ 
+Sound #14: Increment Jungle Lord BG sound 
+FA14: 96 04       lda  $04
+FA16: 8A 80       ora  #$80
+FA18: 97 04       sta  $04
+FA1A: 96 05       lda  $05
+FA1C: 84 7F       anda #$7F
+FA1E: 81 1D       cmpa #$1D
+FA20: 26 01       bne  $FA23
+FA22: 4F          clra 
+FA23: 4C          inca 
+FA24: 97 05       sta  $05
+FA26: 39          rts  
+
+Jungle Lord Style BG Sounds:
+FA27: 86 0F       lda  #$0F
+FA29: BD FA 88    jsr  $FA88		Load Table Data and Envelope
+FA2C: 96 05       lda  $05
+FA2E: 48          asla 
+FA2F: 48          asla 
+FA30: 43          coma 
+FA31: BD FB 42    jsr  $FB42
+FA34: 7C 00 18    inc  $0018
+FA37: BD FB 44    jsr  $FB44
+FA3A: 20 F8       bra  $FA34
+
+Sound #11:
+FA3C: 86 08       lda  #$08
+FA3E: BD F8 2E    jsr  $F82E
+FA41: D6 06       ldb  $06
+FA43: C1 1F       cmpb #$1F
+FA45: 26 01       bne  $FA48
+FA47: 5F          clrb 
+FA48: 5C          incb 
+FA49: D7 06       stb  $06
+FA4B: 86 20       lda  #$20
+FA4D: 10          sba  
+FA4E: 5F          clrb 
+FA4F: 81 14       cmpa #$14
+FA51: 23 05       bls  $FA58
+FA53: CB 0E       addb #$0E
+FA55: 4A          deca 
+FA56: 20 F7       bra  $FA4F
+FA58: CB 05       addb #$05
+FA5A: 4A          deca 
+FA5B: 26 FB       bne  $FA58
+FA5D: D7 14       stb  $14
+FA5F: BD F8 43    jsr  $F843
+FA62: 20 FB       bra  $FA5F
+
+Sound #15:
+FA64: 96 07       lda  $07
+FA66: 26 0B       bne  $FA73
+FA68: 7C 00 07    inc  $0007
+FA6B: 86 0D       lda  #$0D
+FA6D: BD FA 88    jsr  $FA88		Load Table Data and Envelope
+FA70: 7E FA EE    jmp  $FAEE
+FA73: 7E FB 37    jmp  $FB37
+
+Sound #17:
+FA76: 96 08       lda  $08
+FA78: 26 0B       bne  $FA85
+FA7A: 7C 00 08    inc  $0008
+FA7D: 86 0E       lda  #$0E
+FA7F: BD FA 88    jsr  $FA88		Load Table Data and Envelope
+FA82: 7E FA EE    jmp  $FAEE
+FA85: 7E FB 37    jmp  $FB37
+
+Load Table Data and Envelope:
+FA88: 16          tab  
+FA89: 58          aslb 
+FA8A: 1B          aba  
+FA8B: 1B          aba  
+FA8C: 1B          aba  
+FA8D: CE FE 68    ldx  #$FE68
+FA90: BD FC 55    jsr  $FC55		Add A to X
+FA93: A6 00       lda  (x+$00)
+FA95: 16          tab  
+FA96: 84 0F       anda #$0F
+FA98: 97 15       sta  $15
+FA9A: 54          lsrb 
+FA9B: 54          lsrb 
+FA9C: 54          lsrb 
+FA9D: 54          lsrb 
+FA9E: D7 14       stb  $14
+FAA0: A6 01       lda  (x+$01)
+FAA2: 16          tab  
+FAA3: 54          lsrb 
+FAA4: 54          lsrb 
+FAA5: 54          lsrb 
+FAA6: 54          lsrb 
+FAA7: D7 16       stb  $16
+FAA9: 84 0F       anda #$0F
+FAAB: 97 12       sta  $12
+FAAD: DF 0C       stx  $0C
+FAAF: CE FD 8D    ldx  #$FD8D
+FAB2: 7A 00 12    dec  $0012
+FAB5: 2B 08       bmi  $FABF
+FAB7: A6 00       lda  (x+$00)
+FAB9: 4C          inca 
+FABA: BD FC 55    jsr  $FC55		Add A to X
+FABD: 20 F3       bra  $FAB2
+FABF: DF 19       stx  $19
+FAC1: BD FB 7E    jsr  $FB7E
+FAC4: DE 0C       ldx  $0C
+FAC6: A6 02       lda  (x+$02)
+FAC8: 97 1B       sta  $1B
+FACA: BD FB 90    jsr  $FB90
+FACD: DE 0C       ldx  $0C
+FACF: A6 03       lda  (x+$03)
+FAD1: 97 17       sta  $17
+FAD3: A6 04       lda  (x+$04)
+FAD5: 97 18       sta  $18
+FAD7: A6 05       lda  (x+$05)
+FAD9: 16          tab  
+FADA: A6 06       lda  (x+$06)
+FADC: CE FE D8    ldx  #$FED8
+FADF: BD FC 55    jsr  $FC55		Add A to X
+FAE2: 17          tba  
+FAE3: DF 1C       stx  $1C		Save Envelope Start Address
+FAE5: 7F 00 24    clr  $0024
+FAE8: BD FC 55    jsr  $FC55		Add A to X
+FAEB: DF 1E       stx  $1E		Save Envelope End Address
+FAED: 39          rts  
+
+FAEE: 96 14       lda  $14
+FAF0: 97 23       sta  $23
+FAF2: DE 1C       ldx  $1C
+FAF4: DF 0E       stx  $0E
+FAF6: DE 0E       ldx  $0E
+FAF8: A6 00       lda  (x+$00)
+FAFA: 9B 24       adda $24
+FAFC: 97 22       sta  $22
+FAFE: 9C 1E       cmpx $1E
+FB00: 27 26       beq  $FB28
+FB02: D6 15       ldb  $15
+FB04: 08          inx  
+FB05: DF 0E       stx  $0E
+FB07: CE 00 25    ldx  #$0025
+FB0A: 96 22       lda  $22
+FB0C: 4A          deca 
+FB0D: 26 FD       bne  $FB0C
+FB0F: A6 00       lda  (x+$00)
+FB11: B7 04 00    sta  $0400		Output to DAC
+FB14: 08          inx  
+FB15: 9C 20       cmpx $20
+FB17: 26 F1       bne  $FB0A
+FB19: 5A          decb 
+FB1A: 27 DA       beq  $FAF6
+FB1C: 08          inx  
+FB1D: 09          dex  
+FB1E: 08          inx  
+FB1F: 09          dex  
+FB20: 08          inx  
+FB21: 09          dex  
+FB22: 08          inx  
+FB23: 09          dex  
+FB24: 01          nop  
+FB25: 01          nop  
+FB26: 20 DF       bra  $FB07
+FB28: 96 16       lda  $16
+FB2A: 8D 64       bsr  $FB90
+FB2C: 7A 00 23    dec  $0023
+FB2F: 26 C1       bne  $FAF2
+FB31: 96 07       lda  $07
+FB33: 9A 08       ora  $08
+FB35: 26 46       bne  $FB7D
+
+FB37: 96 17       lda  $17
+FB39: 27 42       beq  $FB7D
+FB3B: 7A 00 18    dec  $0018
+FB3E: 27 3D       beq  $FB7D
+FB40: 9B 24       adda $24
+FB42: 97 24       sta  $24
+FB44: DE 1C       ldx  $1C
+FB46: 5F          clrb 
+FB47: 96 24       lda  $24
+FB49: 7D 00 17    tst  $0017
+FB4C: 2B 06       bmi  $FB54
+FB4E: AB 00       adda (x+$00)
+FB50: 25 08       bcs  $FB5A
+FB52: 20 0B       bra  $FB5F
+FB54: AB 00       adda (x+$00)
+FB56: 27 02       beq  $FB5A
+FB58: 25 05       bcs  $FB5F
+FB5A: 5D          tstb 
+FB5B: 27 08       beq  $FB65
+FB5D: 20 0F       bra  $FB6E
+FB5F: 5D          tstb 
+FB60: 26 03       bne  $FB65
+FB62: DF 1C       stx  $1C
+FB64: 5C          incb 
+FB65: 08          inx  
+FB66: 9C 1E       cmpx $1E
+FB68: 26 DD       bne  $FB47
+FB6A: 5D          tstb 
+FB6B: 26 01       bne  $FB6E
+FB6D: 39          rts  
+
+FB6E: DF 1E       stx  $1E
+FB70: 96 16       lda  $16
+FB72: 27 06       beq  $FB7A
+FB74: 8D 08       bsr  $FB7E
+FB76: 96 1B       lda  $1B
+FB78: 8D 16       bsr  $FB90
+FB7A: 7E FA EE    jmp  $FAEE
+FB7D: 39          rts  
+
+FB7E: CE 00 25    ldx  #$0025
+FB81: DF 10       stx  $10
+FB83: DE 19       ldx  $19
+FB85: E6 00       ldb  (x+$00)
+FB87: 08          inx  
+FB88: BD F9 17    jsr  $F917		Copy B bytes from X to *$0010
+FB8B: DE 10       ldx  $10
+FB8D: DF 20       stx  $20
+FB8F: 39          rts  
+
+FB90: 4D          tsta 
+FB91: 27 2B       beq  $FBBE
+FB93: DE 19       ldx  $19
+FB95: DF 0E       stx  $0E
+FB97: CE 00 25    ldx  #$0025
+FB9A: 97 13       sta  $13
+FB9C: DF 10       stx  $10
+FB9E: DE 0E       ldx  $0E
+FBA0: D6 13       ldb  $13
+FBA2: D7 12       stb  $12
+FBA4: E6 01       ldb  (x+$01)
+FBA6: 54          lsrb 
+FBA7: 54          lsrb 
+FBA8: 54          lsrb 
+FBA9: 54          lsrb 
+FBAA: 08          inx  
+FBAB: DF 0E       stx  $0E
+FBAD: DE 10       ldx  $10
+FBAF: A6 00       lda  (x+$00)
+FBB1: 10          sba  
+FBB2: 7A 00 12    dec  $0012
+FBB5: 26 FA       bne  $FBB1
+FBB7: A7 00       sta  (x+$00)
+FBB9: 08          inx  
+FBBA: 9C 20       cmpx $20
+FBBC: 26 DE       bne  $FB9C
+FBBE: 39          rts 
+
+IRQ Entry: (Sound Command Sent)
+FBBF: 8E 00 7F    lds  #$007F		Reset the Stack
+FBC2: B6 04 02    lda  $0402		Get Sound Command
+FBC5: C6 80       ldb  #$80	
+FBC7: F7 04 02    stb  $0402		Reset the IRQ?
+FBCA: 7C 00 09    inc  $0009
+FBCD: 43          coma 
+FBCE: 84 7F       anda #$7F
+FBD0: 36          psha 
+FBD1: 84 5F       anda #$5F
+FBD3: 81 16       cmpa #$16
+FBD5: 27 03       beq  $FBDA		
+FBD7: 7F 00 07    clr  $0007		Clear for all but Sound #16
+FBDA: 81 18       cmpa #$18
+FBDC: 27 03       beq  $FBE1
+FBDE: 7F 00 08    clr  $0008		Clear for all but Sound #18
+FBE1: 32          pula 
+FBE2: 85 20       bita #$20		Check BitFlag #20
+FBE4: 27 1C       beq  $FC02	
+FBE6: F6 DF FD    ldb  $DFFD		Check for Speech ROM's
+FBE9: C1 7E       cmpb #$7E
+FBEB: 26 15       bne  $FC02		Goto Regular Sound Routine if no speech ROM's installed
+FBED: BD DF FD    jsr  $DFFD		Goto Speech Hander Routine
+
+FBF0: 0E          cli  
+FBF1: F6 04 02    ldb  $0402
+FBF4: D6 13       ldb  $13
+FBF6: 26 0A       bne  $FC02
+FBF8: 81 14       cmpa #$14
+FBFA: 27 06       beq  $FC02
+FBFC: CE 2E E0    ldx  #$2EE0
+FBFF: 09          dex  
+FC00: 26 FD       bne  $FBFF
+FC02: 0E          cli  
+FC03: 85 40       bita #$40		Check for BitFlag #40
+FC05: 27 09       beq  $FC10
+FC07: 84 1F       anda #$1F
+FC09: 81 01       cmpa #$01		Except for Sound #41
+FC0B: 27 03       beq  $FC10
+FC0D: 7E F9 2B    jmp  $F92B		Goto Chime Routine 
+
+Synthesized Sound Routine:
+FC10: 84 1F       anda #$1F		Mask off Chime and Speech flags
+FC12: 27 2A       beq  $FC3E
+FC14: 4A          deca 
+FC15: 27 4D       beq  $FC64		Branch for Sound #01
+FC17: 81 0D       cmpa #$0D
+FC19: 22 09       bhi  $FC24		Branch for Sounds #0E-1F
+Sounds #02-0D:
+FC1B: 4A          deca 
+FC1C: BD FA 88    jsr  $FA88		Load Table Data and Envelope
+FC1F: BD FA EE    jsr  $FAEE
+FC22: 20 1A       bra  $FC3E
+-
+FC24: 81 17       cmpa #$17
+FC26: 22 0E       bhi  $FC36		Branch for Sounds #18-1F
+-
+FC28: 80 0E       suba #$0E		Here for Sounds #0E-17:
+FC2A: 48          asla 
+FC2B: CE FC D3    ldx  #$FCD3
+FC2E: 8D 25       bsr  $FC55		Add A to X
+FC30: EE 00       ldx  (x+$00)
+FC32: AD 00       jsr  (x+$00)
+FC34: 20 08       bra  $FC3E
+-
+FC36: 80 18       suba #$18		Here for Sounds #18-1F
+FC38: BD F8 2E    jsr  $F82E		Copy Data to RAM
+FC3B: BD F8 43    jsr  $F843
+Background Sounds:
+FC3E: 96 04       lda  $04
+FC40: 9A 05       ora  $05
+FC42: 27 FE       beq  $FC42
+FC44: 4F          clra 
+FC45: 97 07       sta  $07
+FC47: 97 08       sta  $08
+FC49: 96 04       lda  $04
+FC4B: 27 05       beq  $FC52
+FC4D: 2B 03       bmi  $FC52
+FC4F: 7E F9 D3    jmp  $F9D3		Time Fantasy BG Sounds
+FC52: 7E FA 27    jmp  $FA27		Jungle Lord Style BG Sounds
+
+Add A to X:
+FC55: DF 0E       stx  $0E
+FC57: 9B 0F       adda $0F
+FC59: 97 0F       sta  $0F
+FC5B: 96 0E       lda  $0E
+FC5D: 89 00       adca #$00
+FC5F: 97 0E       sta  $0E
+FC61: DE 0E       ldx  $0E
+FC63: 39          rts  
+
+Sound #01
+FC64: CE 00 E0    ldx  #$00E0
+FC67: 86 20       lda  #$20
+FC69: 8D EA       bsr  $FC55		Add A to X
+FC6B: 09          dex  
+FC6C: 26 FD       bne  $FC6B		Delay #100
+FC6E: 7F 04 00    clr  $0400		Output to DAC
+FC71: 5A          decb 
+FC72: 26 FD       bne  $FC71
+FC74: 73 04 00    com  $0400		Output to DAC
+FC77: DE 0E       ldx  $0E
+FC79: 8C 10 00    cmpx #$1000
+FC7C: 26 E9       bne  $FC67
+FC7E: 20 BE       bra  $FC3E
+
+NMI Entry: (Test Switch)
+FC80: 0F          sti  
+FC81: 8E 00 7F    lds  #$007F
+FC84: CE FF FF    ldx  #$FFFF
+FC87: 5F          clrb 
+FC88: E9 00       adcb (x+$00)
+FC8A: 09          dex  
+FC8B: 8C F8 00    cmpx #$F800
+FC8E: 26 F8       bne  $FC88		Loop for CSUM of Sound ROM
+FC90: E1 00       cmpb (x+$00)		Compare with ROM CSUM Data
+FC92: 27 01       beq  $FC95		Branch if Okay
+FC94: 3E          sync 			Stay Here Forever!
+FC95: 7F 04 02    clr  $0402		Begin Sounds
+FC98: CE 2E E0    ldx  #$2EE0
+FC9B: 09          dex  
+FC9C: 26 FD       bne  $FC9B		Delay #2EE0
+FC9E: BD F9 81    jsr  $F981		Sound #0F
+FCA1: BD F9 81    jsr  $F981		Sound #0F
+FCA4: BD F9 81    jsr  $F981		Sound #0F
+FCA7: 86 80       lda  #$80
+FCA9: B7 04 02    sta  $0402
+FCAC: 86 01       lda  #$01		Sound #03
+FCAE: BD FA 88    jsr  $FA88		Load Table Data and Envelope
+FCB1: BD FA EE    jsr  $FAEE
+FCB4: 86 0B       lda  #$0B		Sound #0D
+FCB6: BD FA 88    jsr  $FA88		Load Table Data and Envelope
+FCB9: BD FA EE    jsr  $FAEE
+FCBC: BD F8 90    jsr  $F890
+FCBF: 86 02       lda  #$02
+FCC1: BD F8 2E    jsr  $F82E
+FCC4: BD F8 43    jsr  $F843
+FCC7: F6 DF FA    ldb  $DFFA
+FCCA: C1 7E       cmpb #$7E
+FCCC: 26 B2       bne  $FC80		No Speech ROM's, Repeat Sounds
+FCCE: BD DF FA    jsr  $DFFA		Jump to Speech ROM Entry
+FCD1: 20 AD       bra  $FC80		Repeat All Sounds + Speech
+
+** Sound Table for #0E-17 **
+FCD3: F8 98 (0E)
+FCD5: F9 81 (0F)
+FCD7: F9 C0 (10)
+FCD9: FA 3C (11)  
+FCDB: FA 0D (12)
+FCDD: F8 D1 (13)
+FCDF: FA 14 (14) 
+FCE1: FA 64 (15)
+FCE3: F8 90 (16)
+FCE5: FA 76 (17)
+ 
+Chime Data:
+FCE7: DA FF DA 80 26 01 26 80 07 0A 07 00 F9 F6 F9 00 
+
+Chime Table:
+FCF7: 3A       
+FCF8: 3E        
+FCF9: 50       
+FCFA: 46      
+FCFB: 33        
+FCFC: 2C 
+FCFD: 27    
+FCFE: 20 
+FCFF: 25   
+FD00: 1C          
+FD01: 1A          
+FD02: 17        
+FD03: 14         
+FD04: 11          
+FD05: 10         
+FD06: 33 
+
+Chime Table:
+FD07: 08        
+FD08: 03       
+FD09: 02         
+FD0A: 01        
+FD0B: 02          
+FD0C: 03
+FD0D: 04
+FD0E: 05 
+FD0F: 06 
+FD10: 0A 
+FD11: 1E 
+FD12: 32       
+FD13: 70 
+FD14: 00
+
+Monotonous Sound Table:
+Byte1:	1st timer
+Byte2:	2nd timer
+Byte3:	1st increment
+Byte4:	2nd increment
+Byte5:	2nd Max
+Byte6-7:	Duration 
+Byte8:	Multiplier
+Byte9:	Initial DAC Data
+
+FD15: 40 01 00 10 E1 00 80 FF FF 
+FD1E: 20 01 00 08 E1 00 80 FF FF 
+FD27: 28 01 00 08 81 02 00 FF FF 
+FD30: 00 FF 08 FF 68 04 80 00 FF 
+FD3A: 28 81 00 FC 01 02 00 FC FF 
+FD43: 01 01 00 08 81 02 00 01 FF 
+FD4C: 01 08 00 01 20 01 00 01 FF 
+FD55: 60 01 57 08 E1 02 00 FE B0
+ 
+FD5D: FF 01 00 18 41 04 80 00 FF 
+FD67: FF 01 00 50 41 04 80 FF FF 
+
+
+FD6F: 01 FC 02 FC 03 F8 04 F8 06 F8 08 F4 0C F4 10 F4
+FD7F: 20 F2 40 F1 60 F1 80 F1 A0 F1 C0 F1 00 00 08 7F
+FD8F: D9 FF D9 7F 24 00 24 08 FF FF FF FF 00 00 00 00
+FD9F: 08 00 40 80 00 FF 00 80 40 10 7F B0 D9 F5 FF F5
+FDAF: D9 B0 7F 4E 24 09 00 09 24 4E 10 7F C5 EC E7 BF
+FDBF: 8D 6D 6A 7F 94 92 71 40 17 12 39 10 76 FF B8 D0
+FDCF: 9D E6 6A 82 76 EA 81 86 4E 9C 32 63 10 FF FF FF
+FDDF: FF FF FF FF FF 00 00 00 00 00 00 00 00 10 FF FF
+FDEF: FF FF 00 00 00 00 FF FF FF FF 00 00 00 00 10 00
+FDFF: F4 00 E8 00 DC 00 E2 00 DC 00 E8 00 F4 00 00 48
+FE0F: 8A 95 A0 AB B5 BF C8 D1 DA E1 E8 EE F3 F7 FB FD
+FE1F: FE FF FE FD FB F7 F3 EE E8 E1 DA D1 C8 BF B5 AB
+FE2F: A0 95 8A 7F 75 6A 5F 54 4A 40 37 2E 25 1E 17 11
+FE3F: 0C 08 04 02 01 00 01 02 04 08 0C 11 17 1E 25 2E
+FE4F: 37 40 4A 54 5F 6A 75 7F 10 59 7B 98 AC B3 AC 98
+FE5F: 7B 59 37 19 06 00 06 19 37 
+
+
+Basic Sound Table:
+
+Byte 1:
+Byte 2:
+Byte 3:
+Byte 4:
+Byte 5:
+Byte 6: Length of Data Envelope Table
+Byte 7: Offset into Envelope Table
+
+(0)FE68: 14 10 00 01 00 01 6A 
+(1)FE6F: 81 27 00 00 00 16 54 
+(2)FE76: 12 09 1A FF 00 27 91
+(3)FE7D: 11 09 11 01 0F 01 6A 
+(4)FE84: 11 32 00 01 00 0D 1B 
+(5)FE8B: 14 11 00 00 00 0E 0D 
+(6)FE92: F4 13 00 00 00 14 6A
+(7)FE99: 41 49 00 00 00 0F 7E
+(8)FEA0: 21 39 11 FF 00 0D 1B 
+(9)FEA7: 42 46 00 00 00 0E 28
+(A)FEAE: 15 00 00 FD 00 01 8C
+(B)FEB5: F1 18 00 00 00 0E 28
+(C)FEBC: 31 12 00 01 00 03 8D
+(D)FEC3: 81 09 11 FF 00 01 90 
+(E)FECA: 31 12 00 FF 00 0D 00
+(F)FED1: 12 0A 00 FF 01 09 4B
+
+Envelope Table:
+ 	  
+FED8:(00) A0 98 90 88 80 78 70 68 60 58 50 44 40 
+FED5:(0D) 01 01 02 02 04 04 08 08 10 10 30 60 C0 E0 
+FEF4:(1B) 01 01 02 02 03 04 05 06 07 08 09 0A 0C 
+FF00:(28) 08 80 10 78 18 70 20 60 28 58 30 50 40 48 
+FF0E:(3D) 04 05 06 07 08 0A 0C 0E 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 
+FF23:(4B) 80 7C 78 74 70 74 78 7C 80 
+FF2C:(54) 01 01 02 02 04 04 08 08 10 20 28 30 38 40 48 50 60 70 80 A0 B0 C0 
+FF43:(6A) 08 40 08 40 08 40 08 40 08 40 08 40 08 40 08 40 08 40 08 40 
+FF57:(7E) 01 02 04 08 09 0A 0B 0C 0E 0F 10 12 14 16 40 
+FF55:(8C) 10 
+FF56:(8D) 08 01 92 
+FF59:(90) 01 
+FF5A:(91) 01 01 01 02 02 03 03 04 04 05 06 08 0A 0C 10 14 
+          18 20 30 40 50 40 30 20 10 0C 0A 08 07 06 05 04
+          03 02 02 01 01 01 00
+
+????
+FFF3: 7E FC 55 
+FFF6: DF DA 
+      
+FFF8: FB BF 	IRQ Entry
+FFFA: F8 01 	SWI Entry
+FFFC: FC 80		NMI Entry
+FFFE: F8 01 	RES Entry

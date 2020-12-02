@@ -1,0 +1,88 @@
+;	==============================
+;
+;	Grand Lizard Sound ROM
+;       ==============================
+;
+;       Last edited: 12/06/2001
+;	  Jess M. Askey
+;
+
+;=============================================================================
+;
+;	Symbol file syntax
+;	~~~~~~~~~~~~~~~~~~
+;
+;	A symbol file may contain the following commands:
+;
+;	Define the CPU type
+;		cpu 6800 | 6801 | 6802 | 6803 | 6808 | 6809 | 6502 | Z80 | 8048
+;
+;	Define a symbol corresponding to a value (usually an address)
+;		symbol <value> <name>
+;
+;	Define a location that contains a word pointing to a code entry
+;	(for example, the reset entry point)
+;		vector <address> <vector name> [<destination name>]
+;
+;	Define a table of vectors (i.e. a jump table) of length <count>
+;	Each vector will be used as a code entry point if threading is used.
+;		vectab <address> <name> [<count>]
+;
+;	Define a code entry point (for code threading)
+;		code <address> [<name>]
+;
+;	Define a single data byte, or <count> length array of bytes
+;		byte <address> <name> [<count>]
+;
+;	Define a single data word, or <count> length array of words
+;		word <address> <name> [<count>]
+;
+;	Define a table of addresses, which point to data, of length <count>
+;		addrtab <address> <name> [<count>]
+;
+;	Define a single data character, or <count> length string of chars
+;		string <address> <name> [<count>]
+;
+;
+;	All commands must occupy a single line.  Blank lines are ignored.
+;	The ';' character starts a comment - all remaining characters on a
+;	a line are ignored.  Number values may be given in decimal (default),
+;	octal or hex using standard C conventions (e.g. 0x prefix for hex).
+;
+;	The rest of this file serves as a practical example of how these
+;	commands may be used.
+;
+
+;=============================================================================
+
+cpu		6800
+
+symbol		0x2000	pia_command
+symbol		0x2001	pia_control_a
+symbol		0x2002	pia_dac_out
+symbol		0x2003	pia_control_b
+
+vectab 	0xCDC9 	snd_tbl_1 		28
+vectab 	0xd1c7 	snd_tbl_2		8
+addrtab 	0xd302	snd_tbl_3		11
+
+code		0xC072
+code		0xBE34
+code		0xBE2C
+code		0xC296
+code		0xC2F5
+code		0xC499
+code		0xC901
+code		0xc90e
+code		0xC97D
+code		0xCB02
+code		0xCB3A
+code		0xD1FA
+
+
+;reset and interrupt vectors
+vector		0xFFF8	irq_vector	irq_entry
+vector		0xFFFA	swi_vector	swi_entry
+vector		0xFFFC	nmi_vector	nmi_entry
+vector		0xFFFE	res_vector	reset_entry
+

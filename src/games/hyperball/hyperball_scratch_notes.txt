@@ -1,0 +1,163 @@
+
+0010 8	lampbuffer0
+0018 F	lampbuffer0x
+001C	bitflags
+0024	bitflagsx
+0028 8	lampbufferselect 
+0030 F	lampbufferselectx
+0034 8	lampbuffer1
+003C 4	lampbuffer1x
+0040	lampflashflag
+
+004C	score_p1_b0
+0050	score_p2_b0
+0054	score_p1_b1
+0058	score_p2_b1
+005C   	mbip_b0			
+005D    mbip_b1			
+005E	cred_b0,score_p1_b0+3
+005F	cred_b1
+0060	alpha_b0
+006C	alpha_b1
+
+0078	dmask_p1
+0079	dmask_p2
+007A	dmask_p3
+007B	dmask_p4
+007C	comma_flags
+007D	switch_debounced
+0085	switch_masked
+008D	switch_pending
+0095	switch_aux
+009D	switch_b4
+00A5	irq_counter
+00A6	lamp_index_word
+00A7	lamp_index_wordx
+00A8	lamp_bit
+00A9	comma_data_temp
+
+00AA	credp1p2_bufferselect
+00AB	mbipp3p4_bufferselect
+00AC	swap_player_displays
+00AD	alpha_digit_cur
+00AF	solenoid_address
+00B1	solenoid_bitpos
+00B2	solenoid_counter
+00B3	irqcount16
+00B4	switch_queue_pointer
+00B6	solenoid_queue_pointer
+00B8	temp1
+00B9	temp1+1
+00BA	temp2
+00BB	temp2+1
+00BC	temp3
+00BD	temp3+1
+00BE	sys_temp1
+00BF	sys_temp2
+00C0	sys_temp3
+00C1	sys_temp4
+00C2	sys_temp5
+
+00C3	sw_encoded
+00C4	sys_temp_w2
+00C5	sys_temp_w2+1
+00C6	sys_temp_w3
+00C8	thread_priority
+00CA	irqcount
+00CB	vm_base
+00CD	vm_nextslot
+00CE	vm_nextslot+1
+00CF	current_thread
+00D1	vm_tail_thread
+00D3	lamp_flash_rate
+00D4	lamp_flash_count
+00D5	thread_timer_byte
+00D6	soundcount
+00D7	lastsound
+00D8	cur_sndflags
+00D9	soundptr
+00DB	soundirqcount (two bytes)
+00DD	soundindex_com
+00DF	sys_soundflags
+00E4 	next_sndcnt
+00E5	next_sndcmd
+
+00E6	flag_tilt
+00E7	flag_gameover
+00E8	random_bool
+00E9	flags_selftest
+00EA	num_players
+00EB	player_up
+00EC	pscore_buf
+00EF 	vm_pc
+00F1	num_tilt
+00F2	minutetimer
+00F4	flag_timer_bip
+00F5	randomseed
+00F6	x_temp_1
+00F8	eb_x_temp
+00FA	credit_x_temp
+00FC	x_temp_2
+00FE	character_ptr
+
+0102	aud_leftcoins
+0106	aud_centercoins
+010A	aud_rightcoins
+010E	aud_paidcredits
+0112	aud_specialcredits
+0116	aud_replaycredits
+011A	aud_matchcredits
+011E	aud_totalcredits
+0122	aud_extraballs
+0126	aud_avgballtime
+012A	aud_totalballs
+012E
+0132
+
+
+0146
+0148
+014A	aud_autocycles
+014E	aud_hstdcredits
+0162	cmos_bonusunits
+0164	cmos_coinunits
+0166	aud_currenthstd
+016E	aud_currentcredits
+0170	aud_command
+017D	adj_base
+0181	adj_backuphstd
+0183
+0185
+0187
+0189
+018B	adj_matchenable
+0191	adj_maxplumbbobtilts
+0193	adj_energystandard
+0195	adj_energyextended
+0197	adj_gameadjust2
+0199	adj_gameadjust3
+01AB	adj_max_credits
+01AD	adj_pricecontrol
+01AF	cmos_pricingbase, cmos_leftcoinmult
+01B5	cmos_coinsforcredit
+01B7	cmos_bonuscoins
+01B9	cmos_minimumcoins
+
+1100	switch_queue
+1118	sol_queue
+1128	score_queue, sol_queue_full
+1130	exe_buffer, score_queue_full $10
+1140    p1_gamedata	
+1159    p2_gamedata		
+1192	threadpool_base
+119A	current_credits
+
+D003	gr_defaudit
+D04B	gr_maxthreads
+D051	gr_switchtable_ptr
+
+F432 	macro_start
+F436	macro_rts
+
+
+

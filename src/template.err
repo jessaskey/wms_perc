@@ -1,0 +1,10 @@
+TASM 6800-6811 Assembler  Version 3.1  February, 1998.
+ Copyright (C) 1998 Squak Valley Software
+tasm: source file open error on 7gen.asm
+TASM 6800-6811 Assembler  Version 3.1  February, 1998.
+ Copyright (C) 1998 Squak Valley Software
+tasm: pass 1 complete.
+tasm: pass 2 complete.
+tasm: Number of errors = 0
+Elapsed time = 19.53 secs  lines = 5323   lines/sec = 272
+

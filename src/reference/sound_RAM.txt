@@ -1,0 +1,36 @@
+Sound RAM Locations:
+
+0004:
+0005:
+0006:
+0007:
+0008:
+
+
+000E-000F: Temp
+0010-0011: Temp
+0012-0013: Temp?
+
+Table Sound:
+0014:
+0015: 
+0016:
+0017:
+0018:
+0019:
+001A:
+001B:
+001C:	Initial DAC Data
+
+
+Envelope Sound:
+001C-001D: Envelope Data Start Address
+001E-001F: Envelope Data End Address
+0020-0021:
+0022-0023:
+0024-0025:
+
+
+
+
+

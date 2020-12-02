@@ -1,0 +1,2069 @@
+{\rtf1\ansi\deff0\deflang1033{\fonttbl {\f0\fnil\fprq1 \'0cmodernCourier;}{\f1\fmodern Courier;}}
+{\colortbl ;\red0\green0\blue175;\red0\green0\blue0;\red0\green155\blue0;\red100\green0\blue80;}
+\uc1\pard\cf1\ulnone\f0\fs20 ;--------------------------------------------------------------\par
+;  Jungle Lord Game ROM\par
+;--------------------------------------------------------------\par
+\cf2\par
+\cf3 D800: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 D803: \cf2  52 05        _PRI             ;Priority=#05\par
+\cf3 D805: \cf2  5A FC FF D8\par
+\cf3     : \cf2  F2 F0 00 02  _BEQ(rel)        ;If (ADJ#8 & #F0)==#00 to $D80F\par
+\cf3 D80D: \cf2  31 CE        _SOL             ;Turn ON   Sol#14:Bell\par
+\cf3 D80F: \cf2  10 E0        _LAMP            ;Turn ON Bit #20\par
+\cf3 D811:\cf2      62                         ;Turn ON Bit #22\par
+\cf3 D812: \cf2  90 19        _JSRR            ;$D82D\par
+\cf3 D814: \cf2  90 17        _JSRR            ;$D82D\par
+\cf3 D816: \cf2  90 20        _JSRR            ;$D838\par
+\cf3 D818: \cf2  90 13        _JSRR            ;$D82D\par
+\cf3 D81A: \cf2  90 11        _JSRR            ;$D82D\par
+\cf3 D81C: \cf2  53 18        _DELAY           ;Delay #24\par
+\cf3 D81E: \cf2  94 A1        _JSRR            ;$DCC1\par
+\cf3 D820: \cf2  7C           _DELAY           ;Delay #12\par
+\cf3 D821: \cf2  94 AA        _JSRR            ;$DCCD\par
+\cf3 D823: \cf2  78           _DELAY           ;Delay #8\par
+\cf3 D824: \cf2  94 9B        _JSRR            ;$DCC1\par
+\cf3 D826: \cf2  7C           _DELAY           ;Delay #12\par
+\cf3 D827: \cf2  94 A4        _JSRR            ;$DCCD\par
+\cf3 D829: \cf2  11 62        _LAMP            ;Turn OFF Bit #22\par
+\cf3 D82B: \cf2  F1           _SND             ;Sound #11\par
+\cf3 D82C: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 D82D: \cf2  92 6E        _JSRR            ;$DA9D\par
+\cf3 D82F: \cf2  94 74        _JSRR            ;$DCA5\par
+\cf3 D831: \cf2  7C           _DELAY           ;Delay #12\par
+\cf3 D832: \cf2  94 7E        _JSRR            ;$DCB2\par
+\cf3 D834: \cf2  92 58        _JSRR            ;$DA8E\par
+\cf3 D836: \cf2  76           _DELAY           ;Delay #6\par
+\cf3 D837: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 D838: \cf2  92 63        _JSRR            ;$DA9D\par
+\cf3 D83A: \cf2  94 69        _JSRR            ;$DCA5\par
+\cf3 D83C: \cf2  76           _DELAY           ;Delay #6\par
+\cf3 D83D: \cf2  8F F3        _JMPR            ;$D832\par
+\cf1 ;Coin Accepted Hook-\par
+\cf3 D83F: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 D842: \cf2  5B 69 04     _BNE(rel)        ;If BIT#69 to $D849\par
+\cf3 D845: \cf2  31 CE        _SOL             ;Turn ON   Sol#14:Bell\par
+\cf3 D847: \cf2  53 14        _DELAY           ;Delay #20\par
+\cf3 D849: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 D84A: \cf2  39            rts\par
+\cf1 ;Left Outlane(switch)/Right Outlane(switch)-\par
+\cf3 D84B: \cf2  43 2B        _PTSDIG          ;5000 Points/Digit Sound\par
+\cf3 D84D: \cf2  C1 02        _SETRAM          ;RAM$01 = #02\par
+\cf3 D84F: \cf2  94 A4        _JSRR            ;$DCF5\par
+\cf3 D851: \cf2  5B E0 24     _BNE(rel)        ;If RAM$00 to $D878\par
+\cf3 D854: \cf2  15 00        _LAMP            ;Turn OFF Lamp/Bit @RAM$00\par
+\cf3 D856: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 D857: \cf2  CE 01 36      ldx #0136\par
+\cf3 D85A: \cf2  BD F7 7F      jsr $F77F       ;SYSCALL- Add 1 to data at X\par
+\cf3 D85D: \cf2  F3           _SND             ;Sound #13\par
+\cf3 D85E: \cf2  29 08        _LAMP2           ;Lamp Effect #08\par
+\cf3 D860: \cf2  A4 25        _JSRDR           ;$DC87\par
+\cf3 D862: \cf2  B0 40        _ADDRAM          ;RAM$00 += #40\par
+\cf3 D864: \cf2  24 00        _LAMP2           ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 D866: \cf2  B0 F8        _ADDRAM          ;RAM$00 += #F8\par
+\cf3 D868: \cf2  15 00        _LAMP            ;Turn OFF Lamp/Bit @RAM$00\par
+\cf3 D86A: \cf2  21 1A        _LAMP2           ;Turn OFF Lamp #1A(Keep Shooting PF)\par
+\cf3 D86C: \cf2  13 1A        _LAMP            ;Flash Lamp #1A(Keep Shooting PF)\par
+\cf3 D86E: \cf2  10 66        _LAMP            ;Turn ON Bit #26\par
+\cf3 D870: \cf2  31 F8        _SOL             ;Turn ON   Sol#8:5-Bank Target #1 Reset\par
+\cf3 D872: \cf2  92 29        _JSRR            ;$DA9D\par
+\cf3 D874: \cf2  45           _EXE             ;CPU Execute Next 3 Bytes\par
+\cf3 D875: \cf2  7C 00 C8      inc $00C8       ;$00C8\par
+\cf3 D878: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 D879: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 D87C: \cf2  52 43        _PRI             ;Priority=#43\par
+\cf3 D87E: \cf2  55 FA 42     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 D881: \cf2  C1 0B        _SETRAM          ;RAM$01 = #0B\par
+\cf3 D883: \cf2  28 02        _LAMP2           ;Lamp Effect #02\par
+\cf3 D885: \cf2  28 42        _LAMP2           ;Lamp Effect #02\par
+\cf3 D887: \cf2  21 4F        _LAMP2           ;Turn OFF Bit #0F\par
+\cf3 D889: \cf2  2E 02        _LAMP2           ;Lamp Effect #02\par
+\cf3 D88B: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 D88C: \cf2  5B F5 82 F5  _BNE(rel)        ;If RangeOFF#82 to $D885\par
+\cf3 D890: \cf2  2A 02        _LAMP2           ;Lamp Effect #02\par
+\cf3 D892: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 D893: \cf2  5B F6 82 F9  _BNE(rel)        ;If RangeON#82 to $D890\par
+\cf3 D897: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 D899: \cf2  5B FC E1 00\par
+\cf3     : \cf2  E7           _BNE(rel)        ;If RAM$01==#00 to $D885\par
+\cf3 D89E: \cf2  5A FB 40 F1\par
+\cf3     : \cf2  DE           _BEQ(rel)        ;If (BIT#40 || GAME) to $D881\par
+\cf3 D8A3: \cf2  29 42        _LAMP2           ;Lamp Effect #02\par
+\cf3 D8A5: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 D8A6: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 D8A9: \cf2  4A           _EXE             ;CPU Execute Next 8 Bytes\par
+\cf3 D8AA: \cf2  BD E5 9F      jsr $E59F       ;$E59F\par
+\cf3 D8AD: \cf2  48            asla\par
+\cf3 D8AE: \cf2  8B 0D         adda #0D\par
+\cf3 D8B0: \cf2  C6 08         ldb #08\par
+\cf3 D8B2: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 D8B4: \cf2  10 1C        _LAMP            ;Turn ON Lamp #1C(Left 3-Bank)\par
+\cf3 D8B6: \cf2  E9           _SND             ;Sound #09\par
+\cf3 D8B7: \cf2  60           _DELAY           ;Delay RAM$00\par
+\cf3 D8B8: \cf2  11 1C        _LAMP            ;Turn OFF Lamp #1C(Left 3-Bank)\par
+\cf3 D8BA: \cf2  60           _DELAY           ;Delay RAM$00\par
+\cf3 D8BB: \cf2  5A FE F2 F0\par
+\cf3     : \cf2  10 F9        _BEQ(rel)        ;If (#F0 P LAMP#10(#1 Target)) to $D8BA\par
+\cf3 D8C1: \cf2  5B FC E0 03\par
+\cf3     : \cf2  EC           _BNE(rel)        ;If RAM$00==#03 to $D8B2\par
+\cf3 D8C6: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 D8C8: \cf2  5B FC E1 00\par
+\cf3     : \cf2  E7           _BNE(rel)        ;If RAM$01==#00 to $D8B4\par
+\cf3 D8CD: \cf2  10 5D        _LAMP            ;Turn ON Bit #1D\par
+\cf3 D8CF: \cf2  31 63        _SOL             ;Turn ON   Sol#3:Left Drop Target Reset\par
+\cf3 D8D1: \cf2  53 30        _DELAY           ;Delay #48\par
+\cf3 D8D3: \cf2  11 DC        _LAMP            ;Turn OFF Bit #1C\par
+\cf3 D8D5:\cf2      DD                         ;Turn OFF Bit #1D\par
+\cf3 D8D6:\cf2      1C                         ;Turn OFF Lamp #1C(Left 3-Bank)\par
+\cf3 D8D7: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 D8D8: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 D8DB: \cf2  52 70        _PRI             ;Priority=#70\par
+\cf3 D8DD: \cf2  4A           _EXE             ;CPU Execute Next 8 Bytes\par
+\cf3 D8DE: \cf2  BD E5 9F      jsr $E59F       ;$E59F\par
+\cf3 D8E1: \cf2  48            asla\par
+\cf3 D8E2: \cf2  8B 0D         adda #0D\par
+\cf3 D8E4: \cf2  C6 08         ldb #08\par
+\cf3 D8E6: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 D8E8: \cf2  10 18        _LAMP            ;Turn ON Lamp #18(Right 3-Bank)\par
+\cf3 D8EA: \cf2  E9           _SND             ;Sound #09\par
+\cf3 D8EB: \cf2  60           _DELAY           ;Delay RAM$00\par
+\cf3 D8EC: \cf2  11 18        _LAMP            ;Turn OFF Lamp #18(Right 3-Bank)\par
+\cf3 D8EE: \cf2  60           _DELAY           ;Delay RAM$00\par
+\cf3 D8EF: \cf2  5A FE F2 F0\par
+\cf3     : \cf2  10 F9        _BEQ(rel)        ;If (#F0 P LAMP#10(#1 Target)) to $D8EE\par
+\cf3 D8F5: \cf2  5B FC E0 03\par
+\cf3     : \cf2  EC           _BNE(rel)        ;If RAM$00==#03 to $D8E6\par
+\cf3 D8FA: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 D8FC: \cf2  5B FC E1 00\par
+\cf3     : \cf2  E7           _BNE(rel)        ;If RAM$01==#00 to $D8E8\par
+\cf3 D901: \cf2  10 59        _LAMP            ;Turn ON Bit #19\par
+\cf3 D903: \cf2  31 64        _SOL             ;Turn ON   Sol#4:Right Drop Target Reset\par
+\cf3 D905: \cf2  53 30        _DELAY           ;Delay #48\par
+\cf3 D907: \cf2  11 D8        _LAMP            ;Turn OFF Bit #18\par
+\cf3 D909:\cf2      D9                         ;Turn OFF Bit #19\par
+\cf3 D90A:\cf2      18                         ;Turn OFF Lamp #18(Right 3-Bank)\par
+\cf3 D90B: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Ballshooter Trough(switch)-\par
+\cf3 D90C: \cf2  5B F8 E0 04  _BNE(rel)        ;If SW#E0 to $D914\par
+\cf3 D910: \cf2  55 F8 C0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 D913: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 D914: \cf2  D9 1E        _RSND            ;Sound #19(x30)\par
+\cf3 D916: \cf2  5B FB 50 5E\par
+\cf3     : \cf2  09           _BNE(rel)        ;If (BIT#50 || BIT#5E) to $D924\par
+\cf3 D91B: \cf2  52 C0        _PRI             ;Priority=#C0\par
+\cf3 D91D: \cf2  53 FF        _DELAY           ;Delay #255\par
+\cf3 D91F: \cf2  53 81        _DELAY           ;Delay #129\par
+\cf3 D921: \cf2  5A 5E 0B     _BEQ(rel)        ;If BIT#5E to $D92F\par
+\cf3 D924: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 D925: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf1 ;Playfield Entry(switch)-\par
+\cf3 D928: \cf2  43 09        _PTSDIG          ;10 Points/Digit Sound\par
+\cf3 D92A: \cf2  5B FB 50 5E\par
+\cf3     : \cf2  F5           _BNE(rel)        ;If (BIT#50 || BIT#5E) to $D924\par
+\cf3 D92F: \cf2  11 DE        _LAMP            ;Turn OFF Bit #1E\par
+\cf3 D931:\cf2      50                         ;Turn OFF Bit #10\par
+\cf3 D932: \cf2  55 F8 C0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 D935: \cf2  59 57 E3 56  _BNE(abs)        ;If BIT#57 to $E356\par
+\cf3 D939: \cf2  11 57        _LAMP            ;Turn OFF Bit #17\par
+\cf3 D93B: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Outhole(switch)-\par
+\cf3 D93C: \cf2  31 40        _SOL             ;Turn ON   Sol#0:Ball Release\par
+\cf3 D93E: \cf2  10 55        _LAMP            ;Turn ON Bit #15\par
+\cf3 D940: \cf2  5B FB 50 5E\par
+\cf3     : \cf2  07           _BNE(rel)        ;If (BIT#50 || BIT#5E) to $D94C\par
+\cf3 D945: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 D946: \cf2  CE D9 51      ldx #D951\par
+\cf3 D949: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 D94C: \cf2  53 C0        _DELAY           ;Delay #192\par
+\cf3 D950: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 D951: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 D954: \cf2  8F D9        _JMPR            ;$D92F\par
+\cf3 D956: \cf2  4F            clra\par
+\cf3 D957: \cf2  97 0D         sta $0D\par
+\cf3 D959: \cf2  16            tab\par
+\cf3 D95A: \cf2  BD EC F3      jsr $ECF3       ;$ECF3\par
+\cf3 D95D: \cf2  8A 0F         ora #0F\par
+\cf3 D95F: \cf2  CA F0         orb #F0\par
+\cf3 D961: \cf2  97 49         sta $49\par
+\cf3 D963: \cf2  D7 48         stb $48\par
+\cf3 D965: \cf2  86 0C         lda #0C\par
+\cf3 D967: \cf2  BD EC FC      jsr $ECFC       ;SYSCALL- Play Sound Index(A) Once\par
+\cf3 D96A: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 D96D: \cf2  05\par
+\cf3 D96E: \cf2  96 0D         lda $0D\par
+\cf3 D970: \cf2  8B 01         adda #01\par
+\cf3 D972: \cf2  19            daa\par
+\cf3 D973: \cf2  25 06         bcs $D97B\par
+\cf3 D975: \cf2  97 0D         sta $0D\par
+\cf3 D977: \cf2  91 0A         cmpa $0A\par
+\cf3 D979: \cf2  23 DE         bls $D959\par
+\cf3 D97B: \cf2  39            rts\par
+\cf3 D97C: \cf2  D6 0A         ldb $0A\par
+\cf3 D97E: \cf2  96 E3         lda $E3\par
+\cf3 D980: \cf2  27 0A         beq $D98C\par
+\cf3 D982: \cf2  17            tba\par
+\cf3 D983: \cf2  BD EC F3      jsr $ECF3       ;$ECF3\par
+\cf3 D986: \cf2  8A 0F         ora #0F\par
+\cf3 D988: \cf2  CA F0         orb #F0\par
+\cf3 D98A: \cf2  A7 01         sta $01,X\par
+\cf3 D98C: \cf2  E7 00         stb $00,X\par
+\cf3 D98E: \cf2  8C 00 4B      cmpx #004B\par
+\cf3 D991: \cf2  26 08         bne $D99B\par
+\cf3 D993: \cf2  96 E3         lda $E3\par
+\cf3 D995: \cf2  27 04         beq $D99B\par
+\cf3 D997: \cf2  96 0A         lda $0A\par
+\cf3 D999: \cf2  97 4C         sta $4C\par
+\cf3 D99B: \cf2  39            rts\par
+\cf3 D99C: \cf2  C6 FF         ldb #FF\par
+\cf3 D99E: \cf2  20 DE         bra $D97E\par
+\cf3 D9A0: \cf2  96 E4         lda $E4\par
+\cf3 D9A2: \cf2  27 20         beq $D9C4\par
+\cf3 D9A4: \cf2  96 E3         lda $E3\par
+\cf3 D9A6: \cf2  26 08         bne $D9B0\par
+\cf3 D9A8: \cf2  09            dex\par
+\cf3 D9A9: \cf2  8C 00 53      cmpx #0053\par
+\cf3 D9AC: \cf2  26 11         bne $D9BF\par
+\cf3 D9AE: \cf2  0D            sec\par
+\cf3 D9AF: \cf2  39            rts\par
+\cf3 D9B0: \cf2  8C 00 54      cmpx #0054\par
+\cf3 D9B3: \cf2  26 0A         bne $D9BF\par
+\cf3 D9B5: \cf2  96 0A         lda $0A\par
+\cf3 D9B7: \cf2  44            lsra\par
+\cf3 D9B8: \cf2  44            lsra\par
+\cf3 D9B9: \cf2  44            lsra\par
+\cf3 D9BA: \cf2  44            lsra\par
+\cf3 D9BB: \cf2  8A F0         ora #F0\par
+\cf3 D9BD: \cf2  97 59         sta $59\par
+\cf3 D9BF: \cf2  73 00 E3      com $00E3       ;$00E3\par
+\cf3 D9C2: \cf2  0C            clc\par
+\cf3 D9C3: \cf2  39            rts\par
+\cf3 D9C4: \cf2  96 E3         lda $E3\par
+\cf3 D9C6: \cf2  27 F7         beq $D9BF\par
+\cf3 D9C8: \cf2  08            inx\par
+\cf3 D9C9: \cf2  20 F4         bra $D9BF\par
+\cf3 D9CB: \cf2  8C 00 4F      cmpx #004F\par
+\cf3 D9CE: \cf2  26 08         bne $D9D8\par
+\cf3 D9D0: \cf2  CE 00 53      ldx #0053\par
+\cf3 D9D3: \cf2  73 00 E4      com $00E4       ;$00E4\par
+\cf3 D9D6: \cf2  0D            sec\par
+\cf3 D9D7: \cf2  39            rts\par
+\cf3 D9D8: \cf2  8C 00 50      cmpx #0050\par
+\cf3 D9DB: \cf2  26 05         bne $D9E2\par
+\cf3 D9DD: \cf2  CE 00 54      ldx #0054\par
+\cf3 D9E0: \cf2  20 F1         bra $D9D3\par
+\cf3 D9E2: \cf2  8C 00 4B      cmpx #004B\par
+\cf3 D9E5: \cf2  26 07         bne $D9EE\par
+\cf3 D9E7: \cf2  96 E3         lda $E3\par
+\cf3 D9E9: \cf2  27 0B         beq $D9F6\par
+\cf3 D9EB: \cf2  08            inx\par
+\cf3 D9EC: \cf2  0D            sec\par
+\cf3 D9ED: \cf2  39            rts\par
+\cf3 D9EE: \cf2  8C 00 57      cmpx #0057\par
+\cf3 D9F1: \cf2  26 03         bne $D9F6\par
+\cf3 D9F3: \cf2  73 00 E4      com $00E4       ;$00E4\par
+\cf3 D9F6: \cf2  0C            clc\par
+\cf3 D9F7: \cf2  39            rts\par
+\cf3 D9F8: \cf2  10 40        _LAMP            ;Turn ON Bit #00\par
+\cf3 D9FA: \cf2  52 B5        _PRI             ;Priority=#B5\par
+\cf3 D9FC: \cf2  7B           _DELAY           ;Delay #11\par
+\cf3 D9FD: \cf2  5A FE F2 F2\par
+\cf3     : \cf2  40 F9        _BEQ(rel)        ;If (#F2 P BIT#40) to $D9FC\par
+\cf3 DA03: \cf2  55 F8 D0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 DA06: \cf2  A4 03        _JSRDR           ;$DE0B\par
+\cf3 DA08: \cf2  90 93        _JSRR            ;$DA9D\par
+\cf3 DA0A: \cf2  29 08        _LAMP2           ;Lamp Effect #08\par
+\cf3 DA0C: \cf2  A2 79        _JSRDR           ;$DC87\par
+\cf3 DA0E: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 DA0F: \cf2  CE D8 79      ldx #D879\par
+\cf3 DA12: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DA15: \cf2  CE DA A2      ldx #DAA2\par
+\cf3 DA18: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DA1B: \cf2  7F 00 60      clr $0060       ;$0060\par
+\cf3 DA1E: \cf2  CE 00 48      ldx #0048\par
+\cf3 DA21: \cf2  C6 10         ldb #10\par
+\cf3 DA23: \cf2  86 FF         lda #FF\par
+\cf3 DA25: \cf2  97 59         sta $59\par
+\cf3 DA27: \cf2  97 5B         sta $5B\par
+\cf3 DA29: \cf2  BD F8 40      jsr $F840       ;SYSCALL- Store A from X to X+B\par
+\cf3 DA2C: \cf2  86 FF         lda #FF\par
+\cf3 DA2E: \cf2  BD F8 A4      jsr $F8A4       ;SYSCALL- Store A into Display Buffer Toggles\par
+\cf3 DA31: \cf2  BD D9 56      jsr $D956       ;$D956\par
+\cf3 DA34: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DA37: \cf2  92 6C        _JSRR            ;$DCA5\par
+\cf3 DA39: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 DA3A: \cf2  CE 00 48      ldx #0048\par
+\cf3 DA3D: \cf2  4F            clra\par
+\cf3 DA3E: \cf2  97 E4         sta $E4\par
+\cf3 DA40: \cf2  43            coma\par
+\cf3 DA41: \cf2  97 E3         sta $E3\par
+\cf3 DA43: \cf2  BD D9 7C      jsr $D97C       ;$D97C\par
+\cf3 DA46: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 DA49: \cf2  08\par
+\cf3 DA4A: \cf2  BD D9 9C      jsr $D99C       ;$D99C\par
+\cf3 DA4D: \cf2  BD D9 CB      jsr $D9CB       ;$D9CB\par
+\cf3 DA50: \cf2  25 F1         bcs $DA43\par
+\cf3 DA52: \cf2  BD D9 A0      jsr $D9A0       ;$D9A0\par
+\cf3 DA55: \cf2  24 EC         bcc $DA43\par
+\cf3 DA57: \cf2  96 0A         lda $0A\par
+\cf3 DA59: \cf2  97 59         sta $59\par
+\cf3 DA5B: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DA5E: \cf2  C1 04        _SETRAM          ;RAM$01 = #04\par
+\cf3 DA60: \cf2  53 10        _DELAY           ;Delay #16\par
+\cf3 DA62: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 DA63: \cf2  86 FF         lda #FF\par
+\cf3 DA65: \cf2  97 59         sta $59\par
+\cf3 DA67: \cf2  53 10        _DELAY           ;Delay #16\par
+\cf3 DA69: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 DA6A: \cf2  96 0A         lda $0A\par
+\cf3 DA6C: \cf2  97 59         sta $59\par
+\cf3 DA6E: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 DA70: \cf2  5B FC E1 00\par
+\cf3     : \cf2  EB           _BNE(rel)        ;If RAM$01==#00 to $DA60\par
+\cf3 DA75: \cf2  4D           _EXE             ;CPU Execute Next 11 Bytes\par
+\cf3 DA76: \cf2  CE 00 00      ldx #0000\par
+\cf3 DA79: \cf2  DF 5C DF      stx $5C\par
+\cf3 DA7B: \cf2  DF 5E 96      stx $5E\par
+\cf3 DA7D: \cf2  96 E1         lda $E1\par
+\cf3 DA7F: \cf2  97 60         sta $60\par
+\cf3 DA81: \cf2  57 EB A1     _JSRD            ;SYSCALL- Update Master Display Toggle From Current Player\par
+\cf3 DA84: \cf2  92 2C        _JSRR            ;$DCB2\par
+\cf3 DA86: \cf2  F2           _SND             ;Sound #12\par
+\cf3 DA87: \cf2  11 40        _LAMP            ;Turn OFF Bit #00\par
+\cf3 DA89: \cf2  A2 09        _JSRDR           ;$DC94\par
+\cf3 DA8B: \cf2  55 F8 42     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 DA8E: \cf2  5A FC EC 00\par
+\cf3     : \cf2  07           _BEQ(rel)        ;If RAM$0C==#00 to $DA9A\par
+\cf3 DA93: \cf2  BC FF        _ADDRAM          ;RAM$0C += #FF\par
+\cf3 DA95: \cf2  5B FC EC 00\par
+\cf3     : \cf2  02           _BNE(rel)        ;If RAM$0C==#00 to $DA9C\par
+\cf3 DA9A: \cf2  31 02        _SOL             ;Turn OFF  Sol#2:Special Relay\par
+\cf3 DA9C: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DA9D: \cf2  BC 01        _ADDRAM          ;RAM$0C += #01\par
+\cf3 DA9F: \cf2  31 E2        _SOL             ;Turn ON   Sol#2:Special Relay\par
+\cf3 DAA1: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DAA2: \cf2  CE DA D1      ldx #DAD1\par
+\cf3 DAA5: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DAA8: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DAAB: \cf2  52 43        _PRI             ;Priority=#43\par
+\cf3 DAAD: \cf2  20 66        _LAMP2           ;Turn ON Bit #26\par
+\cf3 DAAF: \cf2  20 47        _LAMP2           ;Turn ON Bit #07\par
+\cf3 DAB1: \cf2  20 60        _LAMP2           ;Turn ON Bit #20\par
+\cf3 DAB3: \cf2  B0 01        _ADDRAM          ;RAM$00 += #01\par
+\cf3 DAB5: \cf2  5A FC FF E0\par
+\cf3     : \cf2  01 00 09     _BEQ(rel)        ;If (RAM$00 & LAMP#01(Ball in Play))==#00 to $DAC5\par
+\cf3 DABC: \cf2  5A F7 26 F3  _BEQ(rel)        ;If BIT#26 to $DAB3\par
+\cf3 DAC0: \cf2  2D 86        _LAMP2           ;Lamp Effect #06\par
+\cf3 DAC2:\cf2      05                         ;Lamp Effect #;Lamp Range #05\par
+\cf3 DAC3: \cf2  80 07        _JMPR            ;$DACC\par
+\cf3 DAC5: \cf2  5A F7 2A EA  _BEQ(rel)        ;If BIT#2A to $DAB3\par
+\cf3 DAC9: \cf2  2E 86        _LAMP2           ;Lamp Effect #06\par
+\cf3 DACB:\cf2      05                         ;Lamp Effect #;Lamp Range #05\par
+\cf3 DACC: \cf2  2D 0B        _LAMP2           ;Lamp Effect #0B\par
+\cf3 DACE: \cf2  74           _DELAY           ;Delay #4\par
+\cf3 DACF: \cf2  8F E4        _JMPR            ;$DAB5\par
+\cf3 DAD1: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DAD4: \cf2  52 43        _PRI             ;Priority=#43\par
+\cf3 DAD6: \cf2  22 59        _LAMP2           ;Toggle Bit #19\par
+\cf3 DAD8: \cf2  22 7C        _LAMP2           ;Toggle Bit #3C\par
+\cf3 DADA: \cf2  22 7F        _LAMP2           ;Toggle Bit #3F\par
+\cf3 DADC: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 DADD: \cf2  22 7D        _LAMP2           ;Toggle Bit #3D\par
+\cf3 DADF: \cf2  22 7E        _LAMP2           ;Toggle Bit #3E\par
+\cf3 DAE1: \cf2  C0 6F        _SETRAM          ;RAM$00 = #6F\par
+\cf3 DAE3: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 DAE4: \cf2  B0 01        _ADDRAM          ;RAM$00 += #01\par
+\cf3 DAE6: \cf2  26 00        _LAMP2           ;Toggle Lamp/Bit @RAM$00\par
+\cf3 DAE8: \cf2  5B FC E0 78\par
+\cf3     : \cf2  F6           _BNE(rel)        ;If RAM$00==#78 to $DAE3\par
+\cf3 DAED: \cf2  22 7A        _LAMP2           ;Toggle Bit #3A\par
+\cf3 DAEF: \cf2  22 7B        _LAMP2           ;Toggle Bit #3B\par
+\cf3 DAF1: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 DAF2: \cf2  22 79        _LAMP2           ;Toggle Bit #39\par
+\cf3 DAF4: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 DAF5: \cf2  8F DF        _JMPR            ;$DAD6\par
+\cf1 ;"4" Rollover(switch)-\par
+\cf3 DAF7: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 DAF8: \cf2  CE E1 96      ldx #E196\par
+\cf3 DAFB: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DAFE: \cf2  A0 12        _JSRDR           ;$DB12\par
+\cf3 DB00: \cf2  91 FD        _JSRR            ;$DCFF\par
+\cf3 DB02: \cf2  5A 41 0C     _BEQ(rel)        ;If BIT#41 to $DB11\par
+\cf3 DB05: \cf2  13 2B        _LAMP            ;Flash Lamp #2B(Extra Kick)\par
+\cf3 DB07: \cf2  52 20        _PRI             ;Priority=#20\par
+\cf3 DB09: \cf2  57 E5 95     _JSRD            ;$E595\par
+\cf3 DB0C: \cf2  60           _DELAY           ;Delay RAM$00\par
+\cf3 DB0D: \cf2  53 A0        _DELAY           ;Delay #160\par
+\cf3 DB0F: \cf2  11 2B        _LAMP            ;Turn OFF Lamp #2B(Extra Kick)\par
+\cf3 DB11: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 DB12: \cf2  CE DB 18      ldx #DB18\par
+\cf3 DB15: \cf2  7E EA C4      jmp $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DB18: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DB1B: \cf2  55 F8 50     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 DB1E: \cf2  52 50        _PRI             ;Priority=#50\par
+\cf3 DB20: \cf2  5B F6 01 0C  _BNE(rel)        ;If RangeON#01 to $DB30\par
+\cf3 DB24: \cf2  5A FC D6 01\par
+\cf3     : \cf2  06           _BEQ(rel)        ;If ADJ#6==#01 to $DB2F\par
+\cf3 DB29: \cf2  13 1D        _LAMP            ;Flash Lamp #1D(Loop spots Letter)\par
+\cf3 DB2B: \cf2  53 A0        _DELAY           ;Delay #160\par
+\cf3 DB2D: \cf2  11 1D        _LAMP            ;Turn OFF Lamp #1D(Loop spots Letter)\par
+\cf3 DB2F: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 DB30: \cf2  13 1E        _LAMP            ;Flash Lamp #1E(Loop X Value)\par
+\cf3 DB32: \cf2  21 1E        _LAMP2           ;Turn OFF Lamp #1E(Loop X Value)\par
+\cf3 DB34: \cf2  53 60        _DELAY           ;Delay #96\par
+\cf3 DB36: \cf2  49           _EXE             ;CPU Execute Next 7 Bytes\par
+\cf3 DB37: \cf2  D6 17         ldb $17\par
+\cf3 DB39: \cf2  C4 F0         andb #F0\par
+\cf3 DB3B: \cf2  BD E5 A9      jsr $E5A9       ;$E5A9\par
+\cf3 DB3E: \cf2  4A           _EXE             ;CPU Execute Next 8 Bytes\par
+\cf3 DB3F: \cf2  40            nega\par
+\cf3 DB40: \cf2  48            asla\par
+\cf3 DB41: \cf2  48            asla\par
+\cf3 DB42: \cf2  48            asla\par
+\cf3 DB43: \cf2  48            asla\par
+\cf3 DB44: \cf2  48            asla\par
+\cf3 DB45: \cf2  48            asla\par
+\cf3 DB46: \cf2  4A            deca\par
+\cf3 DB47: \cf2  60           _DELAY           ;Delay RAM$00\par
+\cf3 DB48: \cf2  5A 3E 02     _BEQ(rel)        ;If BIT#3E to $DB4D\par
+\cf3 DB4B: \cf2  53 40        _DELAY           ;Delay #64\par
+\cf3 DB4D: \cf2  21 5E        _LAMP2           ;Turn OFF Bit #1E\par
+\cf3 DB4F: \cf2  20 1E        _LAMP2           ;Turn ON Lamp #1E(Loop X Value)\par
+\cf3 DB51: \cf2  53 40        _DELAY           ;Delay #64\par
+\cf3 DB53: \cf2  11 1E        _LAMP            ;Turn OFF Lamp #1E(Loop X Value)\par
+\cf3 DB55: \cf2  21 1E        _LAMP2           ;Turn OFF Lamp #1E(Loop X Value)\par
+\cf3 DB57: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Left Magnet(switch)-\par
+\cf3 DB58: \cf2  5A FB FB F5\par
+\cf3     : \cf2  06 6D 4F 2F  _BEQ(rel)        ;If ((RangeOFF#06 || BIT#6D) || BIT#4F) to $DB8F\par
+\cf3 DB60: \cf2  52 09        _PRI             ;Priority=#09\par
+\cf3 DB62: \cf2  C1 2B        _SETRAM          ;RAM$01 = #2B\par
+\cf3 DB64: \cf2  90 2A        _JSRR            ;$DB90\par
+\cf3 DB66: \cf2  10 6D        _LAMP            ;Turn ON Bit #2D\par
+\cf3 DB68: \cf2  31 F4        _SOL             ;Turn ON   Sol#4:Right Drop Target Reset\par
+\cf3 DB6A: \cf2  C1 2B        _SETRAM          ;RAM$01 = #2B\par
+\cf3 DB6C: \cf2  90 22        _JSRR            ;$DB90\par
+\cf3 DB6E: \cf2  1C 06        _LAMP            ;Lamp Effect: \par
+\cf3 DB70: \cf2  C0 20        _SETRAM          ;RAM$00 = #20\par
+\cf3 DB72: \cf2  90 26        _JSRR            ;$DB9A\par
+\cf3 DB74: \cf2  5B F8 31 0F  _BNE(rel)        ;If SW#31 to $DB87\par
+\cf3 DB78: \cf2  5B FC E0 00\par
+\cf3     : \cf2  F5           _BNE(rel)        ;If RAM$00==#00 to $DB72\par
+\cf3 DB7D: \cf2  B1 C0        _ADDRAM          ;RAM$01 += #C0\par
+\cf3 DB7F: \cf2  25 01        _LAMP2           ;Turn OFF Lamp/Bit @RAM$01\par
+\cf3 DB81: \cf2  5B F5 06 E5  _BNE(rel)        ;If RangeOFF#06 to $DB6A\par
+\cf3 DB85: \cf2  B1 40        _ADDRAM          ;RAM$01 += #40\par
+\cf3 DB87: \cf2  31 14        _SOL             ;Turn ON   Sol#4:Right Drop Target Reset\par
+\cf3 DB89: \cf2  B1 C0        _ADDRAM          ;RAM$01 += #C0\par
+\cf3 DB8B: \cf2  25 01        _LAMP2           ;Turn OFF Lamp/Bit @RAM$01\par
+\cf3 DB8D: \cf2  11 6D        _LAMP            ;Turn OFF Bit #2D\par
+\cf3 DB8F: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 DB90: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 DB92: \cf2  5B E1 FB     _BNE(rel)        ;If RAM$01 to $DB90\par
+\cf3 DB95: \cf2  24 01        _LAMP2           ;Turn ON Lamp/Bit @RAM$01\par
+\cf3 DB97: \cf2  B1 40        _ADDRAM          ;RAM$01 += #40\par
+\cf3 DB99: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DB9A: \cf2  72           _DELAY           ;Delay #2\par
+\cf3 DB9B: \cf2  26 01        _LAMP2           ;Toggle Lamp/Bit @RAM$01\par
+\cf3 DB9D: \cf2  5B FA F9 C0\par
+\cf3     : \cf2  E1 F3 FB FC\par
+\cf3     : \cf2  E1 6A FC E1\par
+\cf3     : \cf2  4B 0A        _BNE(rel)        ;If ((BIT#C0 + RAM$01) && (!(RAM$01==#6A || RAM$01==#4B))) to $DBB5\par
+\cf3 DBAB: \cf2  B1 C0        _ADDRAM          ;RAM$01 += #C0\par
+\cf3 DBAD: \cf2  25 01        _LAMP2           ;Turn OFF Lamp/Bit @RAM$01\par
+\cf3 DBAF: \cf2  B1 01        _ADDRAM          ;RAM$01 += #01\par
+\cf3 DBB1: \cf2  24 01        _LAMP2           ;Turn ON Lamp/Bit @RAM$01\par
+\cf3 DBB3: \cf2  B1 40        _ADDRAM          ;RAM$01 += #40\par
+\cf3 DBB5: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 DBB7: \cf2  FA           _SND             ;Sound #1A\par
+\cf3 DBB8: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf1 ;Right Magnet(switch)-\par
+\cf3 DBB9: \cf2  5A FB FB F5\par
+\cf3     : \cf2  05 6E 4F CE  _BEQ(rel)        ;If ((RangeOFF#05 || BIT#6E) || BIT#4F) to $DB8F\par
+\cf3 DBC1: \cf2  52 09        _PRI             ;Priority=#09\par
+\cf3 DBC3: \cf2  10 6E        _LAMP            ;Turn ON Bit #2E\par
+\cf3 DBC5: \cf2  31 F5        _SOL             ;Turn ON   Sol#5:Buzzer\par
+\cf3 DBC7: \cf2  C1 0C        _SETRAM          ;RAM$01 = #0C\par
+\cf3 DBC9: \cf2  9F C5        _JSRR            ;$DB90\par
+\cf3 DBCB: \cf2  1C 05        _LAMP            ;Lamp Effect: \par
+\cf3 DBCD: \cf2  C0 20        _SETRAM          ;RAM$00 = #20\par
+\cf3 DBCF: \cf2  9F C9        _JSRR            ;$DB9A\par
+\cf3 DBD1: \cf2  5B F8 30 0F  _BNE(rel)        ;If SW#30 to $DBE4\par
+\cf3 DBD5: \cf2  5B FC E0 00\par
+\cf3     : \cf2  F5           _BNE(rel)        ;If RAM$00==#00 to $DBCF\par
+\cf3 DBDA: \cf2  B1 C0        _ADDRAM          ;RAM$01 += #C0\par
+\cf3 DBDC: \cf2  25 01        _LAMP2           ;Turn OFF Lamp/Bit @RAM$01\par
+\cf3 DBDE: \cf2  5B F5 05 E5  _BNE(rel)        ;If RangeOFF#05 to $DBC7\par
+\cf3 DBE2: \cf2  B1 40        _ADDRAM          ;RAM$01 += #40\par
+\cf3 DBE4: \cf2  31 15        _SOL             ;Turn ON   Sol#5:Buzzer\par
+\cf3 DBE6: \cf2  B1 C0        _ADDRAM          ;RAM$01 += #C0\par
+\cf3 DBE8: \cf2  25 01        _LAMP2           ;Turn OFF Lamp/Bit @RAM$01\par
+\cf3 DBEA: \cf2  11 6E        _LAMP            ;Turn OFF Bit #2E\par
+\cf3 DBEC: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Init New Player Hook-\par
+\cf3 DBED: \cf2  96 60         lda $60\par
+\cf3 DBEF: \cf2  97 E1         sta $E1\par
+\cf3 DBF1: \cf2  7F 00 E5      clr $00E5       ;$00E5\par
+\cf3 DBF4: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DBF7: \cf2  52 05        _PRI             ;Priority=#05\par
+\cf3 DBF9: \cf2  10 4F        _LAMP            ;Turn ON Bit #0F\par
+\cf3 DBFB: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 DBFC: \cf2  CE 01 81      ldx #0181\par
+\cf3 DBFF: \cf2  BD EF 53      jsr $EF53       ;SYSCALL- CMOS,X++ -> A \par
+\cf3 DC02: \cf2  27 2C         beq $DC30\par
+\cf3 DC04: \cf2  DE CE A6      ldx $CE\par
+\cf3 DC06: \cf2  A6 00         lda $00,X\par
+\cf3 DC08: \cf2  4C            inca\par
+\cf3 DC09: \cf2  27 25         beq $DC30\par
+\cf3 DC0B: \cf2  BD FA 0B      jsr $FA0B       ;SYSCALL- Puts HSTD in All Player Displays(Buffer 1)\par
+\cf3 DC0E: \cf2  86 7F         lda #7F\par
+\cf3 DC10: \cf2  BD F8 A4      jsr $F8A4       ;SYSCALL- Store A into Display Buffer Toggles\par
+\cf3 DC13: \cf2  86 FF         lda #FF\par
+\cf3 DC15: \cf2  97 60         sta $60\par
+\cf3 DC17: \cf2  86 1D         lda #1D\par
+\cf3 DC19: \cf2  BD EC FC      jsr $ECFC       ;SYSCALL- Play Sound Index(A) Once\par
+\cf3 DC1C: \cf2  86 05         lda #05\par
+\cf3 DC1E: \cf2  BD F1 69      jsr $F169       ;SYSCALL- Flash Lamp A\par
+\cf3 DC21: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 DC24: \cf2  80\par
+\cf3 DC25: \cf2  BD F1 5B      jsr $F15B       ;SYSCALL- Turn off Lamp A\par
+\cf3 DC28: \cf2  96 E1         lda $E1\par
+\cf3 DC2A: \cf2  97 60         sta $60\par
+\cf3 DC2C: \cf2  4F            clra\par
+\cf3 DC2D: \cf2  BD F8 A4      jsr $F8A4       ;SYSCALL- Store A into Display Buffer Toggles\par
+\cf3 DC30: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DC33: \cf2  5A 61 04     _BEQ(rel)        ;If BIT#61 to $DC3A\par
+\cf3 DC36: \cf2  53 60        _DELAY           ;Delay #96\par
+\cf3 DC38: \cf2  10 61        _LAMP            ;Turn ON Bit #21\par
+\cf3 DC3A: \cf2  29 47        _LAMP2           ;Lamp Effect #07\par
+\cf3 DC3C: \cf2  95 E5        _JSRR            ;$E223\par
+\cf3 DC3E: \cf2  5B FC FF 0F\par
+\cf3     : \cf2  D7 01 03     _BNE(rel)        ;If (LAMP#0F(D) & ADJ#7)==#01 to $DC48\par
+\cf3 DC45: \cf2  19 86        _LAMP            ;Lamp Effect: \par
+\cf3 DC47:\cf2      05                         ;Lamp Range #05\par
+\cf3 DC48: \cf2  5A FC D9 01\par
+\cf3     : \cf2  07           _BEQ(rel)        ;If ADJ#9==#01 to $DC54\par
+\cf3 DC4D: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 DC4E: \cf2  CE DC DF      ldx #DCDF\par
+\cf3 DC51: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DC54: \cf2  5B 52 09     _BNE(rel)        ;If BIT#52 to $DC60\par
+\cf3 DC57: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 DC58: \cf2  CE DD 92      ldx #DD92\par
+\cf3 DC5B: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DC5E: \cf2  80 03        _JMPR            ;$DC63\par
+\cf3 DC60: \cf2  56 E5 DA     _JSR             ;$E5DA\par
+\cf3 DC63: \cf2  35 63        _SOL             ;Turn ON   Sol#3:Left Drop Target Reset\par
+\cf3 DC65:\cf2      64                         ;Turn ON   Sol#4:Right Drop Target Reset\par
+\cf3 DC66:\cf2      02                         ;Turn OFF  Sol#2:Special Relay\par
+\cf3 DC67:\cf2      05                         ;Turn OFF  Sol#5:Buzzer\par
+\cf3 DC68:\cf2      0E                         ;Turn OFF  Sol#14:Bell\par
+\cf3 DC69: \cf2  CC 00        _SETRAM          ;RAM$0C = #00\par
+\cf3 DC6B: \cf2  CE 00        _SETRAM          ;RAM$0E = #00\par
+\cf3 DC6D: \cf2  CF 00        _SETRAM          ;RAM$0F = #00\par
+\cf3 DC6F: \cf2  5B 41 03     _BNE(rel)        ;If BIT#41 to $DC75\par
+\cf3 DC72: \cf2  57 DD 82     _JSRD            ;$DD82\par
+\cf3 DC75: \cf2  92 76        _JSRR            ;$DEED\par
+\cf3 DC77: \cf2  11 55        _LAMP            ;Turn OFF Bit #15\par
+\cf3 DC79: \cf2  55 F8 D0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 DC7C: \cf2  A1 8D        _JSRDR           ;$DE0B\par
+\cf3 DC7E: \cf2  11 4F        _LAMP            ;Turn OFF Bit #0F\par
+\cf3 DC80: \cf2  5E A5        _SWC             ;Clear Switch #A5\par
+\cf3 DC82:\cf2      A6                         ;Clear Switch #26(Lower Eject Hole)\par
+\cf3 DC83:\cf2      98                         ;Clear Switch #18(Right 3-Bank Lower)\par
+\cf3 DC84:\cf2      1C                         ;Clear Switch #1C(Left 3-Bank Lower)\par
+\cf3 DC85: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 DC86: \cf2  39            rts\par
+\cf3 DC87: \cf2  36            psha\par
+\cf3 DC88: \cf2  96 E5         lda $E5\par
+\cf3 DC8A: \cf2  4C            inca\par
+\cf3 DC8B: \cf2  97 E5         sta $E5\par
+\cf3 DC8D: \cf2  86 C8         lda #C8\par
+\cf3 DC8F: \cf2  BD F2 08      jsr $F208       ;$F208\par
+\cf3 DC92: \cf2  32            pula\par
+\cf3 DC93: \cf2  39            rts\par
+\cf3 DC94: \cf2  36            psha\par
+\cf3 DC95: \cf2  96 E5         lda $E5\par
+\cf3 DC97: \cf2  27 05         beq $DC9E\par
+\cf3 DC99: \cf2  4A            deca\par
+\cf3 DC9A: \cf2  97 E5         sta $E5\par
+\cf3 DC9C: \cf2  26 05         bne $DCA3\par
+\cf3 DC9E: \cf2  86 C8         lda #C8\par
+\cf3 DCA0: \cf2  BD F1 A7      jsr $F1A7       ;$F1A7\par
+\cf3 DCA3: \cf2  32            pula\par
+\cf3 DCA4: \cf2  39            rts\par
+\cf3 DCA5: \cf2  5B FC FF D8\par
+\cf3     : \cf2  F2 F0 00 04  _BNE(rel)        ;If (ADJ#8 & #F0)==#00 to $DCB1\par
+\cf3 DCAD: \cf2  BE 01        _ADDRAM          ;RAM$0E += #01\par
+\cf3 DCAF: \cf2  31 EE        _SOL             ;Turn ON   Sol#14:Bell\par
+\cf3 DCB1: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DCB2: \cf2  5A FC EE 00\par
+\cf3     : \cf2  07           _BEQ(rel)        ;If RAM$0E==#00 to $DCBE\par
+\cf3 DCB7: \cf2  BE FF        _ADDRAM          ;RAM$0E += #FF\par
+\cf3 DCB9: \cf2  5B FC EE 00\par
+\cf3     : \cf2  F3           _BNE(rel)        ;If RAM$0E==#00 to $DCB1\par
+\cf3 DCBE: \cf2  31 0E        _SOL             ;Turn OFF  Sol#14:Bell\par
+\cf3 DCC0: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DCC1: \cf2  5B FC FF D8\par
+\cf3     : \cf2  0F 00 E9     _BNE(rel)        ;If (ADJ#8 & LAMP#0F(D))==#00 to $DCB1\par
+\cf3 DCC8: \cf2  BF 01        _ADDRAM          ;RAM$0F += #01\par
+\cf3 DCCA: \cf2  31 E5        _SOL             ;Turn ON   Sol#5:Buzzer\par
+\cf3 DCCC: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DCCD: \cf2  5A FC EF 00\par
+\cf3     : \cf2  07           _BEQ(rel)        ;If RAM$0F==#00 to $DCD9\par
+\cf3 DCD2: \cf2  BF FF        _ADDRAM          ;RAM$0F += #FF\par
+\cf3 DCD4: \cf2  5B FC EF 00\par
+\cf3     : \cf2  D8           _BNE(rel)        ;If RAM$0F==#00 to $DCB1\par
+\cf3 DCD9: \cf2  31 05        _SOL             ;Turn OFF  Sol#5:Buzzer\par
+\cf3 DCDB: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DCDC: \cf2  92 0F        _JSRR            ;$DEED\par
+\cf3 DCDE: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 DCDF: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DCE2: \cf2  52 E0        _PRI             ;Priority=#E0\par
+\cf3 DCE4: \cf2  FB           _SND             ;Sound #1B\par
+\cf3 DCE5: \cf2  CB 00        _SETRAM          ;RAM$0B = #00\par
+\cf3 DCE7: \cf2  53 FF        _DELAY           ;Delay #255\par
+\cf3 DCE9: \cf2  53 C0        _DELAY           ;Delay #192\par
+\cf3 DCEB: \cf2  5A FC EB 00\par
+\cf3     : \cf2  F7           _BEQ(rel)        ;If RAM$0B==#00 to $DCE7\par
+\cf3 DCF0: \cf2  57 FB 30     _JSRD            ;$FB30\par
+\cf3 DCF3: \cf2  8F EF        _JMPR            ;$DCE4\par
+\cf3 DCF5: \cf2  90 08        _JSRR            ;$DCFF\par
+\cf3 DCF7: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 DCF9: \cf2  5B FC E1 00\par
+\cf3     : \cf2  F7           _BNE(rel)        ;If RAM$01==#00 to $DCF5\par
+\cf3 DCFE: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 DCFF: \cf2  5A FB FA 3B\par
+\cf3     : \cf2  F6 00 4F 0E  _BEQ(rel)        ;If ((BIT#3B && RangeON#00) || BIT#4F) to $DD15\par
+\cf3 DD07: \cf2  1B 00        _LAMP            ;Lamp Effect: \par
+\cf3 DD09: \cf2  5B F5 00 08  _BNE(rel)        ;If RangeOFF#00 to $DD15\par
+\cf3 DD0D: \cf2  49           _EXE             ;CPU Execute Next 7 Bytes\par
+\cf3 DD0E: \cf2  36            psha\par
+\cf3 DD0F: \cf2  86 03         lda #03\par
+\cf3 DD11: \cf2  BD F1 D5      jsr $F1D5       ;$F1D5\par
+\cf3 DD14: \cf2  32            pula\par
+\cf3 DD15: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf1 ;Outhole Hook-\par
+\cf3 DD16: \cf2  BD DE 0B      jsr $DE0B       ;$DE0B\par
+\cf3 DD19: \cf2  D6 CA         ldb $CA\par
+\cf3 DD1B: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DD1E: \cf2  55 F8 D0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 DD21: \cf2  57 FB 30     _JSRD            ;$FB30\par
+\cf3 DD24: \cf2  5A FC E1 00\par
+\cf3     : \cf2  4B           _BEQ(rel)        ;If RAM$01==#00 to $DD74\par
+\cf3 DD29: \cf2  5B 19 02     _BNE(rel)        ;If LAMP#19(2X Scoring) to $DD2E\par
+\cf3 DD2C: \cf2  13 19        _LAMP            ;Flash Lamp #19(2X Scoring)\par
+\cf3 DD2E: \cf2  C8 10        _SETRAM          ;RAM$08 = #10\par
+\cf3 DD30: \cf2  28 4D        _LAMP2           ;Lamp Effect #0D\par
+\cf3 DD32: \cf2  C1 01        _SETRAM          ;RAM$01 = #01\par
+\cf3 DD34: \cf2  5B 3E 07     _BNE(rel)        ;If BIT#3E to $DD3E\par
+\cf3 DD37: \cf2  C1 02        _SETRAM          ;RAM$01 = #02\par
+\cf3 DD39: \cf2  5B 3F 02     _BNE(rel)        ;If BIT#3F to $DD3E\par
+\cf3 DD3C: \cf2  C1 05        _SETRAM          ;RAM$01 = #05\par
+\cf3 DD3E: \cf2  C0 0D        _SETRAM          ;RAM$00 = #0D\par
+\cf3 DD40: \cf2  57 F3 02     _JSRD            ;$F302\par
+\cf3 DD43: \cf2  5A FB F0 F5\par
+\cf3     : \cf2  8D 1C        _BEQ(rel)        ;If (TILT || RangeOFF#8D) to $DD65\par
+\cf3 DD49: \cf2  40 1E 0B     _PTSSND          ;Sound#1E/1000 Points\par
+\cf3 DD4C: \cf2  5A F5 80 04  _BEQ(rel)        ;If RangeOFF#80 to $DD54\par
+\cf3 DD50: \cf2  2C 00        _LAMP2           ;Lamp Effect #00\par
+\cf3 DD52: \cf2  80 07        _JMPR            ;$DD5B\par
+\cf3 DD54: \cf2  28 00        _LAMP2           ;Lamp Effect #00\par
+\cf3 DD56: \cf2  C0 83        _SETRAM          ;RAM$00 = #83\par
+\cf3 DD58: \cf2  57 F2 B3     _JSRD            ;$F2B3\par
+\cf3 DD5B: \cf2  5A FC E8 02\par
+\cf3     : \cf2  02           _BEQ(rel)        ;If RAM$08==#02 to $DD62\par
+\cf3 DD60: \cf2  B8 FF        _ADDRAM          ;RAM$08 += #FF\par
+\cf3 DD62: \cf2  68           _DELAY           ;Delay RAM$08\par
+\cf3 DD63: \cf2  8F DE        _JMPR            ;$DD43\par
+\cf3 DD65: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 DD67: \cf2  5B FC E1 00\par
+\cf3     : \cf2  D2           _BNE(rel)        ;If RAM$01==#00 to $DD3E\par
+\cf3 DD6C: \cf2  5A F5 01 04  _BEQ(rel)        ;If RangeOFF#01 to $DD74\par
+\cf3 DD70: \cf2  1C 01        _LAMP            ;Lamp Effect: \par
+\cf3 DD72: \cf2  8F BE        _JMPR            ;$DD32\par
+\cf3 DD74: \cf2  FC           _SND             ;Sound #1C\par
+\cf3 DD75: \cf2  A0 94        _JSRDR           ;$DE0B\par
+\cf3 DD77: \cf2  55 F8 D0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 DD7A: \cf2  72           _DELAY           ;Delay #2\par
+\cf3 DD7B: \cf2  5A FB 51 62\par
+\cf3     : \cf2  F4           _BEQ(rel)        ;If (BIT#51 || BIT#62) to $DD74\par
+\cf3 DD80: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 DD81: \cf2  39            rts\par
+\cf3 DD82: \cf2  CE DD 88      ldx #DD88\par
+\cf3 DD85: \cf2  7E EA C4      jmp $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DD88: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DD8B: \cf2  52 60        _PRI             ;Priority=#60\par
+\cf3 DD8D: \cf2  12 2C        _LAMP            ;Toggle Lamp #2C(Ball Lock)\par
+\cf3 DD8F: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 DD90: \cf2  8F FB        _JMPR            ;$DD8D\par
+\cf3 DD92: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DD95: \cf2  52 30        _PRI             ;Priority=#30\par
+\cf3 DD97: \cf2  10 42        _LAMP            ;Turn ON Bit #02\par
+\cf3 DD99: \cf2  31 6D        _SOL             ;Turn ON   Sol#13:5-Bank Target Release\par
+\cf3 DD9B: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 DD9D: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 DD9E: \cf2  96 D6         lda $D6\par
+\cf3 DDA0: \cf2  5A FC E0 00\par
+\cf3     : \cf2  F6           _BEQ(rel)        ;If RAM$00==#00 to $DD9B\par
+\cf3 DDA5: \cf2  5F E6 A2     _JMP             ;$E6A2\par
+\par
+\cf1 ;Reset Hook-\par
+\cf3 DDA8: \cf2  86 1C         lda #1C\par
+\cf3 DDAA: \cf2  7E EC FC      jmp $ECFC       ;SYSCALL- Play Sound Index(A) Once\par
+\cf3 DDAD: \cf2  7E EA 67      jmp $EA67       ;SYSCALL- Kill This Thread\par
+\cf3 DDB0: \cf2  96 18         lda $18\par
+\cf3 DDB2: \cf2  46            rora\par
+\cf3 DDB3: \cf2  25 F8         bcs $DDAD\par
+\cf3 DDB5: \cf2  86 D0         lda #D0\par
+\cf3 DDB7: \cf2  C6 F8         ldb #F8\par
+\cf3 DDB9: \cf2  BD EA FB      jsr $EAFB       ;SYSCALL- Remove All Threads Based on Priority\par
+\cf3 DDBC: \cf2  CE 00 48      ldx #0048\par
+\cf3 DDBF: \cf2  96 CD         lda $CD\par
+\cf3 DDC1: \cf2  48            asla\par
+\cf3 DDC2: \cf2  48            asla\par
+\cf3 DDC3: \cf2  BD EE FF      jsr $EEFF       ;SYSCALL- X = X + A\par
+\cf3 DDC6: \cf2  86 FF         lda #FF\par
+\cf3 DDC8: \cf2  A7 00         sta $00,X\par
+\cf3 DDCA: \cf2  A7 01         sta $01,X\par
+\cf3 DDCC: \cf2  A7 02         sta $02,X\par
+\cf3 DDCE: \cf2  A7 03         sta $03,X\par
+\cf3 DDD0: \cf2  BD DE 0B      jsr $DE0B       ;$DE0B\par
+\cf3 DDD3: \cf2  5F            clrb\par
+\cf3 DDD4: \cf2  4F            clra\par
+\cf3 DDD5: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 DDD8: \cf2  58\par
+\cf3 DDD9: \cf2  88 80         eora #80\par
+\cf3 DDDB: \cf2  C8 01         eorb #01\par
+\cf3 DDDD: \cf2  47            asra\par
+\cf3 DDDE: \cf2  36            psha\par
+\cf3 DDDF: \cf2  84 7F         anda #7F\par
+\cf3 DDE1: \cf2  8D            bsr $DE16\par
+\cf3 DDE3: \cf2  37            pshb\par
+\cf3 DDE4: \cf2  E6 00         ldb $00,X\par
+\cf3 DDE6: \cf2  C4 80         andb #80\par
+\cf3 DDE8: \cf2  1B            aba\par
+\cf3 DDE9: \cf2  A7 00         sta $00,X\par
+\cf3 DDEB: \cf2  BD F9 19      jsr $F919       ;$F919\par
+\cf3 DDEE: \cf2  43            coma\par
+\cf3 DDEF: \cf2  94 60         anda $60\par
+\cf3 DDF1: \cf2  97 60         sta $60\par
+\cf3 DDF3: \cf2  8D            bsr $DE13\par
+\cf3 DDF5: \cf2  33            pulb\par
+\cf3 DDF6: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 DDF9: \cf2  03\par
+\cf3 DDFA: \cf2  32            pula\par
+\cf3 DDFB: \cf2  36            psha\par
+\cf3 DDFC: \cf2  84 01         anda #01\par
+\cf3 DDFE: \cf2  11            cba\par
+\cf3 DDFF: \cf2  32            pula\par
+\cf3 DE00: \cf2  26 DB         bne $DDDD\par
+\cf3 DE02: \cf2  5D            tstb\par
+\cf3 DE03: \cf2  26 D4         bne $DDD9\par
+\cf3 DE05: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 DE08: \cf2  20\par
+\cf3 DE09: \cf2  20 CE         bra $DDD9\par
+\cf3 DE0B: \cf2  8D            bsr $DE16\par
+\cf3 DE0D: \cf2  A6 00         lda $00,X\par
+\cf3 DE0F: \cf2  84 80         anda #80\par
+\cf3 DE11: \cf2  A7 00         sta $00,X\par
+\cf3 DE13: \cf2  7E EB A1      jmp $EBA1       ;SYSCALL- Update Master Display Toggle From Current Player\par
+\cf3 DE16: \cf2  36            psha\par
+\cf3 DE17: \cf2  96 CD         lda $CD\par
+\cf3 DE19: \cf2  CE 00 5C      ldx #005C\par
+\cf3 DE1C: \cf2  BD EE FF      jsr $EEFF       ;SYSCALL- X = X + A\par
+\cf3 DE1F: \cf2  32            pula\par
+\cf3 DE20: \cf2  39            rts\par
+\cf1 ;Game Over Initialization-\par
+\cf3 DE21: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DE24: \cf2  5B 69 15     _BNE(rel)        ;If BIT#69 to $DE3C\par
+\cf3 DE27: \cf2  31 02        _SOL             ;Turn OFF  Sol#2:Special Relay\par
+\cf3 DE29: \cf2  CC 00        _SETRAM          ;RAM$0C = #00\par
+\cf3 DE2B: \cf2  57 FB 30     _JSRD            ;$FB30\par
+\cf3 DE2E: \cf2  FC           _SND             ;Sound #1C\par
+\cf3 DE2F: \cf2  5A 60 03     _BEQ(rel)        ;If BIT#60 to $DE35\par
+\cf3 DE32: \cf2  EF           _SND             ;Sound #0F\par
+\cf3 DE33: \cf2  80 03        _JMPR            ;$DE38\par
+\cf3 DE35: \cf2  F0           _SND             ;Sound #10\par
+\cf3 DE36: \cf2  11 60        _LAMP            ;Turn OFF Bit #20\par
+\cf3 DE38: \cf2  53 C0        _DELAY           ;Delay #192\par
+\cf3 DE3A: \cf2  11 69        _LAMP            ;Turn OFF Bit #29\par
+\cf3 DE3C: \cf2  29 08        _LAMP2           ;Lamp Effect #08\par
+\cf3 DE3E: \cf2  28 48        _LAMP2           ;Lamp Effect #08\par
+\cf3 DE40: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 DE41: \cf2  CE D8 79      ldx #D879\par
+\cf3 DE44: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DE47: \cf2  CE DA A2      ldx #DAA2\par
+\cf3 DE4A: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DE4D: \cf2  CE DE 71      ldx #DE71\par
+\cf3 DE50: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DE53: \cf2  CE DE 99      ldx #DE99\par
+\cf3 DE56: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 DE59: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DE5C: \cf2  22 57        _LAMP2           ;Toggle Bit #17\par
+\cf3 DE5E: \cf2  22 5F        _LAMP2           ;Toggle Bit #1F\par
+\cf3 DE60: \cf2  22 65        _LAMP2           ;Toggle Bit #25\par
+\cf3 DE62: \cf2  22 6E        _LAMP2           ;Toggle Bit #2E\par
+\cf3 DE64: \cf2  22 6F        _LAMP2           ;Toggle Bit #2F\par
+\cf3 DE66: \cf2  22 5B        _LAMP2           ;Toggle Bit #1B\par
+\cf3 DE68: \cf2  22 50        _LAMP2           ;Toggle Bit #10\par
+\cf3 DE6A: \cf2  22 6D        _LAMP2           ;Toggle Bit #2D\par
+\cf3 DE6C: \cf2  22 6C        _LAMP2           ;Toggle Bit #2C\par
+\cf3 DE6E: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 DE6F: \cf2  8F EB        _JMPR            ;$DE5C\par
+\par
+\cf3 DE71: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DE74: \cf2  20 54        _LAMP2           ;Turn ON Bit #14\par
+\cf3 DE76: \cf2  20 56        _LAMP2           ;Turn ON Bit #16\par
+\cf3 DE78: \cf2  20 6B        _LAMP2           ;Turn ON Bit #2B\par
+\cf3 DE7A: \cf2  20 52        _LAMP2           ;Turn ON Bit #12\par
+\cf3 DE7C: \cf2  20 58        _LAMP2           ;Turn ON Bit #18\par
+\cf3 DE7E: \cf2  22 54        _LAMP2           ;Toggle Bit #14\par
+\cf3 DE80: \cf2  22 56        _LAMP2           ;Toggle Bit #16\par
+\cf3 DE82: \cf2  22 6B        _LAMP2           ;Toggle Bit #2B\par
+\cf3 DE84: \cf2  22 52        _LAMP2           ;Toggle Bit #12\par
+\cf3 DE86: \cf2  22 58        _LAMP2           ;Toggle Bit #18\par
+\cf3 DE88: \cf2  22 55        _LAMP2           ;Toggle Bit #15\par
+\cf3 DE8A: \cf2  22 53        _LAMP2           ;Toggle Bit #13\par
+\cf3 DE8C: \cf2  22 5C        _LAMP2           ;Toggle Bit #1C\par
+\cf3 DE8E: \cf2  22 51        _LAMP2           ;Toggle Bit #11\par
+\cf3 DE90: \cf2  22 5E        _LAMP2           ;Toggle Bit #1E\par
+\cf3 DE92: \cf2  22 5D        _LAMP2           ;Toggle Bit #1D\par
+\cf3 DE94: \cf2  22 5A        _LAMP2           ;Toggle Bit #1A\par
+\cf3 DE96: \cf2  7F           _DELAY           ;Delay #15\par
+\cf3 DE97: \cf2  8F E5        _JMPR            ;$DE7E\par
+\par
+\cf3 DE99: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 DE9C: \cf2  C0 3C        _SETRAM          ;RAM$00 = #3C\par
+\cf3 DE9E: \cf2  53 FF        _DELAY           ;Delay #255\par
+\cf3 DEA0: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 DEA2: \cf2  5B FC E0 00\par
+\cf3     : \cf2  F7           _BNE(rel)        ;If RAM$00==#00 to $DE9E\par
+\cf3 DEA7: \cf2  C0 10        _SETRAM          ;RAM$00 = #10\par
+\cf3 DEA9: \cf2  9B F2        _JSRR            ;$DA9D\par
+\cf3 DEAB: \cf2  74           _DELAY           ;Delay #4\par
+\cf3 DEAC: \cf2  9B E0        _JSRR            ;$DA8E\par
+\cf3 DEAE: \cf2  74           _DELAY           ;Delay #4\par
+\cf3 DEAF: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 DEB1: \cf2  5B FC E0 00\par
+\cf3     : \cf2  F3           _BNE(rel)        ;If RAM$00==#00 to $DEA9\par
+\cf3 DEB6: \cf2  9B E5        _JSRR            ;$DA9D\par
+\cf3 DEB8: \cf2  5A FC FF D7\par
+\cf3     : \cf2  F2 F0 10 04  _BEQ(rel)        ;If (ADJ#7 & #F0)==#10 to $DEC4\par
+\cf3 DEC0: \cf2  EE           _SND             ;Sound #0E\par
+\cf3 DEC1: \cf2  57 FB 30     _JSRD            ;$FB30\par
+\cf3 DEC4: \cf2  9B C8        _JSRR            ;$DA8E\par
+\cf3 DEC6: \cf2  FC           _SND             ;Sound #1C\par
+\cf3 DEC7: \cf2  8F D3        _JMPR            ;$DE9C\par
+\cf3 DEC9: \cf2  DF A2 CE      stx $A2\par
+\cf3 DECB: \cf2  CE 01 3A      ldx #013A\par
+\cf3 DECE: \cf2  81 02         cmpa #02\par
+\cf3 DED0: \cf2  27 15         beq $DEE7\par
+\cf3 DED2: \cf2  CE 01 3E      ldx #013E\par
+\cf3 DED5: \cf2  81 04         cmpa #04\par
+\cf3 DED7: \cf2  27 0E         beq $DEE7\par
+\cf3 DED9: \cf2  CE 01 42      ldx #0142\par
+\cf3 DEDC: \cf2  81 08         cmpa #08\par
+\cf3 DEDE: \cf2  27 07         beq $DEE7\par
+\cf3 DEE0: \cf2  CE 01 46      ldx #0146\par
+\cf3 DEE3: \cf2  81 16         cmpa #16\par
+\cf3 DEE5: \cf2  26 03         bne $DEEA\par
+\cf3 DEE7: \cf2  BD F7 7F      jsr $F77F       ;SYSCALL- Add 1 to data at X\par
+\cf3 DEEA: \cf2  DE A2 39      ldx $A2\par
+\cf3 DEEC: \cf2  39            rts\par
+\cf3 DEED: \cf2  49           _EXE             ;CPU Execute Next 7 Bytes\par
+\cf3 DEEE: \cf2  7F 00 D6      clr $00D6       ;$00D6\par
+\cf3 DEF1: \cf2  96 62         lda $62\par
+\cf3 DEF3: \cf2  84 03         anda #03\par
+\cf3 DEF5: \cf2  5B FC E0 03\par
+\cf3     : \cf2  04           _BNE(rel)        ;If RAM$00==#03 to $DEFE\par
+\cf3 DEFA: \cf2  31 41        _SOL             ;Turn ON   Sol#1:Ball Ramp Thrower\par
+\cf3 DEFC: \cf2  11 55        _LAMP            ;Turn OFF Bit #15\par
+\cf3 DEFE: \cf2  53 60        _DELAY           ;Delay #96\par
+\cf3 DF02: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf1 ;SOUND TABLE:\par
+\cf3 DF03: \cf2  23 06 3A (00) \par
+\cf3 DF06: \cf2  A0 04 2F (01) \par
+\cf3 DF09: \cf2  28 06 3A (02) \par
+\cf3 DF0C: \cf2  A0 04 38 (03) \par
+\cf3 DF0F: \cf2  22 40 32 (04) \par
+\cf3 DF12: \cf2  28 02 2D (05) \par
+\cf3 DF15: \cf2  24 22 3D (06) \par
+\cf3 DF18: \cf2  24 50 39 (07) \par
+\cf3 DF1B: \cf2  C9 10 3E (08) \par
+\cf3 DF1E: \cf2  23 20 34 (09) \par
+\cf3 DF21: \cf2  DF 63 FF (0A) \par
+\cf3 DF24: \cf2  27 20 33 (0B) \par
+\cf3 DF27: \cf2  28 2C 23 (0C) \par
+\cf3 DF2A: \cf2  27 40 2B (0D) \par
+\cf3 DF2D: \cf2  CC F0 26 (0E) \par
+\cf3 DF30: \cf2  CE D0 29 (0F) \par
+\cf3 DF33: \cf2  CE FF 27 (10) \par
+\cf3 DF36: \cf2  CE 88 2E (11) \par
+\cf3 DF39: \cf2  4E FF 30 (12) \par
+\cf3 DF3C: \cf2  CE FF 31 (13) \par
+\cf3 DF3F: \cf2  CE D8 35 (14) \par
+\cf3 DF42: \cf2  CE C8 3C (15) \par
+\cf3 DF45: \cf2  8C 80 24 (16) \par
+\cf3 DF48: \cf2  CE A8 3B (17) \par
+\cf3 DF4B: \cf2  05 50 21 (18) \par
+\cf3 DF4E: \cf2  05 60 20 (19) \par
+\cf3 DF51: \cf2  24 02 36 (1A) \par
+\cf3 DF54: \cf2  BE 40 2A (1B) \par
+\cf3 DF57: \cf2  9F 40 2C (1C) \par
+\cf3 DF5A: \cf2  A9 60 22 (1D) \par
+\cf3 DF5D: \cf2  04 04 36 (1E) \par
+\cf3 DF60: \cf2  28 40 28 (1F) \par
+\cf1\par
+;COMPLEX SOUND1:\par
+\cf3 DF63: \cf2  26 82 2D 80 3A 3F\par
+\cf1\par
+;SWITCH TABLE:\par
+\cf3 DF69: \cf2  D3 E1 51 (1) Plumb Bob Tilt\par
+\cf3 DF6C: \cf2  91 E1 6A (2) Ball Roll Tilt\par
+\cf3 DF6F: \cf2  71 FB 92 (3) Credit Button\par
+\cf3 DF72: \cf2  F2 E1 4D (4) Right Coin\par
+\cf3 DF75: \cf2  F2 E1 4D (5) Center Coin\par
+\cf3 DF78: \cf2  F2 E1 4D (6) Left Coin\par
+\cf3 DF7B: \cf2  71 E8 00 (7) Slam\par
+\cf3 DF7E: \cf2  F1 E1 92 (8) High Score Reset\par
+\cf3 DF81: \cf2  D4 E5 1E (9) Right Ball Ramp\par
+\cf3 DF84: \cf2  D4 E5 37 (10) Left Ball Ramp\par
+\cf3 DF87: \cf2  D4 E1 CF (11) <not used>\par
+\cf3 DF8A: \cf2  91 E1 C2 (12) Left Kicker\par
+\cf3 DF8D: \cf2  93 E3 AC (13) "L" Rollover\par
+\cf3 DF90: \cf2  93 E3 AC (14) "O" Rollover\par
+\cf3 DF93: \cf2  93 E3 AC (15) "R" Rollover\par
+\cf3 DF96: \cf2  93 E3 AC (16) "D" Rollover\par
+\cf3 DF99: \cf2  92 E1 99 (17) "1" Target\par
+\cf3 DF9C: \cf2  92 E1 99 (18) "2" Target\par
+\cf3 DF9F: \cf2  92 E1 99 (19) "3" Target\par
+\cf3 DFA2: \cf2  93 DA F7 (20) "4" Rollover\par
+\cf3 DFA5: \cf2  93 E2 EA (21) "5" Rollover\par
+\cf3 DFA8: \cf2  93 D8 4B (22) Left Outlane\par
+\cf3 DFAB: \cf2  93 D8 4B (23) Right Outlane\par
+\cf3 DFAE: \cf2  93 E1 D0 (24) Lower Turnaround\par
+\cf3 DFB1: \cf2  95 E2 4E (25) Right 3-Bank Lower\par
+\cf3 DFB4: \cf2  95 E2 4E (26) Right 3-Bank Center\par
+\cf3 DFB7: \cf2  95 E2 4E (27) Right 3-Bank Upper\par
+\cf3 DFBA: \cf2  91 E1 C2 (28) Right Kicker\par
+\cf3 DFBD: \cf2  95 E2 34 (29) Left 3-Bank Lower\par
+\cf3 DFC0: \cf2  95 E2 34 (30) Left 3-Bank Center\par
+\cf3 DFC3: \cf2  95 E2 34 (31) Left 3-Bank Upper\par
+\cf3 DFC6: \cf2  93 E2 09 (32) Upper Turnaround\par
+\cf3 DFC9: \cf2  95 E7 AD (33) 5-Bank #1\par
+\cf3 DFCC: \cf2  95 E7 AD (34) 5-Bank #2\par
+\cf3 DFCF: \cf2  95 E7 AD (35) 5-Bank #3\par
+\cf3 DFD2: \cf2  95 E7 AD (36) 5-Bank #4\par
+\cf3 DFD5: \cf2  95 E7 AD (37) 5-Bank #5\par
+\cf3 DFD8: \cf2  F4 E4 1D (38) Upper Eject Hole\par
+\cf3 DFDB: \cf2  F4 E2 F2 (39) Lower Eject Hole\par
+\cf3 DFDE: \cf2  91 E1 C2 (40) Upper Kicker\par
+\cf3 DFE1: \cf2  D3 E1 51 (41) Playfield Tilt\par
+\cf3 DFE4: \cf2  F6 D9 3C (42) Outhole\par
+\cf3 DFE7: \cf2  9F D9 0C (43) Ballshooter Trough\par
+\cf3 DFEA: \cf2  93 D9 28 (44) Playfield Entry\par
+\cf3 DFED: \cf2  91 E1 C2 (45) Upper Left 10-Point\par
+\cf3 DFF0: \cf2  91 E1 C2 (46) Left 10-Point\par
+\cf3 DFF3: \cf2  91 E1 C2 (47) Right 10-Point\par
+\cf3 DFF6: \cf2  91 E1 CF (48) <not used>\par
+\cf3 DFF9: \cf2  91 DB B9 (49) Right Magnet\par
+\cf3 DFFC: \cf2  91 DB 58 (50) Left Magnet\par
+\cf1\par
+\cf3 DFFF: \cf2  28\par
+\cf4\par
+\cf1 ;------------------------ begin system data ---------------------------\par
+;CMOS DEFAULTS-\par
+\cf4 E000: 25 03 25\tab ;Game Number\par
+E003: B2 A5\tab\tab ;ROM Revision\par
+E005: 20\tab\tab ;Back-Up HSTD\par
+E006: 07\tab\tab ;Replay Level 1\par
+E007: 15\tab\tab ;Replay Level 2\par
+E008: 00\tab\tab ;Replay Level 3\par
+E009: 00\tab\tab ;Replay Level 4\par
+E00A: 00\tab\tab ;Match Award\par
+E00B: 00\tab\tab ;Special Award\par
+E00C: 00\tab\tab ;Replay Award\par
+E00D: 03\tab\tab ;Max Plumb Bob Tilt\par
+E00E: 03\tab\tab ;Balls per Game\par
+E00F: 35\tab\tab ;Game Adjustment #1\par
+E010: 01\tab\tab ;Game Adjustment #2\par
+E011: 05\tab\tab ;Game Adjustment #3\par
+E012: 00\tab\tab ;Game Adjustment #4\par
+E013: 00\tab\tab ;Game Adjustment #5\par
+E014: 00\tab\tab ;Game Adjustment #6\par
+E015: 00\tab\tab ;Game Adjustment #7\par
+E016: 00\tab\tab ;Game Adjustment #8\par
+E017: 00\tab\tab ;Game Adjustment #9\par
+E018: 03\tab\tab ;HSTD Award Credits\par
+E019: 04\tab\tab ;Max Extra Balls\par
+E01A: 30\tab\tab ;Max Credits\par
+\par
+\cf1 ;PRICING DATA(USA)-\par
+\cf4 E01B: 01\tab\tab ;Left Coin Slot Multiplier\par
+E01C: 04\tab\tab ;Center Coin Slot Multiplier\par
+E01D: 01\tab\tab ;Right Coin Slot Multiplier\par
+E01E: 01\tab\tab ;Coin Units Required for Coin\par
+E01F: 00\tab\tab ;Bonus Coins\par
+E020: 00\tab\tab ;\par
+\par
+\cf1 ;PRICING DATA(UK)-\par
+\cf4 E021: 09\tab\tab ;Left Coin Slot Multiplier\par
+E022: 45\tab\tab ;Center Coin Slot Multiplier\par
+E023: 18\tab\tab ;Right Coin Slot Multiplier\par
+E024: 05\tab\tab ;Coin Units Required for Coin\par
+E025: 45\tab\tab ;Bonus Coins\par
+E026: 00\tab\tab ;\par
+\par
+\cf1 ;UNKNOWN DATA-\par
+\cf4 E027: 01 04 01 02 04 00 01 16 06 02 00 00 03 15 03 04 \par
+E037: 15 00 01 00 04 01 00 00 01 00 02 01 00 00 01 00 \par
+E047: 02 02 00 00 \par
+\par
+\cf1 ;SYSTEM DATA-\par
+\cf4 E04B: 1D\tab\tab ;Max # of threads in Control Stack\par
+E04C: 7F\tab\tab ;Positive if Diagnostics should Test for ROM at $D800\par
+E04D: 32\tab\tab ;Last Switch Number on this Game (Max Switch)\par
+E04E: 03\tab\tab ;Number of Players Possible(zero based)\par
+\par
+E04F: E0 C2\tab\tab ;Lamp Table Pointer\par
+E051: DF 69\tab\tab ;Switch Table Pointer\par
+E053: DF 03\tab\tab ;Sound Table Pointer\par
+\par
+E055: 05\tab\tab ;Lamp Flash Rate\par
+E056: 0D\tab\tab ;Special Points Sound\par
+E057: 0E\tab\tab ;Player 1 Start Sound\par
+E058: 0E\tab\tab ;Player 2 Start Sound\par
+E059: 0E\tab\tab ;Player 3 Start Sound\par
+E05A: 0E\tab\tab ;Player 4 Start Sound\par
+E05B: 16\tab\tab ;Match Sound\par
+E05C: 15\tab\tab ;High Score Sound\par
+E05D: 1C\tab\tab ;Game Over Sound\par
+E05E: 00\tab\tab ;Credit Sound\par
+E05F: 7E\tab\tab ;Extra Ball Lamp1 Location\par
+E060: 00\tab\tab ;Extra Ball Lamp2 Location\par
+E061: 7E\tab\tab ;Last Lamp Used\par
+E062: 05\tab\tab ;High Score Lamp Location\par
+E063: 04\tab\tab ;Match Lamp Location\par
+E064: 01\tab\tab ;Ball in Play Lamp Location\par
+E065: 03\tab\tab ;Game Over Lamp Location\par
+E066: 02\tab\tab ;Tilt Lamp Location\par
+\par
+E067: DE 21\tab\tab ;Game Over Initialization Pointer\par
+\par
+\cf1 ;SWITCH TRIGGER DATA TABLE-\par
+\cf4 E069: 00 02\par
+E06B: 00 09\par
+E06D: 00 04\par
+E06F: 1A 14\par
+E071: 02 05\par
+E073: 08 05\par
+E075: 00 24\par
+\par
+\cf1 ;PLAYER INIT DATA-\par
+\cf4 E077: 02 00 00 00 00 00 01 00 08 80 00 00 00 00 00 00 00 00 00 00 \par
+\par
+\cf1 ;PLAYER RESET DATA:\par
+\cf4 E08B: 81 FF 00 00 C0 07 00 00 FA 7F 04 00 00 00 00 00 00 40 00 00 \par
+\par
+\cf1 ;EVENT ENTRY POINTS-\par
+\cf4 E09F:  39                 rts             ;Call from $EE38 (Switch Event)\par
+E0A1:  39                 rts             ;Call From $EDA0 (Sound Event )\par
+E0A3:  20 4A              bra $E0EF       ;Call from $EC0C (Score Event )\par
+E0A5:  20 39              bra $E0E0       ;Call from $F6E2 (Extra Ball Event)\par
+E0A7:  20 37              bra $E0E0       ;Call From $F6CE (Special Event)\par
+E0A9:  39                 rts             ;Call from $F3B5 (Start Executing Macro Event)\par
+E0AB:  39                 rts             ;Call From $F900 (Flash Score Event)\par
+E0AD:  39                 rts             ;Call from $F858 (Add Player Event)\par
+E0AF:  20 35              bra $E0E6       ;Call From $FA1E (Game Over Event)\par
+E0B1:  39                 rts             ;Call from $\par
+\par
+\cf1 ;HOOK POINTER TABLE-\par
+\cf4 E0B3: DD A8\tab\tab (From $E89F)Reset\par
+E0B5: E1 4C\tab\tab (From $E8B7)Main Loop Begin\par
+E0B7: D8 3F\tab\tab (From $F770)Coin Accepted\par
+E0B9: E1 4C\tab\tab (From $F847)New Game Start\par
+E0BB: DB ED\tab\tab (From $F8D8)Init New Player\par
+E0BD: DD 16\tab\tab (From $F9BA)Outhole\par
+;------------------------ end system data ---------------------------\par
+\par
+\cf1 ;IRQ Entry-\par
+\cf3 E0BF: \cf2  7E EF F7      jmp $EFF7       ;$EFF7\par
+\cf1 ;LAMP TABLE:\par
+\cf3 E0C2: \cf2  30 38 (00) 1 Bonus -- 9 Bonus\par
+\cf3 E0C4: \cf2  3C 3F (01) 2X -- 10X\par
+\cf3 E0C6: \cf2  0C 0F (02) L -- D\par
+\cf3 E0C8: \cf2  39 3B (03) 10 Bonus -- 30 Bonus\par
+\cf3 E0CA: \cf2  10 14 (04) #1 Target -- #5 Rollover\par
+\cf3 E0CC: \cf2  07 0B (05) R MagSave #1 -- R MagSave #5\par
+\cf3 E0CE: \cf2  26 2A (06) Left MagSave #1 -- Left MagSave #5\par
+\cf3 E0D0: \cf2  00 3F (07) Shoot Again BB -- 10X\par
+\cf3 E0D2: \cf2  07 3F (08) R MagSave #1 -- 10X\par
+\cf3 E0D4: \cf2  48 4C (09) R MagSave #2 -- L\par
+\cf3 E0D6: \cf2  43 47 (0A) Game Over -- R MagSave #1\par
+\cf3 E0D8: \cf2  20 24 (0B) 5-Bank #1 -- 5-Bank #5\par
+\cf3 E0DA: \cf2  15 16 (0C) Left Drain Shield -- Right Drain Shield\par
+\cf3 E0DC: \cf2  30 3B (0D) 1 Bonus -- 30 Bonus\par
+\cf3 E0DE: \cf2  4D 4E (0E) O -- R\par
+\cf1\par
+\cf3 E0E0: \cf2  CE D8 00      ldx #D800\par
+\cf3 E0E3: \cf2  7E EA C4      jmp $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E0E6: \cf2  86 FF         lda #FF\par
+\cf3 E0E8: \cf2  97 58         sta $58\par
+\cf3 E0EA: \cf2  86 69         lda #69\par
+\cf3 E0EC: \cf2  7E F1 3C      jmp $F13C       ;SYSCALL- Turn on Lamp A\par
+\cf3 E0EF: \cf2  37            pshb\par
+\cf3 E0F0: \cf2  C6 D4         ldb #D4\par
+\cf3 E0F2: \cf2  D7 0B         stb $0B\par
+\cf3 E0F4: \cf2  D7 AA         stb $AA\par
+\cf3 E0F6: \cf2  CE DD B0      ldx #DDB0\par
+\cf3 E0F9: \cf2  BD EA 78      jsr $EA78       ;SYSCALL- Start New Thread @ X, Priority = $AA\par
+\cf3 E0FC: \cf2  D6 1C         ldb $1C\par
+\cf3 E0FE: \cf2  2A 0E         bpl $E10E\par
+\cf3 E100: \cf2  C4 3F         andb #3F\par
+\cf3 E102: \cf2  D7 1C         stb $1C\par
+\cf3 E104: \cf2  36            psha\par
+\cf3 E105: \cf2  BD DC 94      jsr $DC94       ;$DC94\par
+\cf3 E108: \cf2  86 1A         lda #1A\par
+\cf3 E10A: \cf2  BD F1 5B      jsr $F15B       ;SYSCALL- Turn off Lamp A\par
+\cf3 E10D: \cf2  32            pula\par
+\cf3 E10E: \cf2  D6 13         ldb $13\par
+\cf3 E110: \cf2  DA 33         orb $33\par
+\cf3 E112: \cf2  C5 02         bitb #02\par
+\cf3 E114: \cf2  27 08         beq $E11E\par
+\cf3 E116: \cf2  36            psha\par
+\cf3 E117: \cf2  84 F8         anda #F8\par
+\cf3 E119: \cf2  48            asla\par
+\cf3 E11A: \cf2  33            pulb\par
+\cf3 E11B: \cf2  C4 07         andb #07\par
+\cf3 E11D: \cf2  1B            aba\par
+\cf3 E11E: \cf2  33            pulb\par
+\cf3 E11F: \cf2  31            ins\par
+\cf3 E120: \cf2  31            ins\par
+\cf3 E121: \cf2  BD EB DB      jsr $EBDB       ;SYSCALL- Stop the Bonus Ball\par
+\cf3 E124: \cf2  BD EC 1D      jsr $EC1D       ;SYSCALL- Add Points to Current Score, Data in A\par
+\cf3 E127: \cf2  BD EB A1      jsr $EBA1       ;SYSCALL- Update Master Display Toggle From Current Player\par
+\cf3 E12A: \cf2  CE 00 DE      ldx #00DE\par
+\cf3 E12D: \cf2  8D            bsr $E13B\par
+\cf3 E12F: \cf2  D7 DE         stb $DE\par
+\cf3 E131: \cf2  DE CE 8D      ldx $CE\par
+\cf3 E133: \cf2  8D            bsr $E13B\par
+\cf3 E135: \cf2  BD EC B7      jsr $ECB7       ;$ECB7\par
+\cf3 E138: \cf2  7E EC 18      jmp $EC18       ;$EC18\par
+\cf3 E13B: \cf2  A6 00         lda $00,X\par
+\cf3 E13D: \cf2  E6 01         ldb $01,X\par
+\cf3 E13F: \cf2  8D            bsr $E146\par
+\cf3 E141: \cf2  BD EC F3      jsr $ECF3       ;$ECF3\par
+\cf3 E144: \cf2  1B            aba\par
+\cf3 E145: \cf2  16            tab\par
+\cf3 E146: \cf2  C1 A0         cmpb #A0\par
+\cf3 E148: \cf2  25 02         bcs $E14C\par
+\cf3 E14A: \cf2  CB 10         addb #10\par
+\cf1 ;Main Loop Hook/New Game Start Hook-\par
+\cf3 E14C: \cf2  39            rts\par
+\cf1 ;Center Coin(switch)/Left Coin(switch)/Right Coin(switch)-\par
+\cf3 E14D: \cf2  E0           _SND             ;Sound #00\par
+\cf3 E14E: \cf2  5F F7 A2     _JMP             ;$F7A2\par
+\par
+\cf1 ;Playfield Tilt(switch)/Plumb Bob Tilt(switch)-\par
+\cf3 E151: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E152: \cf2  CE E1 83      ldx #E183\par
+\cf3 E155: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E158: \cf2  5A FB 40 F0\par
+\cf3     : \cf2  0C           _BEQ(rel)        ;If (BIT#40 || TILT) to $E169\par
+\cf3 E15D: \cf2  E8           _SND             ;Sound #08\par
+\cf3 E15E: \cf2  57 FB DD     _JSRD            ;SYSCALL- Increment Plumb Bob Tilt\par
+\cf3 E161: \cf2  5A F0 0D     _BEQ(rel)        ;If TILT to $E171\par
+\cf3 E164: \cf2  99 37        _JSRR            ;$DA9D\par
+\cf3 E166: \cf2  72           _DELAY           ;Delay #2\par
+\cf3 E167: \cf2  99 25        _JSRR            ;$DA8E\par
+\cf3 E169: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Ball Roll Tilt(switch)-\par
+\cf3 E16A: \cf2  5A 40 15     _BEQ(rel)        ;If BIT#40 to $E182\par
+\cf3 E16D: \cf2  E8           _SND             ;Sound #08\par
+\cf3 E16E: \cf2  57 FB E9     _JSRD            ;SYSCALL- Set Tilt Mode\par
+\cf3 E171: \cf2  56 DA 9D     _JSR             ;$DA9D\par
+\cf3 E174: \cf2  5E A5        _SWC             ;Clear Switch #A5\par
+\cf3 E176:\cf2      26                         ;Clear Switch #26(Lower Eject Hole)\par
+\cf3 E177: \cf2  5B 5F 02     _BNE(rel)        ;If BIT#5F to $E17C\par
+\cf3 E17A: \cf2  93 87        _JSRR            ;$E503\par
+\cf3 E17C: \cf2  11 E6        _LAMP            ;Turn OFF Bit #26\par
+\cf3 E17E:\cf2      67                         ;Turn OFF Bit #27\par
+\cf3 E17F: \cf2  53 9C        _DELAY           ;Delay #156\par
+\cf3 E181: \cf2  FC           _SND             ;Sound #1C\par
+\cf3 E182: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E183: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 E186: \cf2  55 F8 A0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E189: \cf2  52 A6        _PRI             ;Priority=#A6\par
+\cf3 E18B: \cf2  10 51        _LAMP            ;Turn ON Bit #11\par
+\cf3 E18D: \cf2  53 A0        _DELAY           ;Delay #160\par
+\cf3 E18F: \cf2  11 51        _LAMP            ;Turn OFF Bit #11\par
+\cf3 E191: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;High Score Reset(switch)-\par
+\cf3 E192: \cf2  57 EF 9D     _JSRD            ;$EF9D\par
+\cf3 E195: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E196: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf1 ;"1" Target(switch)/"2" Target(switch)/"3" Target(switch)-\par
+\cf3 E199: \cf2  14 00        _LAMP            ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 E19B: \cf2  43 0B        _PTSDIG          ;1000 Points/Digit Sound\par
+\cf3 E19D: \cf2  5B F6 04 20  _BNE(rel)        ;If RangeON#04 to $E1C1\par
+\cf3 E1A1: \cf2  52 05        _PRI             ;Priority=#05\par
+\cf3 E1A3: \cf2  5B 19 02     _BNE(rel)        ;If LAMP#19(2X Scoring) to $E1A8\par
+\cf3 E1A6: \cf2  42 2C        _POINTS          ;5 Points\par
+\cf3 E1A8: \cf2  10 19        _LAMP            ;Turn ON Lamp #19(2X Scoring)\par
+\cf3 E1AA: \cf2  FD           _SND             ;Sound #1D\par
+\cf3 E1AB: \cf2  19 04        _LAMP            ;Lamp Effect: \par
+\cf3 E1AD: \cf2  29 08        _LAMP2           ;Lamp Effect #08\par
+\cf3 E1AF: \cf2  57 DC 87     _JSRD            ;$DC87\par
+\cf3 E1B2: \cf2  C0 1E        _SETRAM          ;RAM$00 = #1E\par
+\cf3 E1B4: \cf2  2F 04        _LAMP2           ;Lamp Effect #04\par
+\cf3 E1B6: \cf2  73           _DELAY           ;Delay #3\par
+\cf3 E1B7: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 E1B9: \cf2  5B FC E0 00\par
+\cf3     : \cf2  F6           _BNE(rel)        ;If RAM$00==#00 to $E1B4\par
+\cf3 E1BE: \cf2  57 DC 94     _JSRD            ;$DC94\par
+\cf3 E1C1: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Left 10-Point(switch)/Left Kicker(switch)/Right 10-Point(switch)/Right Kicker(switch)/Upper Kicker(switch)/Upper Left 10-Point(switch)-\par
+\cf3 E1C2: \cf2  43 09        _PTSDIG          ;10 Points/Digit Sound\par
+\cf3 E1C4: \cf2  5A FB F6 0C\par
+\cf3     : \cf2  F5 0C 04     _BEQ(rel)        ;If (RangeON#0C || RangeOFF#0C) to $E1CF\par
+\cf3 E1CB: \cf2  1F 0C        _LAMP            ;Lamp Effect: \par
+\cf3 E1CD: \cf2  1F 0E        _LAMP            ;Lamp Effect: \par
+\cf1 ;<not used>(switch)-\par
+\cf3 E1CF: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Lower Turnaround(switch)-\par
+\cf3 E1D0: \cf2  55 F8 90     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E1D3: \cf2  52 90        _PRI             ;Priority=#90\par
+\cf3 E1D5: \cf2  43 0B        _PTSDIG          ;1000 Points/Digit Sound\par
+\cf3 E1D7: \cf2  5A 5B 07     _BEQ(rel)        ;If BIT#5B to $E1E1\par
+\cf3 E1DA: \cf2  10 5A        _LAMP            ;Turn ON Bit #1A\par
+\cf3 E1DC: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E1DE: \cf2  11 5A        _LAMP            ;Turn OFF Bit #1A\par
+\cf3 E1E0: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E1E1: \cf2  55 F8 50     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E1E4: \cf2  5B F4 1E 13  _BNE(rel)        ;If LampOn/Flash#1E to $E1FB\par
+\cf3 E1E8: \cf2  11 9E        _LAMP            ;Turn OFF Lamp #1E(Loop X Value)\par
+\cf3 E1EA:\cf2      5B                         ;Turn OFF Bit #1B\par
+\cf3 E1EB: \cf2  21 1E        _LAMP2           ;Turn OFF Lamp #1E(Loop X Value)\par
+\cf3 E1ED: \cf2  52 05        _PRI             ;Priority=#05\par
+\cf3 E1EF: \cf2  1A 01        _LAMP            ;Lamp Effect: \par
+\cf3 E1F1: \cf2  C0 40        _SETRAM          ;RAM$00 = #40\par
+\cf3 E1F3: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 E1F5: \cf2  5B E0 FB     _BNE(rel)        ;If RAM$00 to $E1F3\par
+\cf3 E1F8: \cf2  92 05        _JSRR            ;$E3FF\par
+\cf3 E1FA: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E1FB: \cf2  5B F4 1D 06  _BNE(rel)        ;If LampOn/Flash#1D to $E205\par
+\cf3 E1FF: \cf2  11 1D        _LAMP            ;Turn OFF Lamp #1D(Loop spots Letter)\par
+\cf3 E201: \cf2  90 1B        _JSRR            ;$E21E\par
+\cf3 E203: \cf2  80 12        _JMPR            ;$E217\par
+\cf3 E205: \cf2  43 7B        _PTSDIG          ;15000 Points/Digit Sound\par
+\cf3 E207: \cf2  80 0E        _JMPR            ;$E217\par
+\cf1 ;Upper Turnaround(switch)-\par
+\cf3 E209: \cf2  55 F8 90     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E20C: \cf2  52 90        _PRI             ;Priority=#90\par
+\cf3 E20E: \cf2  43 0B        _PTSDIG          ;1000 Points/Digit Sound\par
+\cf3 E210: \cf2  5A 5A 07     _BEQ(rel)        ;If BIT#5A to $E21A\par
+\cf3 E213: \cf2  10 5B        _LAMP            ;Turn ON Bit #1B\par
+\cf3 E215: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E217: \cf2  11 5B        _LAMP            ;Turn OFF Bit #1B\par
+\cf3 E219: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E21A: \cf2  90 02        _JSRR            ;$E21E\par
+\cf3 E21C: \cf2  8F C0        _JMPR            ;$E1DE\par
+\cf3 E21E: \cf2  1A 0E        _LAMP            ;Lamp Effect: \par
+\cf3 E220: \cf2  5A 56 10     _BEQ(rel)        ;If BIT#56 to $E233\par
+\cf3 E223: \cf2  5A FC D6 01\par
+\cf3     : \cf2  0B           _BEQ(rel)        ;If ADJ#6==#01 to $E233\par
+\cf3 E228: \cf2  4A           _EXE             ;CPU Execute Next 8 Bytes\par
+\cf3 E229: \cf2  96 19         lda $19\par
+\cf3 E22B: \cf2  84 60         anda #60\par
+\cf3 E22D: \cf2  9A 12         ora $12\par
+\cf3 E22F: \cf2  97 12         sta $12\par
+\cf3 E231: \cf2  11 56        _LAMP            ;Turn OFF Bit #16\par
+\cf3 E233: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf1 ;Left 3-Bank Center(switch)/Left 3-Bank Lower(switch)/Left 3-Bank Upper(switch)-\par
+\cf3 E234: \cf2  5A 4F 63     _BEQ(rel)        ;If BIT#4F to $E29A\par
+\cf3 E237: \cf2  1A 06        _LAMP            ;Lamp Effect: \par
+\cf3 E239: \cf2  43 0B        _PTSDIG          ;1000 Points/Digit Sound\par
+\cf3 E23B: \cf2  90 5E        _JSRR            ;$E29B\par
+\cf3 E23D: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 E23E: \cf2  C4 70         andb #70\par
+\cf3 E240: \cf2  5B FC E1 70\par
+\cf3     : \cf2  55           _BNE(rel)        ;If RAM$01==#70 to $E29A\par
+\cf3 E245: \cf2  11 1C        _LAMP            ;Turn OFF Lamp #1C(Left 3-Bank)\par
+\cf3 E247: \cf2  31 63        _SOL             ;Turn ON   Sol#3:Left Drop Target Reset\par
+\cf3 E249: \cf2  55 F8 80     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E24C: \cf2  80 18        _JMPR            ;$E266\par
+\cf1 ;Right 3-Bank Center(switch)/Right 3-Bank Lower(switch)/Right 3-Bank Upper(switch)-\par
+\cf3 E24E: \cf2  5A 4F 49     _BEQ(rel)        ;If BIT#4F to $E29A\par
+\cf3 E251: \cf2  1A 05        _LAMP            ;Lamp Effect: \par
+\cf3 E253: \cf2  43 0B        _PTSDIG          ;1000 Points/Digit Sound\par
+\cf3 E255: \cf2  90 44        _JSRR            ;$E29B\par
+\cf3 E257: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 E258: \cf2  C4 07         andb #07\par
+\cf3 E25A: \cf2  5B FC E1 07\par
+\cf3     : \cf2  3B           _BNE(rel)        ;If RAM$01==#07 to $E29A\par
+\cf3 E25F: \cf2  11 18        _LAMP            ;Turn OFF Lamp #18(Right 3-Bank)\par
+\cf3 E261: \cf2  31 64        _SOL             ;Turn ON   Sol#4:Right Drop Target Reset\par
+\cf3 E263: \cf2  55 F8 70     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E266: \cf2  52 05        _PRI             ;Priority=#05\par
+\cf3 E268: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 E269: \cf2  37            pshb\par
+\cf3 E26A: \cf2  36            psha\par
+\cf3 E26B: \cf2  C6 05         ldb #05\par
+\cf3 E26D: \cf2  56 DC F5     _JSR             ;$DCF5\par
+\cf3 E270: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 E271: \cf2  32            pula\par
+\cf3 E272: \cf2  36            psha\par
+\cf3 E273: \cf2  5B E0 04     _BNE(rel)        ;If RAM$00 to $E27A\par
+\cf3 E276: \cf2  95 4F        _JSRR            ;$E7C7\par
+\cf3 E278: \cf2  80 02        _JMPR            ;$E27C\par
+\cf3 E27A: \cf2  DA 0A        _RSND            ;Sound #1A(x10)\par
+\cf3 E27C: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 E27D: \cf2  32            pula\par
+\cf3 E27E: \cf2  33            pulb\par
+\cf3 E27F: \cf2  15 00        _LAMP            ;Turn OFF Lamp/Bit @RAM$00\par
+\cf3 E281: \cf2  B0 01        _ADDRAM          ;RAM$00 += #01\par
+\cf3 E283: \cf2  5A E0 14     _BEQ(rel)        ;If RAM$00 to $E29A\par
+\cf3 E286: \cf2  14 00        _LAMP            ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 E288: \cf2  B0 BF        _ADDRAM          ;RAM$00 += #BF\par
+\cf3 E28A: \cf2  C1 18        _SETRAM          ;RAM$01 = #18\par
+\cf3 E28C: \cf2  16 00        _LAMP            ;Toggle Lamp/Bit @RAM$00\par
+\cf3 E28E: \cf2  72           _DELAY           ;Delay #2\par
+\cf3 E28F: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 E291: \cf2  5B FC E1 00\par
+\cf3     : \cf2  F6           _BNE(rel)        ;If RAM$01==#00 to $E28C\par
+\cf3 E296: \cf2  B0 41        _ADDRAM          ;RAM$00 += #41\par
+\cf3 E298: \cf2  15 00        _LAMP            ;Turn OFF Lamp/Bit @RAM$00\par
+\cf3 E29A: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E29B: \cf2  47           _EXE             ;CPU Execute Next 5 Bytes\par
+\cf3 E29C: \cf2  36            psha\par
+\cf3 E29D: \cf2  84 FC         anda #FC\par
+\cf3 E29F: \cf2  8B 41         adda #41\par
+\cf3 E2A1: \cf2  72           _DELAY           ;Delay #2\par
+\cf3 E2A2: \cf2  5A E0 FC     _BEQ(rel)        ;If RAM$00 to $E2A1\par
+\cf3 E2A5: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 E2A6: \cf2  33            pulb\par
+\cf3 E2A7: \cf2  4A            deca\par
+\cf3 E2A8: \cf2  5B F8 E1 EE  _BNE(rel)        ;If SW#E1 to $E29A\par
+\cf3 E2AC: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E2AD: \cf2  36            psha\par
+\cf3 E2AE: \cf2  BD E5 9F      jsr $E59F       ;$E59F\par
+\cf3 E2B1: \cf2  16            tab\par
+\cf3 E2B2: \cf2  32            pula\par
+\cf3 E2B3: \cf2  5A E0 30     _BEQ(rel)        ;If RAM$00 to $E2E6\par
+\cf3 E2B6: \cf2  5A FB FB FA\par
+\cf3     : \cf2  5F FC D2 00\par
+\cf3     : \cf2  41 FA FC E1\par
+\cf3     : \cf2  01 FC D5 01\par
+\cf3     : \cf2  1F           _BEQ(rel)        ;If (((BIT#5F && ADJ#2==#00) || BIT#41) || (RAM$01==#01 && ADJ#5==#01)) to $E2E6\par
+\cf3 E2C7: \cf2  14 00        _LAMP            ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 E2C9: \cf2  5A FC E0 58\par
+\cf3     : \cf2  0D           _BEQ(rel)        ;If RAM$00==#58 to $E2DB\par
+\cf3 E2CE: \cf2  4C           _EXE             ;CPU Execute Next 10 Bytes\par
+\cf3 E2CF: \cf2  C6 80         ldb #80\par
+\cf3 E2D1: \cf2  D7 AA         stb $AA\par
+\cf3 E2D3: \cf2  CE D8 A6      ldx #D8A6\par
+\cf3 E2D6: \cf2  BD EA 78      jsr $EA78       ;SYSCALL- Start New Thread @ X, Priority = $AA\par
+\cf3 E2D9: \cf2  80 0B        _JMPR            ;$E2E6\par
+\cf3 E2DB: \cf2  4C           _EXE             ;CPU Execute Next 10 Bytes\par
+\cf3 E2DC: \cf2  C6 70         ldb #70\par
+\cf3 E2DE: \cf2  D7 AA         stb $AA\par
+\cf3 E2E0: \cf2  CE D8 D8      ldx #D8D8\par
+\cf3 E2E3: \cf2  BD EA 78      jsr $EA78       ;SYSCALL- Start New Thread @ X, Priority = $AA\par
+\cf3 E2E6: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 E2E7: \cf2  D6 64         ldb $64\par
+\cf3 E2E9: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf1 ;"5" Rollover(switch)-\par
+\cf3 E2EA: \cf2  57 DB 12     _JSRD            ;$DB12\par
+\cf3 E2ED: \cf2  56 DC FF     _JSR             ;$DCFF\par
+\cf3 E2F0: \cf2  8E A7        _JMPR            ;GAMEROM-"1" Target(switch)/"2" Target(switch)/"3" Target(switch)\par
+\cf1 ;Lower Eject Hole(switch)-\par
+\cf3 E2F2: \cf2  5B FB F0 F1\par
+\cf3     : \cf2  04           _BNE(rel)        ;If (TILT || GAME) to $E2FB\par
+\cf3 E2F7: \cf2  C0 46        _SETRAM          ;RAM$00 = #46\par
+\cf3 E2F9: \cf2  80 71        _JMPR            ;$E36C\par
+\cf3 E2FB: \cf2  58 FB FB FE\par
+\cf3     : \cf2  F2 F0 10 FA\par
+\cf3     : \cf2  5E F3 57 4F\par
+\cf3     : \cf2  E1 CF        _BEQ(abs)        ;If (((#F0 P LAMP#10(#1 Target)) || (BIT#5E && (!BIT#57))) || BIT#4F) to $E1CF\par
+\cf3 E309: \cf2  10 54        _LAMP            ;Turn ON Bit #14\par
+\cf3 E30B: \cf2  58 41 E4 35  _BEQ(abs)        ;If BIT#41 to $E435\par
+\cf3 E30F: \cf2  5B F4 2B 07  _BNE(rel)        ;If LampOn/Flash#2B to $E31A\par
+\cf3 E313: \cf2  11 2B        _LAMP            ;Turn OFF Lamp #2B(Extra Kick)\par
+\cf3 E315: \cf2  55 F8 14     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E318: \cf2  10 53        _LAMP            ;Turn ON Bit #13\par
+\cf3 E31A: \cf2  52 15        _PRI             ;Priority=#15\par
+\cf3 E31C: \cf2  43 0B        _PTSDIG          ;1000 Points/Digit Sound\par
+\cf3 E31E: \cf2  5A F8 08 12  _BEQ(rel)        ;If SW#08 to $E334\par
+\cf3 E322: \cf2  20 17        _LAMP2           ;Turn ON Lamp #17(Mini Field Illum X2)\par
+\cf3 E324: \cf2  20 1F        _LAMP2           ;Turn ON Lamp #1F(Mini-Field Illum)\par
+\cf3 E326: \cf2  20 25        _LAMP2           ;Turn ON Lamp #25(Mini-Field Illum)\par
+\cf3 E328: \cf2  20 2E        _LAMP2           ;Turn ON Lamp #2E(Mini-Field Illum)\par
+\cf3 E32A: \cf2  20 2F        _LAMP2           ;Turn ON Lamp #2F(Mini-Field Illum)\par
+\cf3 E32C: \cf2  20 2B        _LAMP2           ;Turn ON Lamp #2B(Extra Kick)\par
+\cf3 E32E: \cf2  21 6B        _LAMP2           ;Turn OFF Bit #2B\par
+\cf3 E330: \cf2  10 64        _LAMP            ;Turn ON Bit #24\par
+\cf3 E332: \cf2  80 0A        _JMPR            ;$E33E\par
+\cf3 E334: \cf2  56 DA 9D     _JSR             ;$DA9D\par
+\cf3 E337: \cf2  29 08        _LAMP2           ;Lamp Effect #08\par
+\cf3 E339: \cf2  57 DC 87     _JSRD            ;$DC87\par
+\cf3 E33C: \cf2  29 42        _LAMP2           ;Lamp Effect #02\par
+\cf3 E33E: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E33F: \cf2  CE E3 91      ldx #E391\par
+\cf3 E342: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E345: \cf2  53 40        _DELAY           ;Delay #64\par
+\cf3 E347: \cf2  31 33        _SOL             ;Turn ON   Sol#3:Left Drop Target Reset\par
+\cf3 E349: \cf2  53 FF        _DELAY           ;Delay #255\par
+\cf3 E34B: \cf2  31 53        _SOL             ;Turn ON   Sol#3:Left Drop Target Reset\par
+\cf3 E34D: \cf2  53 C0        _DELAY           ;Delay #192\par
+\cf3 E34F: \cf2  11 53        _LAMP            ;Turn OFF Bit #13\par
+\cf3 E351: \cf2  55 F8 10     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E354: \cf2  90 21        _JSRR            ;$E377\par
+\cf3 E356: \cf2  52 17        _PRI             ;Priority=#17\par
+\cf3 E358: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E35A: \cf2  ED           _SND             ;Sound #0D\par
+\cf3 E35B: \cf2  5B FA 5F F8\par
+\cf3     : \cf2  08 04        _BNE(rel)        ;If (BIT#5F && SW#08) to $E365\par
+\cf3 E361: \cf2  11 57        _LAMP            ;Turn OFF Bit #17\par
+\cf3 E363: \cf2  81 0D        _JMPR            ;$E472\par
+\cf3 E365: \cf2  C0 46        _SETRAM          ;RAM$00 = #46\par
+\cf3 E367: \cf2  5A 54 02     _BEQ(rel)        ;If BIT#54 to $E36C\par
+\cf3 E36A: \cf2  C0 47        _SETRAM          ;RAM$00 = #47\par
+\cf3 E36C: \cf2  57 EB 23     _JSRD            ;SYSCALL- Turn On/Off Solenoid\par
+\cf3 E36F: \cf2  11 54        _LAMP            ;Turn OFF Bit #14\par
+\cf3 E371: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E373: \cf2  5E A5        _SWC             ;Clear Switch #A5\par
+\cf3 E375:\cf2      26                         ;Clear Switch #26(Lower Eject Hole)\par
+\cf3 E376: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E377: \cf2  5B 64 0E     _BNE(rel)        ;If BIT#64 to $E388\par
+\cf3 E37A: \cf2  21 2B        _LAMP2           ;Turn OFF Lamp #2B(Extra Kick)\par
+\cf3 E37C: \cf2  21 17        _LAMP2           ;Turn OFF Lamp #17(Mini Field Illum X2)\par
+\cf3 E37E: \cf2  21 1F        _LAMP2           ;Turn OFF Lamp #1F(Mini-Field Illum)\par
+\cf3 E380: \cf2  21 25        _LAMP2           ;Turn OFF Lamp #25(Mini-Field Illum)\par
+\cf3 E382: \cf2  21 2E        _LAMP2           ;Turn OFF Lamp #2E(Mini-Field Illum)\par
+\cf3 E384: \cf2  21 2F        _LAMP2           ;Turn OFF Lamp #2F(Mini-Field Illum)\par
+\cf3 E386: \cf2  80 06        _JMPR            ;$E38E\par
+\cf3 E388: \cf2  57 DC 94     _JSRD            ;$DC94\par
+\cf3 E38B: \cf2  56 DA 8E     _JSR             ;$DA8E\par
+\cf3 E38E: \cf2  11 64        _LAMP            ;Turn OFF Bit #24\par
+\cf3 E390: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E391: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 E394: \cf2  52 15        _PRI             ;Priority=#15\par
+\cf3 E396: \cf2  22 57        _LAMP2           ;Toggle Bit #17\par
+\cf3 E398: \cf2  22 5F        _LAMP2           ;Toggle Bit #1F\par
+\cf3 E39A: \cf2  22 65        _LAMP2           ;Toggle Bit #25\par
+\cf3 E39C: \cf2  22 6E        _LAMP2           ;Toggle Bit #2E\par
+\cf3 E39E: \cf2  22 6F        _LAMP2           ;Toggle Bit #2F\par
+\cf3 E3A0: \cf2  E5           _SND             ;Sound #05\par
+\cf3 E3A1: \cf2  72           _DELAY           ;Delay #2\par
+\cf3 E3A2: \cf2  5A F0 AA     _BEQ(rel)        ;If TILT to $E34F\par
+\cf3 E3A5: \cf2  5B 53 EE     _BNE(rel)        ;If BIT#53 to $E396\par
+\cf3 E3A8: \cf2  22 6B        _LAMP2           ;Toggle Bit #2B\par
+\cf3 E3AA: \cf2  8F EA        _JMPR            ;$E396\par
+\cf1 ;"D" Rollover(switch)/"L" Rollover(switch)/"O" Rollover(switch)/"R" Rollover(switch)-\par
+\cf3 E3AC: \cf2  5B FE F2 F2\par
+\cf3     : \cf2  10 C4        _BNE(rel)        ;If (#F2 P LAMP#10(#1 Target)) to $E376\par
+\cf3 E3B2: \cf2  71           _DELAY           ;Delay #1\par
+\cf3 E3B3: \cf2  5B F7 17 FB  _BNE(rel)        ;If BIT#17 to $E3B2\par
+\cf3 E3B7: \cf2  42 2B        _POINTS          ;5000 Points\par
+\cf3 E3B9: \cf2  55 F8 10     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E3BC: \cf2  52 17        _PRI             ;Priority=#17\par
+\cf3 E3BE: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 E3BF: \cf2  16            tab\par
+\cf3 E3C0: \cf2  50            negb\par
+\cf3 E3C1: \cf2  CB 10         addb #10\par
+\cf3 E3C3: \cf2  56 DC F5     _JSR             ;$DCF5\par
+\cf3 E3C6: \cf2  5A E0 23     _BEQ(rel)        ;If RAM$00 to $E3EC\par
+\cf3 E3C9: \cf2  14 00        _LAMP            ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 E3CB: \cf2  90 32        _JSRR            ;$E3FF\par
+\cf3 E3CD: \cf2  5B F6 02 11  _BNE(rel)        ;If RangeON#02 to $E3E2\par
+\cf3 E3D1: \cf2  5A 1B 0B     _BEQ(rel)        ;If LAMP#1B(Mini-Field Special) to $E3DF\par
+\cf3 E3D4: \cf2  9F A1        _JSRR            ;$E377\par
+\cf3 E3D6: \cf2  5B F0 5C     _BNE(rel)        ;If TILT to $E435\par
+\cf3 E3D9: \cf2  10 41        _LAMP            ;Turn ON Bit #01\par
+\cf3 E3DB: \cf2  5E A5        _SWC             ;Clear Switch #A5\par
+\cf3 E3DD:\cf2      26                         ;Clear Switch #26(Lower Eject Hole)\par
+\cf3 E3DE: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E3DF: \cf2  05           _SPEC            ;Award Special\par
+\cf3 E3E0: \cf2  19 02        _LAMP            ;Lamp Effect: \par
+\cf3 E3E2: \cf2  59 53 E3 54  _BNE(abs)        ;If BIT#53 to $E354\par
+\cf3 E3E6: \cf2  11 53        _LAMP            ;Turn OFF Bit #13\par
+\cf3 E3E8: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E3EA: \cf2  8F 52        _JMPR            ;$E33E\par
+\cf3 E3EC: \cf2  E2           _SND             ;Sound #02\par
+\cf3 E3ED: \cf2  56 DC C1     _JSR             ;$DCC1\par
+\cf3 E3F0: \cf2  7C           _DELAY           ;Delay #12\par
+\cf3 E3F1: \cf2  56 DC CD     _JSR             ;$DCCD\par
+\cf3 E3F4: \cf2  53 14        _DELAY           ;Delay #20\par
+\cf3 E3F6: \cf2  56 DC C1     _JSR             ;$DCC1\par
+\cf3 E3F9: \cf2  7C           _DELAY           ;Delay #12\par
+\cf3 E3FA: \cf2  56 DC CD     _JSR             ;$DCCD\par
+\cf3 E3FD: \cf2  8F E3        _JMPR            ;$E3E2\par
+\cf3 E3FF: \cf2  24 00        _LAMP2           ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 E401: \cf2  B0 40        _ADDRAM          ;RAM$00 += #40\par
+\cf3 E403: \cf2  C1 0C        _SETRAM          ;RAM$01 = #0C\par
+\cf3 E405: \cf2  5A FD E0 64\par
+\cf3     : \cf2  03           _BEQ(rel)        ;If RAM$00>=#64 to $E40D\par
+\cf3 E40A: \cf2  E2           _SND             ;Sound #02\par
+\cf3 E40B: \cf2  80 01        _JMPR            ;$E40E\par
+\cf3 E40D: \cf2  EB           _SND             ;Sound #0B\par
+\cf3 E40E: \cf2  26 00        _LAMP2           ;Toggle Lamp/Bit @RAM$00\par
+\cf3 E410: \cf2  74           _DELAY           ;Delay #4\par
+\cf3 E411: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 E413: \cf2  5B FC E1 00\par
+\cf3     : \cf2  ED           _BNE(rel)        ;If RAM$01==#00 to $E405\par
+\cf3 E418: \cf2  B0 C0        _ADDRAM          ;RAM$00 += #C0\par
+\cf3 E41A: \cf2  25 00        _LAMP2           ;Turn OFF Lamp/Bit @RAM$00\par
+\cf3 E41C: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf1 ;Upper Eject Hole(switch)-\par
+\cf3 E41D: \cf2  58 FB F0 F1\par
+\cf3     : \cf2  E3 6A        _BEQ(abs)        ;If (TILT || GAME) to $E36A\par
+\cf3 E423: \cf2  58 FB FB FE\par
+\cf3     : \cf2  F2 F0 10 FA\par
+\cf3     : \cf2  F3 57 5E 4F\par
+\cf3     : \cf2  E3 76        _BEQ(abs)        ;If (((#F0 P LAMP#10(#1 Target)) || ((!BIT#57) && BIT#5E)) || BIT#4F) to $E376\par
+\cf3 E431: \cf2  59 41 E3 1A  _BNE(abs)        ;If BIT#41 to $E31A\par
+\cf3 E435: \cf2  11 41        _LAMP            ;Turn OFF Bit #01\par
+\cf3 E437: \cf2  19 82        _LAMP            ;Lamp Effect: \par
+\cf3 E439:\cf2      0C                         ;Lamp Range #0C\par
+\cf3 E43A: \cf2  10 DF        _LAMP            ;Turn ON Bit #1F\par
+\cf3 E43C:\cf2      9B                         ;Turn ON Lamp #1B(Mini-Field Special)\par
+\cf3 E43D:\cf2      D6                         ;Turn ON Bit #16\par
+\cf3 E43E:\cf2      5E                         ;Turn ON Bit #1E\par
+\cf3 E43F: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E440: \cf2  CE 01 2E      ldx #012E\par
+\cf3 E443: \cf2  BD F7 7F      jsr $F77F       ;SYSCALL- Add 1 to data at X\par
+\cf3 E446: \cf2  4E           _EXE             ;CPU Execute Next 12 Bytes\par
+\cf3 E447: \cf2  CE 01 95      ldx #0195\par
+\cf3 E44A: \cf2  BD EF 63      jsr $EF63       ;SYSCALL- CMOS,X++ -> B\par
+\cf3 E44D: \cf2  C1 15         cmpb #15\par
+\cf3 E44F: \cf2  24 02         bcc $E453\par
+\cf3 E451: \cf2  C6 15         ldb #15\par
+\cf3 E455: \cf2  11 01        _LAMP            ;Turn OFF Lamp #01(Ball in Play)\par
+\cf3 E457: \cf2  13 06        _LAMP            ;Flash Lamp #06(Multi-Ball Timer)\par
+\cf3 E459: \cf2  5B F8 08 05  _BNE(rel)        ;If SW#08 to $E462\par
+\cf3 E45D: \cf2  42 09        _POINTS          ;10 Points\par
+\cf3 E45F: \cf2  56 D9 F8     _JSR             ;$D9F8\par
+\cf3 E462: \cf2  32 63        _SOL             ;Turn ON   Sol#3:Left Drop Target Reset\par
+\cf3 E464:\cf2      64                         ;Turn ON   Sol#4:Right Drop Target Reset\par
+\cf3 E465: \cf2  4E           _EXE             ;CPU Execute Next 12 Bytes\par
+\cf3 E466: \cf2  96 5E         lda $5E\par
+\cf3 E468: \cf2  8A 80         ora #80\par
+\cf3 E46A: \cf2  97 5E         sta $5E\par
+\cf3 E46C: \cf2  96 5F         lda $5F\par
+\cf3 E46E: \cf2  8A 80         ora #80\par
+\cf3 E470: \cf2  97 5F         sta $5F\par
+\cf3 E472: \cf2  52 B1        _PRI             ;Priority=#B1\par
+\cf3 E474: \cf2  10 5E        _LAMP            ;Turn ON Bit #1E\par
+\cf3 E476: \cf2  11 2C        _LAMP            ;Turn OFF Lamp #2C(Ball Lock)\par
+\cf3 E478: \cf2  55 F8 60     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E47B: \cf2  55 F8 B0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E47E: \cf2  5A F8 08 09  _BEQ(rel)        ;If SW#08 to $E48B\par
+\cf3 E482: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E483: \cf2  CE D9 25      ldx #D925\par
+\cf3 E486: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E489: \cf2  80 2A        _JMPR            ;$E4B5\par
+\cf3 E48B: \cf2  90 DF        _JSRR            ;$E56C\par
+\cf3 E48D: \cf2  31 41        _SOL             ;Turn ON   Sol#1:Ball Ramp Thrower\par
+\cf3 E48F: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 E490: \cf2  96 0A         lda $0A\par
+\cf3 E492: \cf2  97 59         sta $59\par
+\cf3 E494: \cf2  53 50        _DELAY           ;Delay #80\par
+\cf3 E496: \cf2  5E 88        _SWC             ;Clear Switch #88\par
+\cf3 E498:\cf2      09                         ;Clear Switch #09(Left Ball Ramp)\par
+\cf3 E499: \cf2  C1 16        _SETRAM          ;RAM$01 = #16\par
+\cf3 E49B: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 E49C: \cf2  86 FF         lda #FF\par
+\cf3 E49E: \cf2  97 59         sta $59\par
+\cf3 E4A0: \cf2  61           _DELAY           ;Delay RAM$01\par
+\cf3 E4A1: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 E4A2: \cf2  96 0A         lda $0A\par
+\cf3 E4A4: \cf2  97 59         sta $59\par
+\cf3 E4A6: \cf2  E0           _SND             ;Sound #00\par
+\cf3 E4A7: \cf2  61           _DELAY           ;Delay RAM$01\par
+\cf3 E4A8: \cf2  45           _EXE             ;CPU Execute Next 3 Bytes\par
+\cf3 E4A9: \cf2  5A            decb\par
+\cf3 E4AA: \cf2  96 D6         lda $D6\par
+\cf3 E4AC: \cf2  5B FB FD E0\par
+\cf3     : \cf2  00 FC E1 00\par
+\cf3     : \cf2  E6           _BNE(rel)        ;If (RAM$00>=#00 || RAM$01==#00) to $E49B\par
+\cf3 E4B5: \cf2  C1 05        _SETRAM          ;RAM$01 = #05\par
+\cf3 E4B7: \cf2  F8           _SND             ;Sound #18\par
+\cf3 E4B8: \cf2  52 B1        _PRI             ;Priority=#B1\par
+\cf3 E4BA: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 E4BC: \cf2  5A FC E1 00\par
+\cf3     : \cf2  F4           _BEQ(rel)        ;If RAM$01==#00 to $E4B5\par
+\cf3 E4C1: \cf2  E0           _SND             ;Sound #00\par
+\cf3 E4C2: \cf2  5B FC E1 02\par
+\cf3     : \cf2  01           _BNE(rel)        ;If RAM$01==#02 to $E4C8\par
+\cf3 E4C7: \cf2  F9           _SND             ;Sound #19\par
+\cf3 E4CA: \cf2  5A FE F2 F0\par
+\cf3     : \cf2  10 06        _BEQ(rel)        ;If (#F0 P LAMP#10(#1 Target)) to $E4D6\par
+\cf3 E4D0: \cf2  47           _EXE             ;CPU Execute Next 5 Bytes\par
+\cf3 E4D1: \cf2  8B 99         adda #99\par
+\cf3 E4D3: \cf2  19            daa\par
+\cf3 E4D4: \cf2  97 0A         sta $0A\par
+\cf3 E4D6: \cf2  44           _EXE             ;CPU Execute Next 2 Bytes\par
+\cf3 E4D7: \cf2  97 59         sta $59\par
+\cf3 E4D9: \cf2  5A FC EA 00\par
+\cf3     : \cf2  0B           _BEQ(rel)        ;If RAM$0A==#00 to $E4E9\par
+\cf3 E4DE: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E4E0: \cf2  46           _EXE             ;CPU Execute Next 4 Bytes\par
+\cf3 E4E1: \cf2  86 FF         lda #FF\par
+\cf3 E4E3: \cf2  97 59         sta $59\par
+\cf3 E4E5: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E4E7: \cf2  8F CF        _JMPR            ;$E4B8\par
+\cf3 E4E9: \cf2  5B 5E 02     _BNE(rel)        ;If BIT#5E to $E4EE\par
+\cf3 E4EC: \cf2  10 50        _LAMP            ;Turn ON Bit #10\par
+\cf3 E4EE: \cf2  90 13        _JSRR            ;$E503\par
+\cf3 E4F0: \cf2  90 91        _JSRR            ;$E583\par
+\cf3 E4F2: \cf2  5B F8 08 02  _BNE(rel)        ;If SW#08 to $E4F8\par
+\cf3 E4F6: \cf2  9D 2B        _JSRR            ;$E223\par
+\cf3 E4F8: \cf2  52 08        _PRI             ;Priority=#08\par
+\cf3 E4FA: \cf2  56 DC C1     _JSR             ;$DCC1\par
+\cf3 E4FD: \cf2  53 80        _DELAY           ;Delay #128\par
+\cf3 E4FF: \cf2  56 DC CD     _JSR             ;$DCCD\par
+\cf3 E502: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E503: \cf2  11 DF        _LAMP            ;Turn OFF Bit #1F\par
+\cf3 E505:\cf2      DE                         ;Turn OFF Bit #1E\par
+\cf3 E506:\cf2      9B                         ;Turn OFF Lamp #1B(Mini-Field Special)\par
+\cf3 E507:\cf2      86                         ;Turn OFF Lamp #06(Multi-Ball Timer)\par
+\cf3 E508:\cf2      2C                         ;Turn OFF Lamp #2C(Ball Lock)\par
+\cf3 E509: \cf2  10 01        _LAMP            ;Turn ON Lamp #01(Ball in Play)\par
+\cf3 E50B: \cf2  55 F8 60     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E50E: \cf2  19 02        _LAMP            ;Lamp Effect: \par
+\cf3 E510: \cf2  4E           _EXE             ;CPU Execute Next 12 Bytes\par
+\cf3 E511: \cf2  96 5E         lda $5E\par
+\cf3 E513: \cf2  84 7F         anda #7F\par
+\cf3 E515: \cf2  97 5E         sta $5E\par
+\cf3 E517: \cf2  96 5F         lda $5F\par
+\cf3 E519: \cf2  84 7F         anda #7F\par
+\cf3 E51B: \cf2  97 5F         sta $5F\par
+\cf3 E51D: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf1 ;Right Ball Ramp(switch)-\par
+\cf3 E51E: \cf2  5B FA 5E F3\par
+\cf3     : \cf2  57 07        _BNE(rel)        ;If (BIT#5E && (!BIT#57)) to $E52B\par
+\cf3 E524: \cf2  31 41        _SOL             ;Turn ON   Sol#1:Ball Ramp Thrower\par
+\cf3 E526: \cf2  53 60        _DELAY           ;Delay #96\par
+\cf3 E52A: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E52B: \cf2  5B 5F 06     _BNE(rel)        ;If BIT#5F to $E534\par
+\cf3 E52E: \cf2  55 F8 60     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E531: \cf2  5C DD 88     _JMPD            ;$DD88\par
+\par
+\cf3 E534: \cf2  9C ED        _JSRR            ;$E223\par
+\cf3 E536: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf1 ;Left Ball Ramp(switch)-\par
+\cf3 E537: \cf2  5B FA F3 40\par
+\cf3     : \cf2  FA F8 08 F3\par
+\cf3     : \cf2  4F 51        _BNE(rel)        ;If ((!BIT#40) && (SW#08 && (!BIT#4F))) to $E592\par
+\cf3 E541: \cf2  5B 5F 04     _BNE(rel)        ;If BIT#5F to $E548\par
+\cf3 E544: \cf2  10 57        _LAMP            ;Turn ON Bit #17\par
+\cf3 E546: \cf2  8F 2A        _JMPR            ;$E472\par
+\cf3 E548: \cf2  5B 66 12     _BNE(rel)        ;If BIT#66 to $E55D\par
+\cf3 E54B: \cf2  90 36        _JSRR            ;$E583\par
+\cf3 E54D: \cf2  31 18        _SOL             ;Turn ON   Sol#8:5-Bank Target #1 Reset\par
+\cf3 E54F: \cf2  45           _EXE             ;CPU Execute Next 3 Bytes\par
+\cf3 E550: \cf2  7F 00 C8      clr $00C8       ;$00C8\par
+\cf3 E553: \cf2  10 67        _LAMP            ;Turn ON Bit #27\par
+\cf3 E555: \cf2  56 DA 8E     _JSR             ;$DA8E\par
+\cf3 E558: \cf2  90 12        _JSRR            ;$E56C\par
+\cf3 E55A: \cf2  5F DC DC     _JMP             ;$DCDC\par
+\par
+\cf3 E55D: \cf2  5B F0 04     _BNE(rel)        ;If TILT to $E564\par
+\cf3 E560: \cf2  45           _EXE             ;CPU Execute Next 3 Bytes\par
+\cf3 E561: \cf2  7A 00 CA      dec $00CA       ;$00CA\par
+\cf3 E564: \cf2  5B 55 F1     _BNE(rel)        ;If BIT#55 to $E558\par
+\cf3 E567: \cf2  10 4F        _LAMP            ;Turn ON Bit #0F\par
+\cf3 E569: \cf2  5C F9 AB     _JMPD            ;$F9AB\par
+\par
+\cf3 E56C: \cf2  57 DE 0B     _JSRD            ;$DE0B\par
+\cf3 E56F: \cf2  55 F8 D0     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E572: \cf2  11 55        _LAMP            ;Turn OFF Bit #15\par
+\cf3 E574: \cf2  4F           _EXE             ;CPU Execute Next 13 Bytes\par
+\cf3 E575: \cf2  96 D6         lda $D6\par
+\cf3 E577: \cf2  27 09         beq $E582\par
+\cf3 E579: \cf2  CE F8 DD      ldx #F8DD\par
+\cf3 E57C: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E57F: \cf2  7F 00 D6      clr $00D6       ;$00D6\par
+\cf3 E582: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E583: \cf2  55 F8 70     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E586: \cf2  55 F8 80     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E589: \cf2  32 63        _SOL             ;Turn ON   Sol#3:Left Drop Target Reset\par
+\cf3 E58B:\cf2      64                         ;Turn ON   Sol#4:Right Drop Target Reset\par
+\cf3 E58C: \cf2  11 D8        _LAMP            ;Turn OFF Bit #18\par
+\cf3 E58E:\cf2      DC                         ;Turn OFF Bit #1C\par
+\cf3 E58F:\cf2      D9                         ;Turn OFF Bit #19\par
+\cf3 E590:\cf2      5D                         ;Turn OFF Bit #1D\par
+\cf3 E591: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E594: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E595: \cf2  8D            bsr $E59F\par
+\cf3 E597: \cf2  48            asla\par
+\cf3 E598: \cf2  48            asla\par
+\cf3 E599: \cf2  48            asla\par
+\cf3 E59A: \cf2  48            asla\par
+\cf3 E59B: \cf2  48            asla\par
+\cf3 E59C: \cf2  48            asla\par
+\cf3 E59D: \cf2  4A            deca\par
+\cf3 E59E: \cf2  39            rts\par
+\cf3 E59F: \cf2  D6 11         ldb $11\par
+\cf3 E5A1: \cf2  C4 F0         andb #F0\par
+\cf3 E5A3: \cf2  8D            bsr $E5A9\par
+\cf3 E5A5: \cf2  40            nega\par
+\cf3 E5A6: \cf2  8B 04         adda #04\par
+\cf3 E5A8: \cf2  39            rts\par
+\cf3 E5A9: \cf2  37            pshb\par
+\cf3 E5AA: \cf2  4F            clra\par
+\cf3 E5AB: \cf2  5D            tstb\par
+\cf3 E5AC: \cf2  27 06         beq $E5B4\par
+\cf3 E5AE: \cf2  58            aslb\par
+\cf3 E5AF: \cf2  24 FD         bcc $E5AE\par
+\cf3 E5B1: \cf2  4C            inca\par
+\cf3 E5B2: \cf2  20 F7         bra $E5AB\par
+\cf3 E5B4: \cf2  33            pulb\par
+\cf3 E5B5: \cf2  39            rts\par
+\par
+\cf3 E5B6: \cf2  0E 16 2A 16 0E\par
+\cf3 E5BB: \cf2  52 05        _PRI             ;Priority=#05\par
+\cf3 E5BD: \cf2  19 89        _LAMP            ;Lamp Effect: \par
+\cf3 E5BF:\cf2      0B                         ;Lamp Range #0B\par
+\cf3 E5C0: \cf2  1E 0A        _LAMP            ;Lamp Effect: \par
+\cf3 E5C2: \cf2  5B 43 1D     _BNE(rel)        ;If BIT#43 to $E5E2\par
+\cf3 E5C5: \cf2  4B           _EXE             ;CPU Execute Next 9 Bytes\par
+\cf3 E5C6: \cf2  7F 00 E0      clr $00E0       ;$00E0\par
+\cf3 E5C9: \cf2  CE E6 36      ldx #E636\par
+\cf3 E5CC: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E5CF: \cf2  F4           _SND             ;Sound #14\par
+\cf3 E5D0: \cf2  10 52        _LAMP            ;Turn ON Bit #12\par
+\cf3 E5D2: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E5D3: \cf2  CE 01 32      ldx #0132\par
+\cf3 E5D6: \cf2  BD F7 7F      jsr $F77F       ;SYSCALL- Add 1 to data at X\par
+\cf3 E5D9: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E5DA: \cf2  52 05        _PRI             ;Priority=#05\par
+\cf3 E5DC: \cf2  10 42        _LAMP            ;Turn ON Bit #02\par
+\cf3 E5DE: \cf2  31 6D        _SOL             ;Turn ON   Sol#13:5-Bank Target Release\par
+\cf3 E5E0: \cf2  53 40        _DELAY           ;Delay #64\par
+\cf3 E5E2: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 E5E3: \cf2  86 48         lda #48\par
+\cf3 E5E5: \cf2  CE E5 B6      ldx #E5B6\par
+\cf3 E5E8: \cf2  36            psha\par
+\cf3 E5E9: \cf2  96 18         lda $18\par
+\cf3 E5EB: \cf2  44            lsra\par
+\cf3 E5EC: \cf2  E6 00         ldb $00,X\par
+\cf3 E5EE: \cf2  54            lsrb\par
+\cf3 E5EF: \cf2  48            asla\par
+\cf3 E5F0: \cf2  2A FC         bpl $E5EE\par
+\cf3 E5F2: \cf2  32            pula\par
+\cf3 E5F3: \cf2  54            lsrb\par
+\cf3 E5F4: \cf2  24 15         bcc $E60B\par
+\cf3 E5F6: \cf2  80 28         suba #28\par
+\cf3 E5F8: \cf2  BD F1 3C      jsr $F13C       ;SYSCALL- Turn on Lamp A\par
+\cf3 E5FB: \cf2  8B 28         adda #28\par
+\cf3 E5FD: \cf2  DF A4 BD      stx $A4\par
+\cf3 E5FF: \cf2  BD F2 F9      jsr $F2F9       ;$F2F9\par
+\cf3 E602: \cf2  26 03         bne $E607\par
+\cf3 E604: \cf2  BD EB 23      jsr $EB23       ;SYSCALL- Turn On/Off Solenoid\par
+\cf3 E607: \cf2  DE A4 20      ldx $A4\par
+\cf3 E609: \cf2  20 03         bra $E60E\par
+\cf3 E60B: \cf2  BD F1 3C      jsr $F13C       ;SYSCALL- Turn on Lamp A\par
+\cf3 E60E: \cf2  4C            inca\par
+\cf3 E60F: \cf2  08            inx\par
+\cf3 E610: \cf2  8C E5 BB      cmpx #E5BB\par
+\cf3 E613: \cf2  26 D3         bne $E5E8\par
+\cf3 E615: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 E618: \cf2  53 30        _DELAY           ;Delay #48\par
+\cf3 E61A: \cf2  5E A0        _SWC             ;Clear Switch #A0\par
+\cf3 E61C:\cf2      A1                         ;Clear Switch #21(5-Bank #2)\par
+\cf3 E61D:\cf2      A2                         ;Clear Switch #22(5-Bank #3)\par
+\cf3 E61E:\cf2      A3                         ;Clear Switch #23(5-Bank #4)\par
+\cf3 E61F:\cf2      A4                         ;Clear Switch #24(5-Bank #5)\par
+\cf3 E620:\cf2      25                         ;Clear Switch #25(Upper Eject Hole)\par
+\cf3 E621: \cf2  11 42        _LAMP            ;Turn OFF Bit #02\par
+\cf3 E623: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E624: \cf2  BD FB 80      jsr $FB80       ;SYSCALL- Return Random Number\par
+\cf3 E627: \cf2  84 07         anda #07\par
+\cf3 E629: \cf2  81 05         cmpa #05\par
+\cf3 E62B: \cf2  24 F7         bcc $E624\par
+\cf3 E62D: \cf2  8B 20         adda #20\par
+\cf3 E62F: \cf2  91 02         cmpa $02\par
+\cf3 E631: \cf2  27 F1         beq $E624\par
+\cf3 E633: \cf2  97 02         sta $02\par
+\cf3 E635: \cf2  39            rts\par
+\cf3 E636: \cf2  BD E6 24      jsr $E624       ;$E624\par
+\cf3 E639: \cf2  8B 28         adda #28\par
+\cf3 E63B: \cf2  BD EB 23      jsr $EB23       ;SYSCALL- Turn On/Off Solenoid\par
+\cf3 E63E: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 E641: \cf2  19 0B        _LAMP            ;Lamp Effect: \par
+\cf3 E643: \cf2  52 30        _PRI             ;Priority=#30\par
+\cf3 E645: \cf2  14 02        _LAMP            ;Turn ON Lamp/Bit @RAM$02\par
+\cf3 E647: \cf2  53 20        _DELAY           ;Delay #32\par
+\cf3 E649: \cf2  11 42        _LAMP            ;Turn OFF Bit #02\par
+\cf3 E64B: \cf2  4C           _EXE             ;CPU Execute Next 10 Bytes\par
+\cf3 E64C: \cf2  BD EB 8E      jsr $EB8E       ;$EB8E\par
+\cf3 E64F: \cf2  53            comb\par
+\cf3 E650: \cf2  D4 65         andb $65\par
+\cf3 E652: \cf2  D7 65         stb $65\par
+\cf3 E654: \cf2  96 E0         lda $E0\par
+\cf3 E656: \cf2  5B FC E0 00\par
+\cf3     : \cf2  01           _BNE(rel)        ;If RAM$00==#00 to $E65C\par
+\cf3 E65B: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E65C: \cf2  47           _EXE             ;CPU Execute Next 5 Bytes\par
+\cf3 E65D: \cf2  F6 01 9A      ldb $019A       ;$019A\par
+\cf3 E660: \cf2  C4 0F         andb #0F\par
+\cf3 E662: \cf2  B1 12        _ADDRAM          ;RAM$01 += #12\par
+\cf3 E664: \cf2  C0 08        _SETRAM          ;RAM$00 = #08\par
+\cf3 E666: \cf2  B1 FF        _ADDRAM          ;RAM$01 += #FF\par
+\cf3 E668: \cf2  61           _DELAY           ;Delay RAM$01\par
+\cf3 E669: \cf2  5B FB FB FB\par
+\cf3     : \cf2  5E 66 FE F2\par
+\cf3     : \cf2  F0 10 40 06  _BNE(rel)        ;If (((BIT#5E || BIT#66) || (#F0 P LAMP#10(#1 Target))) || BIT#40) to $E67B\par
+\cf3 E675: \cf2  14 02        _LAMP            ;Turn ON Lamp/Bit @RAM$02\par
+\cf3 E677: \cf2  25 02        _LAMP2           ;Turn OFF Lamp/Bit @RAM$02\par
+\cf3 E679: \cf2  8F ED        _JMPR            ;$E668\par
+\cf3 E67B: \cf2  5A E2 01     _BEQ(rel)        ;If RAM$02 to $E67F\par
+\cf3 E67E: \cf2  E6           _SND             ;Sound #06\par
+\cf3 E67F: \cf2  16 02        _LAMP            ;Toggle Lamp/Bit @RAM$02\par
+\cf3 E681: \cf2  5B FC E1 02\par
+\cf3     : \cf2  E0           _BNE(rel)        ;If RAM$01==#02 to $E666\par
+\cf3 E686: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 E688: \cf2  5B FC E0 00\par
+\cf3     : \cf2  DB           _BNE(rel)        ;If RAM$00==#00 to $E668\par
+\cf3 E68D: \cf2  E7           _SND             ;Sound #07\par
+\cf3 E68E: \cf2  52 30        _PRI             ;Priority=#30\par
+\cf3 E690: \cf2  11 2D        _LAMP            ;Turn OFF Lamp #2D(Double Trouble)\par
+\cf3 E692: \cf2  10 42        _LAMP            ;Turn ON Bit #02\par
+\cf3 E694: \cf2  31 6D        _SOL             ;Turn ON   Sol#13:5-Bank Target Release\par
+\cf3 E696: \cf2  19 0B        _LAMP            ;Lamp Effect: \par
+\cf3 E698: \cf2  53 40        _DELAY           ;Delay #64\par
+\cf3 E69A: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E69B: \cf2  CE 01 9B      ldx #019B\par
+\cf3 E69E: \cf2  BD EF 53      jsr $EF53       ;SYSCALL- CMOS,X++ -> A \par
+\cf3 E6A1: \cf2  60           _DELAY           ;Delay RAM$00\par
+\cf3 E6A2: \cf2  45           _EXE             ;CPU Execute Next 3 Bytes\par
+\cf3 E6A3: \cf2  7F 00 E0      clr $00E0       ;$00E0\par
+\cf3 E6A6: \cf2  5C E6 36     _JMPD            ;$E636\par
+\par
+\cf3 E6A9: \cf2  59 FC E2 E0\par
+\cf3     : \cf2  E7 C6        _BNE(abs)        ;If RAM$02==#E0 to $E7C6\par
+\cf3 E6AF: \cf2  55 F8 30     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E6B2: \cf2  10 2D        _LAMP            ;Turn ON Lamp #2D(Double Trouble)\par
+\cf3 E6B4: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 E6B5: \cf2  CE E6 BF      ldx #E6BF\par
+\cf3 E6B8: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E6BB: \cf2  7E E6 36      jmp $E636       ;$E636\par
+\cf3 E6BE: \cf2  03\par
+\cf3 E6BF: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 E6C2: \cf2  5B FE F2 F2\par
+\cf3     : \cf2  40 07        _BNE(rel)        ;If (#F2 P BIT#40) to $E6CF\par
+\cf3 E6C8: \cf2  55 FA 40     _PRIRA           ;Remove Multiple Threads Based on Priority\par
+\cf3 E6CB: \cf2  45           _EXE             ;CPU Execute Next 3 Bytes\par
+\cf3 E6CC: \cf2  BD E7 1A      jsr $E71A       ;$E71A\par
+\cf3 E6CF: \cf2  52 45        _PRI             ;Priority=#45\par
+\cf3 E6D1: \cf2  04           _CPUX            ;Resume CPU Execution\par
+\cf3 E6D2: \cf2  96 E0         lda $E0\par
+\cf3 E6D4: \cf2  26 03         bne $E6D9\par
+\cf3 E6D6: \cf2  4C            inca\par
+\cf3 E6D7: \cf2  20 0B         bra $E6E4\par
+\cf3 E6D9: \cf2  81 16         cmpa #16\par
+\cf3 E6DB: \cf2  27 07         beq $E6E4\par
+\cf3 E6DD: \cf2  48            asla\par
+\cf3 E6DE: \cf2  81 10         cmpa #10\par
+\cf3 E6E0: \cf2  25 02         bcs $E6E4\par
+\cf3 E6E2: \cf2  86 16         lda #16\par
+\cf3 E6E4: \cf2  BD DE C9      jsr $DEC9       ;$DEC9\par
+\cf3 E6E7: \cf2  97 E0         sta $E0\par
+\cf3 E6E9: \cf2  48            asla\par
+\cf3 E6EA: \cf2  48            asla\par
+\cf3 E6EB: \cf2  48            asla\par
+\cf3 E6EC: \cf2  84 7F         anda #7F\par
+\cf3 E6EE: \cf2  8B 04         adda #04\par
+\cf3 E6F0: \cf2  97 E2         sta $E2\par
+\cf3 E6F2: \cf2  96 18         lda $18\par
+\cf3 E6F4: \cf2  46            rora\par
+\cf3 E6F5: \cf2  25 1E         bcs $E715\par
+\cf3 E6F7: \cf2  8D            bsr $E728\par
+\cf3 E6F9: \cf2  86 08         lda #08\par
+\cf3 E6FB: \cf2  8D            bsr $E756\par
+\cf3 E6FD: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 E700: \cf2  06\par
+\cf3 E701: \cf2  81 01         cmpa #01\par
+\cf3 E703: \cf2  26 04         bne $E709\par
+\cf3 E705: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 E708: \cf2  60\par
+\cf3 E709: \cf2  BD E7 99      jsr $E799       ;$E799\par
+\cf3 E70C: \cf2  BD EA 2F      jsr $EA2F       ;SYSCALL- Delay Next Byte and Continue\par
+\cf3 E70F: \cf2  06\par
+\cf3 E710: \cf2  4A            deca\par
+\cf3 E711: \cf2  26 E8         bne $E6FB\par
+\cf3 E713: \cf2  8D            bsr $E73C\par
+\cf3 E715: \cf2  8D            bsr $E71A\par
+\cf3 E717: \cf2  7E EA 67      jmp $EA67       ;SYSCALL- Kill This Thread\par
+\cf3 E71A: \cf2  96 E2         lda $E2\par
+\cf3 E71C: \cf2  BD EC 05      jsr $EC05       ;$EC05\par
+\cf3 E71F: \cf2  81 34         cmpa #34\par
+\cf3 E721: \cf2  26 18         bne $E73B\par
+\cf3 E723: \cf2  86 0D         lda #0D\par
+\cf3 E725: \cf2  7E EC 05      jmp $EC05       ;$EC05\par
+\cf3 E728: \cf2  CE 00 5F      ldx #005F\par
+\cf3 E72B: \cf2  C6 03         ldb #03\par
+\cf3 E72D: \cf2  D1 CD         cmpb $CD\par
+\cf3 E72F: \cf2  27 06         beq $E737\par
+\cf3 E731: \cf2  A6 00         lda $00,X\par
+\cf3 E733: \cf2  8A 7F         ora #7F\par
+\cf3 E735: \cf2  A7 00         sta $00,X\par
+\cf3 E737: \cf2  09            dex\par
+\cf3 E738: \cf2  5A            decb\par
+\cf3 E739: \cf2  2A F2         bpl $E72D\par
+\cf3 E73B: \cf2  39            rts\par
+\cf3 E73C: \cf2  CE 00 5F      ldx #005F\par
+\cf3 E73F: \cf2  C6 03         ldb #03\par
+\cf3 E741: \cf2  D1 CD         cmpb $CD\par
+\cf3 E743: \cf2  27 06         beq $E74B\par
+\cf3 E745: \cf2  A6 00         lda $00,X\par
+\cf3 E747: \cf2  84 80         anda #80\par
+\cf3 E749: \cf2  A7 00         sta $00,X\par
+\cf3 E74B: \cf2  09            dex\par
+\cf3 E74C: \cf2  5A            decb\par
+\cf3 E74D: \cf2  2A F2         bpl $E741\par
+\cf3 E74F: \cf2  96 E1         lda $E1\par
+\cf3 E751: \cf2  97 60         sta $60\par
+\cf3 E753: \cf2  7E EB A1      jmp $EBA1       ;SYSCALL- Update Master Display Toggle From Current Player\par
+\cf3 E756: \cf2  36            psha\par
+\cf3 E757: \cf2  81 06         cmpa #06\par
+\cf3 E759: \cf2  25 04         bcs $E75F\par
+\cf3 E75B: \cf2  86 1F         lda #1F\par
+\cf3 E75D: \cf2  20 02         bra $E761\par
+\cf3 E75F: \cf2  86 0C         lda #0C\par
+\cf3 E761: \cf2  BD EC FC      jsr $ECFC       ;SYSCALL- Play Sound Index(A) Once\par
+\cf3 E764: \cf2  BD F9 19      jsr $F919       ;$F919\par
+\cf3 E767: \cf2  16            tab\par
+\cf3 E768: \cf2  43            coma\par
+\cf3 E769: \cf2  84 33         anda #33\par
+\cf3 E76B: \cf2  D4 60         andb $60\par
+\cf3 E76D: \cf2  1B            aba\par
+\cf3 E76E: \cf2  97 60         sta $60\par
+\cf3 E770: \cf2  BD EB A1      jsr $EBA1       ;SYSCALL- Update Master Display Toggle From Current Player\par
+\cf3 E773: \cf2  CE 00 48      ldx #0048\par
+\cf3 E776: \cf2  4F            clra\par
+\cf3 E777: \cf2  91 CD         cmpa $CD\par
+\cf3 E779: \cf2  27 12         beq $E78D\par
+\cf3 E77B: \cf2  6F 02         clr $02,X\par
+\cf3 E77D: \cf2  6F 03         clr $03,X\par
+\cf3 E77F: \cf2  D6 E0         ldb $E0\par
+\cf3 E781: \cf2  C5 F0         bitb #F0\par
+\cf3 E783: \cf2  26 02         bne $E787\par
+\cf3 E785: \cf2  CA F0         orb #F0\par
+\cf3 E787: \cf2  E7 01         stb $01,X\par
+\cf3 E789: \cf2  C6 FF         ldb #FF\par
+\cf3 E78B: \cf2  E7 00         stb $00,X\par
+\cf3 E78D: \cf2  C6 04         ldb #04\par
+\cf3 E78F: \cf2  BD EF 4D      jsr $EF4D       ;SYSCALL- \tab X = X + B\par
+\cf3 E792: \cf2  4C            inca\par
+\cf3 E793: \cf2  81 04         cmpa #04\par
+\cf3 E795: \cf2  26 E0         bne $E777\par
+\cf3 E797: \cf2  32            pula\par
+\cf3 E798: \cf2  39            rts\par
+\cf3 E799: \cf2  36            psha\par
+\cf3 E79A: \cf2  BD F9 19      jsr $F919       ;$F919\par
+\cf3 E79D: \cf2  94 60         anda $60\par
+\cf3 E79F: \cf2  97 60         sta $60\par
+\cf3 E7A1: \cf2  86 FF         lda #FF\par
+\cf3 E7A3: \cf2  C6 10         ldb #10\par
+\cf3 E7A5: \cf2  CE 00 48      ldx #0048\par
+\cf3 E7A8: \cf2  BD F8 40      jsr $F840       ;SYSCALL- Store A from X to X+B\par
+\cf3 E7AB: \cf2  32            pula\par
+\cf3 E7AC: \cf2  39            rts\par
+\cf1 ;5-Bank #1(switch)/5-Bank #2(switch)/5-Bank #3(switch)/5-Bank #4(switch)/5-Bank #5(switch)-\par
+\cf3 E7AD: \cf2  5A 42 16     _BEQ(rel)        ;If BIT#42 to $E7C6\par
+\cf3 E7B0: \cf2  58 52 E6 A9  _BEQ(abs)        ;If BIT#52 to $E6A9\par
+\cf3 E7B4: \cf2  B0 28        _ADDRAM          ;RAM$00 += #28\par
+\cf3 E7B6: \cf2  5A E0 0D     _BEQ(rel)        ;If RAM$00 to $E7C6\par
+\cf3 E7B9: \cf2  14 00        _LAMP            ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 E7BB: \cf2  56 DC FF     _JSR             ;$DCFF\par
+\cf3 E7BE: \cf2  43 0C        _PTSDIG          ;1 Points/Digit Sound\par
+\cf3 E7C0: \cf2  5B F6 09 02  _BNE(rel)        ;If RangeON#09 to $E7C6\par
+\cf3 E7C4: \cf2  9D F5        _JSRR            ;$E5BB\par
+\cf3 E7C6: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E7C7: \cf2  C0 10        _SETRAM          ;RAM$00 = #10\par
+\cf3 E7C9: \cf2  B0 FF        _ADDRAM          ;RAM$00 += #FF\par
+\cf3 E7CB: \cf2  5A FA E0 F3\par
+\cf3     : \cf2  FC E0 0C F6  _BEQ(rel)        ;If (RAM$00 && (!RAM$00==#0C)) to $E7C9\par
+\cf3 E7D3: \cf2  14 00        _LAMP            ;Turn ON Lamp/Bit @RAM$00\par
+\cf3 E7D5: \cf2  5B F6 02 14  _BNE(rel)        ;If RangeON#02 to $E7ED\par
+\cf3 E7D9: \cf2  5A 1B 1F     _BEQ(rel)        ;If LAMP#1B(Mini-Field Special) to $E7FB\par
+\cf3 E7DC: \cf2  F7           _SND             ;Sound #17\par
+\cf3 E7DD: \cf2  10 41        _LAMP            ;Turn ON Bit #01\par
+\cf3 E7DF: \cf2  11 D8        _LAMP            ;Turn OFF Bit #18\par
+\cf3 E7E1:\cf2      5C                         ;Turn OFF Bit #1C\par
+\cf3 E7E2: \cf2  57 DD 82     _JSRD            ;$DD82\par
+\cf3 E7E5: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E7E6: \cf2  CE D8 79      ldx #D879\par
+\cf3 E7E9: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E7EC: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E7ED: \cf2  48           _EXE             ;CPU Execute Next 6 Bytes\par
+\cf3 E7EE: \cf2  CE E7 F5      ldx #E7F5\par
+\cf3 E7F1: \cf2  BD EA C4      jsr $EAC4       ;SYSCALL- Start New Thread @ X, Priority = #06\par
+\cf3 E7F4: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E7F5: \cf2  BD F3 AB      jsr $F3AB       ;SYSCALL- Begin Macros\par
+\cf3 E7F8: \cf2  9C 05        _JSRR            ;$E3FF\par
+\cf3 E7FA: \cf2  03           _KILL            ;Remove This Thread\par
+\par
+\cf3 E7FB: \cf2  05           _SPEC            ;Award Special\par
+\cf3 E7FC: \cf2  19 02        _LAMP            ;Lamp Effect: \par
+\cf3 E7FE: \cf2  02           _MRTS            ;Macro RTS, Save MRA,MRB\par
+\par
+\cf3 E7FF: \cf2  49\cf0\f1\par
+}
+ 

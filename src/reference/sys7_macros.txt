@@ -1,0 +1,146 @@
+Macro Codes for Williams System 7 Pinball:
+
+Some Notes:
+
+These macros seem to make doing things a bit easier, but they are a bitch to decode.
+This whole section has it's own program counter and registers as well plus it can do
+complex functions such as subroutines and jumps. The relavent address locations are
+as follows...
+
+	Name		       Length	      Location
+
+Macro Program Counter (MPC)	Word		$D1
+Macro Register A (MRA)		Byte		$00
+Macro Register B (MRB)		Byte		$01
+
+
+As mentioned before, the software has a program stack. It has the following abilities.
+
+Jump to Subroutine	MJSR
+Jump Relative		MBRA
+Jump Absolute	   	MJMP
+Return from Subroutine	MRTS
+Return to CPU Execution RCPX
+More.....
+
+Basically, the macros start from executable code by calling subroutine $F3AB. This 
+routine pushed registers (MRA) and (MRB) at $0000 and $0001
+
+
+(M 00) F3 DB  MPC = MPC - #100
+(M 01) F3 B5  NOP (_NOP)
+(M 02) F3 AF  Save MRA and MRB, MRTS	(_MRTS)
+(M 03) EA 67  Done, remove this thread from the Control Stack. (_KILL)
+(M 04) F3 E2  Resume CPU Execution at MPC, Get MRA and MRB	(_CPUX)
+(M 05) F3 EA  Award Special	(_SPEC)
+(M 06) F3 EF  Award Extra Ball	(_EB)
+
+#-------------------------------------------------------------------------#
+#   Lamp Macro Data:                 
+#         XYYZZZZZ  where:
+#		X - True if Another group follows
+# 		Y - Buffer Selection (00=10 01=30 02=28 03=20)
+#		Z - Lamp Group Table Index
+#-------------------------------------------------------------------------
+(M 10) F1 3C  Turn on Lamp	(Buffer #10) 	1 Data: Lamp #
+(M 11) F1 5B  Turn off Lamp	(Buffer #10)	1 Data: Lamp #
+(M 12) F1 70  Invert Lamp	(Buffer #10)	1 Data: Lamp #
+(M 13) F1 69  Flash Lamp	(Buffer #10)   	1 Data: Lamp #
+(M 14) F1 3C  Turn on Lamp	(Buffer #10) 	1 Data: Pointer to RAM where lamp # is stored
+(M 15) F1 5B  Turn off Lamp	(Buffer #10)	1 Data: Pointer to RAM where lamp # is stored
+(M 16) F1 70  Invert Lamp	(Buffer #10)	1 Data: Pointer to RAM where lamp # is stored
+(M 17) F1 69  Flash Lamp	(Buffer #10)   	1 Data: Pointer to RAM where lamp # is stored
+(M 18) F2 08  Lamp Effect:	Turn ON All Lamps in Group
+(M 19) F1 A7  Lamp Effect:    Turn OFF All Lamps in Group
+(M 1A) F1 EE  Lamp Effect:	Inverse Fill From Bottom
+(M 1B) F1 F8  Lamp Effect: 
+(M 1C) F2 6B  Lamp Effect: 	Inverse Fill From Bottom
+(M 1D) F2 94  Lamp Effect: 	Rotate Left
+(M 1E) F2 7C  Lamp Effect: 	Rotate Right 
+(M 1F) F1 C7  Lamp Effect: 	Flash Lamps
+#-------------------------------------------------------------------------#
+#   Lamp Macro Data:                 
+#         XYYZZZZZ  where:
+#		X - True if Another group follows
+# 		Y - Buffer Selection (00=10 01=30 02=28 03=20)
+#		Z - Lamp Group Table Index
+#-------------------------------------------------------------------------
+
+(M 20) F1 7E 	Turn on Lamp  	(Buffer #20)	1 Data: Lamp # 
+(M 21) F1 83 	Turn off Lamp 	(Buffer #20)	1 Data: Lamp #
+(M 22) F1 88	Invert Lamp   	(Buffer #20)	1 Data: Lamp #
+(M 24) F1 7E  	Turn on Lamp	(Buffer #20) 	1 Data: Pointer to RAM where lamp # is stored
+(M 25) F1 83  	Turn off Lamp	(Buffer #20)	1 Data: Pointer to RAM where lamp # is stored
+(M 26) F1 88  	Invert Lamp	(Buffer #20)		1 Data: Pointer to RAM where lamp # is stored
+
+(M 28) F2 08 	(same as M18)
+(M 29) F1 A7 	(same as M19)
+(M 2A) F1 EE    (same as M1A)
+(M 2B) F1 F8	(same as M1B)
+(M 2C) F2 6B    (same as M1C)
+(M 2D) F2 94    (same as M1D)
+(M 2E) F2 7C    (same as M1E)
+(M 2F) F1 C7 	(same as M1F)
+
+(M 3X) F4 42  	Solenoids: LSD = # of solenoids  Data(MSD)=timer Data(LSD)=sol# (_SOL)
+
+(M 40) F4 4F 	Play Sound Index(Byte1)Once, Add Points(Byte2)
+(M 41) EC 96  	Add Points to Chime Buffer
+(M 42) EC 05  	Add Points (Encoded in Next Byte)  (_POINTS)
+(M 43) EB FE    Play DigitSound & Add Points (A)
+
+(M 44-4F)     	Put Next X Bytes into MiniBuffer and Execute Now (X = ((Command&F)-2)) (_EXE)
+
+(M 50) F4 AA  	Add RAM: $00,MSD(A) = $00,LSD(A) + $00,MSD(A)
+(M 51) F4 BF  	Copy Game Data: From LSD(A) to MSD(A)	(_CPY)
+(M 52) F4 CA  	Set Priority for this thread Immediate (NextByte) 
+(M 53) F4 D2	Delay Immediate (Byte)	(_WAITB)
+(M 54) F4 EF    Remove Single Thread Based on Priority (2 Data) 
+(M 55) F4 F6    Remove Multiple Threads Based on Priority (2 Data)
+(M 56) F4 FD	JSR  Absoulute 	(_JSR)
+(M 57) F5 27 	JSRD Absolute (Next two Bytes)	(_JSRD)
+(M 58) F5 CD  	BEQ(Absolute)
+(M 59) F5 CD    BNE(Absolute)
+(M 5A) F5 CD    BEQ(Relative)
+(M 5B) F5 CD  	BNE(Relative)
+
+			Variable can be as follows:
+				Below #D0 = Lamp Number  				(1)
+				D0-DF	  = Game Adjustment 0-F (LSD)     		(1)        
+				E0-EF     = RAM 00,LSD(data)				(1)
+				F0-FF     = Complex
+					F0: F653 - Tilt Flag				(1)
+					F1: F65A - Game Over Flag			(1)
+					F2: F495 - NextByte = Straight Data		(2)
+					F3: F636 - Invert Result			(1)
+					F4: F63B - Check if Lamp is On or Flashing	(2)
+					F5: F647 - Lamp Range All Off			(2)
+					F6: F64E - Lamp Range All On			(2)
+					F7: F661 - RAM Matrix $0028			(2)
+					F8: F666 - Check Encoded Switch			(2)
+					F9: F670 - A = A + B				(3)
+					FA: F66B - Logical AND 				(3)
+					FB: F672 - Logical OR 				(3)
+					FC: F677 - A = B ??				(3)
+					FD: F67C - A >= B ??				(3)
+					FE: F67F - Check for Priority Thread??		(3)
+					FF: F686 - A && B				(3)
+
+(M 5C) F5 4F  	MJMP to Next 2 Bytes, with Data	(_JMPD)
+(M 5D) F5 A4    Manually Trigger Switches (1 Data byte = Switch #, if negative do another) (_ASW)
+(M 5E) F5 BC  	Manually Clear Switches (1 Data byte = Switch #, if negative do another) (_CSW)
+(M 5F) F5 66    Jump Absolute (Next Two Bytes) (_JMP)
+
+
+(M 6X) F5 40  Delay Indexed (RAM $00,LSD(A))	(_WAITR)
+(M 7X) F5 44  Delay Immediate (Nybble)	(_WAITN)
+(M 8X) F5 48  Jump Relative (LSD(A)+NextByte)	(_JMPR)
+(M 9X) F5 58  JSR Relative (LSD(A)+NextByte)	(_JSRR)
+(M AX) F5 62  JSRD Relative (LSD(A)+NextByte)	(_JSRDR)
+(M BX) F5 6B  Add NextByte to RAM LSD(command)  (_ADDRAM)
+(M CX) F5 78  Set RAM LSD(command) to NextByte  (_SETRAM)
+(M DX) F5 7D  Play Index Sound (NextByte)Times  (_RSND)
+(M EX) F5 87  Play Index Sound Once (A&1F)	(_SND)
+(M FX) F5 87  Play Index Sound Once (A&1F)	(_SND)
+
+ 

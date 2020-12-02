@@ -1,0 +1,28 @@
+Pinball
+
+ROM #   CSUM     Games
+
+1	E106	World Cup, Contact, Disco Fever, Phoenix, Flash, Tri-Zone, Pokerino, Time Warp
+		Stellar Wars, Lazer Ball, Scorpion, 
+2	EC44	Blackout, Gorgar, Alien Poker
+3	BDCA	Firepower, Jungle Lord
+4	C440	Algar, Barracora
+5	DD2F	Black Knight
+6	BF93	Pharaoh
+7	DA1D	Solar Fire	
+8	25A8	Hyperball
+9	
+10	A694	Varkon
+11	
+12 	ABDE	Cosmic Gunfight
+13	BDCA	Time Fantasy, Firepower II
+14	FD04	Warlok
+15	AF3F	Defender
+	52FB	Laser Cue
+
+
+Video
+1		Defender
+2		Stargate??
+3		Robotron
+4	9A2D	Joust

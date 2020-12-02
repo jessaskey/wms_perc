@@ -1,0 +1,1608 @@
+Between Ball Lamp Effects: (if minus goto next lamp immediately, if not, wait 2 IRQ's)
+D800: 90 11 8E 13 8F 30 88 0D 31 89 8C 32 8A 8B 33 86 
+D900: 34 A6 A7 35 A8 A9 B6 3A 9D A5 37 A4 38 9E A3 39       
+D820: 9F A2 AD AE 2F 20 AA AB 2C A1 14 95 12 9A 96 3E
+D830: 9B 97 87 3D 9C 98 3C 89 3B 00    
+       
+D83A: BD F3 AB    	jsr  $F3AB	Start Executing Macros
+D83D: 52 20     	Set Priority #20	     
+D83F: 5A 7F 3E 		BEQ Bit#7F
+D842: 10 4B			Set Bit #4B 	
+D844: 75 			Delay 5
+D845: 5A FB FB FB FB 48 49 41 42 44 F4   BEQ #48 OR #49 OR #41 OR #42 OR #44 to $D844
+D850: 55 FF 56
+D853: 55 FF 60 
+D856: 29 11 		Lamp Effect : All Lamps
+D858: 28 51       	Lamp Effect : All Lamps
+D85A: 4C          	Push following 10 bytes
+D85B: 86 20       		lda  #$20
+D85D: 97 AA       		sta  $AA
+D85F: CE D8 81    		ldx  #$D881	Do Lamp Animation!
+D862: BD EA 78    		jsr  $EA78	Push $D881 onto Control Stack
+D865: 53 D5         	Delay D5
+D867: 55 FF 20     	Stop the Lamp Animation now!
+D86A: 29 D1   
+         11 
+D86D: 11 4B
+D86F: 48          	Push following 6 bytes:
+D870: CE E4 24    		ldx  #$E424	TimeTube T-I-M-E Lamp Animation
+D873: BD EA C4    		jsr  $EAC4	Push $E424 onto Control Stack
+D876: 5B 43 07		BNErel Bit#43 to $D880
+D879: 48   			Push following 6 bytes:
+D87A: CE E6 DE    		ldx  #$E6DE	Bonus Lamp Animation
+D87D: BD EA C4    		jsr  $EAC4	Push $E6DE onto Control Stack
+D880: 03       	  	Done with this Thread.   
+ 
+D881: CE D7 FF    ldx  #$D7FF
+D884: BD E7 A9    jsr  $E7A9	Turn On Lamp Loop
+D887: CE D7 FF    ldx  #$D7FF
+D88A: BD E7 BF    jsr  $E7BF	Turn Off Lamp Loop
+D88D: 20 F2       bra  $D881
+
+Started From Init New Player:
+D88F: BD F3 AB    jsr  $F3AB	Start Macros
+D892: 29 11    	Lamp Effect (All Lamps)
+D894: 28 D1     Shift Lamps (All)
+D896:    84 	(F-A-N-T-A-S-Y)
+D897:    92     (Arrow-Time5X)
+D898:    05     (10,000-100,000)
+D899: F7 	Play Sound Table #17
+D89A: 72   	Push $D89B into Control Loop with Timer of 2, Jump to Main Loop
+D89B: 2E 11
+D89D: 8F FA 	MBranch $D899
+
+BiP/Timeball Display Flip Routine:
+D89F: 86 01       lda  #$01
+D8A1: BD F1 3C    jsr  $F13C	Turn on Lamp #01 (Ball in Play)
+D8A4: BD EA 2F    jsr  $EA2F	Push Following Routine onto Control Stack with Timer
+D8A7: 40          Timer Data 
+D8A8: 96 CA       lda  $CA	Bonus Ball Flag
+D8AA: 27 F8       beq  $D8A4
+D8AC: 96 03       lda  $03	Time Ball Timer Value
+D8AE: 85 F0       bita #$F0	Test for 10's digit in timer
+D8B0: 26 02       bne  $D8B4	Branch if timer is above 09
+D8B2: 8A F0       ora  #$F0
+D8B4: 97 59       sta  $59	Put the Timer Data into the Ball in Play Display (Buffer 1)
+D8B6: 96 5E       lda  $5E
+D8B8: D6 5F       ldb  $5F
+D8BA: 88 80       eora #$80
+D8BC: C8 80       eorb #$80	Invert BiP Display to show other buffer
+D8BE: 97 5E       sta  $5E
+D8C0: D7 5F       stb  $5F
+D8C2: 86 01       lda  #$01
+D8C4: BD F1 70    jsr  $F170	Invert Lamp 1 (Ball in Play Off)
+D8C7: BD EA 2F    jsr  $EA2F	Push Following Routine onto Control Stack with Timer
+D8CA: 1A          Timer Data 
+D8CB: 20 DF       bra  $D8AC	Repeat this loop Forever
+
+Random 50,000 Lamp:
+D8CD: BD FB 80    jsr  $FB80	Return Random Number:
+D8D0: 84 1F       anda #$1F
+D8D2: 8B 0A       adda #$0A
+D8D4: BD EA 2F    jsr  $EA2F	Push Following Routine onto Control Stack with Timer
+D8D7: 40          Timer Data
+D8D8: 4A          deca
+D8D9: 26 F9       bne  $D8D4	Loop it 
+D8DB: 86 06       lda  #$06	We are going to turn it on now...
+D8DD: BD F1 69    jsr  $F169	Flash Lamp #06(50,000 when Lit)
+D8E0: 48          asla 		A=#0C
+D8E1: BD EA 2F    jsr  $EA2F	Push Following Routine onto Control Stack with Timer
+D8E4: 40          Timer Data 
+D8E5: 4A          deca 
+D8E6: 26 F9       bne  $D8E1	Leave it on for 40*0C IRQ's
+D8E8: 86 06       lda  #$06
+D8EA: BD F1 5B    jsr  $F15B	Turn off Lamp(50,000 When Lit)
+D8ED: 20 DE       bra  $D8CD
+
+Lamp Range Table: (Max Length = 1F)
+D8EF: 30 3A(00)	Bonus1-Bonus20   
+D8F1: 30 38(01) Bonus1-Bonus9
+D8F3: 3B 3E(02)	2x-10x
+D8F5: 1E 21(03)	Time 2x-5x
+D8F7: 08 0E(04) F-A-N-T-A-S-Y
+D8F9: 2A 2F(05) 10,000-100,000
+D8FB: 0F 10(06) Turn Around Left/Right
+D8FD: 11 12(07) Left/Right Drain
+D8FF: 15 1C(08) Lane1-90,000
+D901: 15 19(09)	Lane1-Lane5
+D903: 1A 1C(0A) 30,000-90,000
+D905: 22 25(0B) Ramp T-I-M-E
+D907: 26 29(0C) T-I-M-E
+D909: 39 3A(0D) Bonus10-Bonus20
+D90B: 15 17(0E) Lane1-Lane3
+D90D: 17 19(0F) Lane3-Lane5
+D90F: 30 3E(10) Bonus1-10x
+D911: 06 3E(11) All Lamps
+D913: 1D 21(12) Arrow-Time5x
+D915: 13 14(13) Left/Right Return
+D917: 08 0A(14) F-A-N
+D919: 30 39(15)	Bonus1-Bonus10
+D91B: 0F 14(16)	Turn Around Left-Right Return
+
+
+Sound Table: 3 bytes per entry
+Data0: ((Sound Flags)&7F) -> RAM $BA (Flags: 40,20,10=soundbusy(disabled))
+Data1: IRQ Timer -> RAM $BE
+Data2: Sound Command (FF if Extended)
+          
+D91D: 22 40 36 (00)
+D920: AE 60 3E (01) 
+D923: 24 40 3C (02)
+D926: D9 8D FF (03)
+D929: 43 03 3A (04)
+D92C: 24 20 3D (05)
+D92F: 22 20 38 (06)
+D932: 8F 60 37 (07)
+D935: D9 93 FF (08)
+D938: 23 40 35 (09)
+D93B: A2 40 34 (0A)
+D93E: AF 20 33 (0B)
+D941: C4 50 32 (0C)
+D944: 21 15 2F (0D)
+D947: 22 10 3A (0E)
+D94A: 22 10 2F (0F)
+D94D: A1 01 2E (10)
+D950: 25 10 2D (11)
+D953: CE 05 2C (12)
+D956: 24 10 35 (13)
+D959: 21 20 2A (14)
+D95C: 24 10 29 (15)
+D95F: 24 40 28 (16)
+D962: 24 10 27 (17)
+D965: 25 60 26 (18)
+D968: AF 80 25 (19)
+D96B: 8F F0 30 (1A)
+D96E: D9 7A FF (1B)
+D971: D9 87 FF (1C)
+D974: A4 A0 21 (1D)
+D977: 8F 70 23 (1E)
+
+Sound (1B) Data:
+D97A: C3 86 23 23 23 23 23 A8 23 81 36 3F 
+
+Sound (1C) Data:
+D987: A3 98 22 81 36 3F
+
+Sound (03) Data:
+D98D: 23 A8 3B 81 36 3F 
+
+Sound (08) Data:
+D993: 25 C0 31 3C 3F    
+
+Switch Table:
+
+D998: D3 E1 43	Plumb Bob Tilt	   	
+D99B: 91 E1 65 	Ball Roll Tilt	  	Switch Data (3 Bytes):     
+D99E: F1 E0 D7  Credit Button		
+D9A1: F2 F7 A2  Right Coin Switch	Byte 1: 	Flags, etc.
+D9A4: F2 F7 A2  Center Coin Switch	
+D9A7: F2 F7 A2  Left Coin Switch		Bits 4-2-1:
+D9AA: 71 E8 00  Slam Tilt		           Switch Trigger Code (Index to Table)
+D9AD: F1 E0 C2  High Score Reset		
+D9B0: 92 E5 73  F					
+D9B3: 92 E5 73  A				Flag		Funtion	
+D9B6: 92 E5 73  N					
+D9B9: 92 E5 73  T				08	Switch Triggers Instantly
+D9BC: 92 E5 73  A				10	Enable Switch
+D9BF: 92 E5 73  S				20	Still Active on Game Over
+D9C2: 92 E5 73  Y				40	Still Active if Game Tilted
+D9C5: 91 E3 81  Left Turnaround			80	Switch Routine Type 1=Macro 0=Native
+D9C8: 91 E3 81  Right Turnaround
+D9CB: 93 E3 62  Left Drain
+D9CE: 93 E3 62  Right Drain		Byte 2-3:	Code/Macro Address
+D9D1: 93 E3 48  Left Return
+D9D4: 93 E3 42  Right Return
+D9D7: 93 E2 6B  Lane 1
+D9DA: 93 E2 6B  Lane 2  
+D9DD: 93 E2 6B  Lane 3 
+D9E0: 93 E2 6B  Lane 4  
+D9E3: 93 E2 6B  Lane 5  
+D9E6: 91 E3 38  Lower Left 10 Point
+D9E9: 91 E3 38  Upper Left 10 Point
+D9EC: 91 E3 38  Upper Top Right 10 Point
+D9EF: 91 E3 38  Upper Center Right 10 Point   
+D9F2: 91 E3 38  Upper Bottom Right 10 Point   
+D9F5: 91 E3 38  Lower Right 10 Point  
+D9F8: 91 E3 34  Left Jet
+D9FB: 91 E3 34  Right Jet
+D9FE: 91 E3 34  Bottom Jet
+DA01: 91 E4 70  TimeTube Target
+DA04: 91 E3 3B  Left Sling 10
+DA07: 91 E3 3B  Right Sling 10
+DA0A: D6 E1 AD  Outhole
+DA0D: 91 E7 45  Lane Change
+DA10: 91 E1 65  Playfield Tilt
+DA13: 93 E3 6E  Left Lane Switch
+
+
+DA16: 7E EA C4	jmp $EAC4	Push into Control Stack
+
+Game Over Init Routine:
+DA19: BD F3 AB	jsr $F3AB: Start Executing Macros
+DA1C: 55 08 00
+DA1F: 32 0A 	Turn off Solenoid 11 (GI Relay)
+DA21:    0E 	Turn off Solenoid 15 (Bell) 
+DA22: 29 D1	Lamp Effect: All Lamps 
+DA24:    11	Lamp Effect: All Lamps
+DA25: 57 E1 A1	JSR $E1A1: Show Buffer 0
+DA28: F2	Play Sound From Table (&1E)	
+DA29: 53 80 	Delay 80
+DA2B: 19 11     Lamp Effect:	   
+DA2D: 11 7F     Turn off Lamp 7F(Not Used)	
+DA2F: 10 93     Turn on  Lamp 13(Left Flipper Return Lane), negative so do another
+DA31:    1A     Turn on  Lamp 1A(Lane 30,000), last one          
+DA32: 13 87     Flash Lamp 07(Keep Shooting PF), do another
+DA34:    06     Flash Lamp 06(50,000 When Lit) 
+DA35: 18 07     Lamp Effect: Left/Right Drain   
+DA37: 18 00     Lamp Effect: Bonus 1-20    
+DA39: 04        Resume CPU Execution   
+DA3A: CE E6 DE    ldx  #$E6DE	
+DA3D: 8D D7       bsr  $DA16	Push onto Control Stack
+DA3F: CE FA 58	  ldx  #$FA58	
+DA42: 8D D2       bsr  $DA16	Push Scores/HSTD Routine onto Control Stack
+DA44: CE DA 96    ldx  #$DA96
+DA47: 8D CD       bsr  $DA16	Push onto Control Stack
+DA49: CE DA 9F    ldx  #$DA9F
+DA4C: 8D C8       bsr  $DA16	Push onto Control Stack
+DA4E: CE DA A8    ldx  #$DAA8
+DA51: 8D C3       bsr  $DA16	Push onto Control Stack
+DA53: CE DA C6    ldx  #$DAC6
+DA56: 8D BE       bsr  $DA16	Push onto Control Stack
+DA58: CE DA D9    ldx  #$DAD9
+DA5B: 8D B9       bsr  $DA16	Push onto Control Stack
+DA5D: CE DB 0F    ldx  #$DB0F
+DA60: 8D B4       bsr  $DA16	Push onto Control Stack
+DA62: CE DB 3E    ldx  #$DB3E
+DA65: 8D AF       bsr  $DA16	Push onto Control Stack
+DA67: CE DB 74    ldx  #$DB74
+DA6A: 8D AA       bsr  $DA16	Push onto Control Stack
+
+T-I-M-E Attract Lamps:
+DA6C: BD F3 AB    jsr  $F3AB	Start Executing Macros
+DA6F: 19 0C		Lamp Effect: T-I-M-E         
+DA71: 1A 0C     	Lamp Effect: T-I-M-E, buffer 10
+DA73: 53 50 		Delay 50
+DA75: 5B F6 0C F8	_BNE(rel) LRON,#0C to $DA71 
+DA79: C0 07      	Set RAM $00 to #07
+DA7B: 2F 0C      	Lamp Effect: T-I-M-E
+DA7D: 53 30          	Delay 30
+DA7F: B0 FF 		RAM $00 = $00 - 1
+DA81: 5B FC E0 00 F5	_BNE(rel) A=B,RAM$00,0 to $DA7B 
+DA86: 53 20 		Delay 20
+DA88: 2C 0C     	Lamp Effect: T-I-M-E
+DA8A: 2E 0C      	Lamp Effect: T-I-M-E
+DA8C: 1C 0C          	Lamp Effect: T-I-M-E
+DA8E: 1E 0C		Lamp Effect: T-I-M-E 
+DA90: 5B F5 0C F2 	_BNE(rel) LROFF,#0C to $DA86
+DA94: 8F DB 		_JMP(rel) $DA71
+
+Attract Lamps:
+DA96: BD F3 AB    jsr  $F3AB   Start Macros
+DA99: 2F C2     Lamp Range: 2x-10x, Buffer 20 
+DA9B:    4C     Lamp Range: T-I-M-E, Buffer  
+DA9C: 74 	Continue after delay of 4
+DA9D: 8F FA   	MBranch $DA99
+
+Out/Return Lane, Loops , 30-60-90 Attract Lamps:
+DA9F: BD F3 AB    jsr  $F3AB
+DAA2: 1E 8A  	        
+DAA4:    16     
+DAA5: 75       	Continue after a delay of 5    
+DAA6: 8F FA 	MBRA $DAA2
+
+Bonus Multiplier Attract Lamps:
+DAA8: BD F3 AB    	jsr  $F3AB   
+DAAB: 1A 02		Lamp Effect:
+DAAD: 53 40     	Continue after delay of 40
+DAAF: 5B F6 02 F8 	Branch to $DAAB if ????
+DAB3: 28 02    
+DAB5: 53 56		Continue after delay of 56
+DAB7: 2C 02      	Lamp Effect: 2x-10x
+DAB9: 1C 02	
+DABB: 2E 02     
+DABD: 1E 02
+DABF: 79 		Continue after delay of 9
+DAC0: 5B F5 02 F3	Branch to $DAB7 if ????
+DAC4: 8F E5 		Branch $DAAB
+
+Time Tube Attract Lamps:
+DAC6: BD F3 AB    jsr  $F3AB	Start Macros      
+DAC9: 10 22  	Turn on Lamp 22: Ramp T
+DACB: 77	Continue after a delay of 7      
+DACC: 1E 0B          
+DACE: 5B 25 FA	Branch if Lamp off, Data1=lamp Data2=offset
+DAD1: 77 	Delay 7
+DAD2: 1D 0B   
+DAD4: 5B 22 FA  Branch if Lamp off, Data1=lamp Data2=offset        
+DAD7: 8F F2 	MBRA $DACB
+
+F-A-N-T-A-S-Y Attract Lamps:
+DAD9: BD F3 AB    	jsr  $F3AB          
+DADC: 19 04
+DADE: 29 C4      
+DAE0:    04           
+DAE1: 7F 		Continue after a delay of F
+DAE2: 1A 04    
+DAE4: 7F 		Continue after a delay of F
+DAE5: 5B F6 04 F9 	Branch to $DAE2 if ????
+DAE9: C0 10   		
+DAEB: 2F 44      
+DAED: 74 		Delay 4
+DAEE: B0 FF   
+DAF0: 5B           
+DAF1: FC           
+DAF2: E0 00     
+DAF4: F6 
+DAF5: 19 04   
+DAF7: 18 14
+DAF9: 1E 04
+DAFB: 74 		Delay 4	
+DAFC: B0 01   
+DAFE: 5B           
+DAFF: FC           
+DB00: E0 10      
+DB02: F6 
+DB03: 1D 04   
+DB05: 74 		Delay 4
+DB06: B0 FF   
+DB08: 5B           
+DB09: FC           
+DB0A: E0 00     
+DB0C: F6 
+DB0D: 8F CD		MBRA $DADC   
+
+
+Top Lanes Attract:
+DB0F: BD F3 AB    	jsr  $F3AB	Start Macros
+DB12: 10 15        
+DB14: 78 		Delay 8
+DB15: 1E 09 		Shift Up
+DB17: 5B 19 FA 		Branch if 'Lane 5' is OFF to $DB14
+DB1A: 78 		Delay 8
+DB1B: 1D 09		Shift Down
+DB1D: 5B 15 FA  	Branch if 'Lane 1' is OFF to $DB1A      
+DB20: 78 		Delay 8
+BD21: 1A 09		Inverse Fill From Left
+DB23: 5B F6 09 F9	Branch until All lamps on to $DB20
+DB27: C0 10       	RAM 00 = #10
+DB29: 74		Delay 4 
+DB2A: 2F 49   		Flash
+DB2C: B0 FF 		Add #FF to RAM $00
+DB2E: 5B FC E0 00 F6	Branch if RAM $00 != #00
+DB33: 78 		Delay 8
+DB34: 1C 09		Inverse Fill From Left
+DB36: 1E 09		Shift Single Invert Left
+DB38: 5B F5 09 F7	Branch until All Lamps OFF to $DB33
+DB3C: 8F D4 		MBRA $DB12
+
+Loop Value Attract Lamps:
+DB3E: BD F3 AB    	jsr  $F3AB	Start Macros
+DB41: 1A 05		Fill Up?
+DB43: 79 		Delay 9
+DB44: 5B F6 05 F9	Branch until All Lamps On to $DB41
+DB48: 11 AA   		Turn Off Lamp 2A(Turn Around 10,000)
+DB4A:    AB		Turn Off Lamp 2B(Turn Around 20,000) 
+DB4B:    2C		Turn Off Lamp 2C(Turn Around 30,000)     	
+DB4C: C0 12     	RAM $00 = #12
+DB4E: 76 		Delay 6
+DB4F: 1E 05   		Rotate Out?
+DB51: B0 FF 		Add #FF to RAM $00
+DB53: 5B FC E0 00 F6	Branch if RAM $00 != #00 to $DB4E
+DB58: 76 		Delay 6
+DB59: 1C 05		Fill?
+DB5B: 1E 05		Rotate Out?
+DB5D: 5B F5 05 F7	Branch Until All Lamps OFF to $DB58
+DB61: 76 		Delay 6
+DB62: 1A 05  		Fill Up?
+DB64: 5B F6 05 F9	Branch Until All Lamps ON to $DB61
+DB68: 7F 		Delay F
+DB69: 1C 05   		Fill
+DB6B: 1E 05		Rotate Out
+DB6D: 79 		Delay 9
+DB6E: 5B F5 05 F7	Branch Until All Lamps OFF to $DB69
+DB72: 8F CD   		MBRA $DB41
+
+Left Lane Attract Lamps:
+DB74: BD F3 AB    	jsr  $F3AB
+DB77: 10 1D 		Turn on Lamp 30: Multi-Arrow
+DB79: C0 05     	RAM $00 = #05  
+DB7B: 78 		Delay 8
+DB7C: 1E 12    		Rotate Up
+DB7E: 5B 21 FA		Branch if 'Time 5X' is OFF to $DB7B
+DB81: 78		Delay 8
+DB82: 1D 12  		Rotate Down
+DB84: 5B 1D FA  	Branch if 'Multi-Arrow' is OFF to $DB81      
+DB87: B0 FF   		Add #FF to RAM $00
+DB89: 5B FC E0 00 ED	Branch if RAM $00 != #00 to $DB7B
+DB8E: 78 		Delay 8
+DB8E: 1A 12   		Fill Up
+DB91: 5B F6 12 F9	Branch Until All Lamps ON to $DB8E
+DB95: C0 10      	RAM $00 =#10
+DB97: 74 		Delay 4
+DB98: 2F 52   		Flash
+DB9A: B0 FF 		Add #FF to RAM $00
+DB9C: 5B FC E0 00 F6	Branch if RAM $00 != #00 to $DB97
+DBA1: 53 20  		Delay 20
+DBA3: 1C 12 		Fill
+DBA5: 1E 12		Rotate Up
+DBA7: 78 		Delay 8
+DBA8: 5B F5 12 F7	Branch Until All Lamps OFF to $DBA3
+DBAC: 8F C9    		MBRA $DB77
+
+Time Ball Bell:
+DBAE: CE D8 3A    ldx  #$D83A
+DBB1: BD EA C4    jsr  $EAC4	Push $D83A onto Control Stack
+DBB4: CE 01 97    ldx  #$0197	Game Adjustment #2: Time Ball Bell Enable
+DBB7: BD EF 53    jsr  $EF53	( CMOS,X++ -> A )
+DBBA: BD F3 AB    jsr  $F3AB	Start Executing Macros
+DBBD: 52 00 		_PRI #00
+DBBF: 5B FC E0 00 02 	_BNE RAM$00=00 to $DBC6
+DBC4: 31 EE  		_SOL 1 EE  (Bell On)     
+DBC6: C0 1F     	_SETRAM $00 = 1F
+DBC8: F1		_SOUND #11 
+DBC9: 76 		_DELAY 6
+DBCA: B0 FF  		_ADDRAM $00 -1
+DBCC: 5B FC E0 00 F7	_BNE RAM$E0=00 to $DBC8 
+DBD1: F2		_SOUND #12 
+DBD2: 31 0E 		_SOL 1 0E  (Bell Off)
+DBD4: 03 		_KILL
+          
+Background Sound Macro:
+DBD5: BD F3 AB    jsr  $F3AB	Start Executing Macros
+DBD8: 52 00		Set Priority #00
+DBDA: F0 		Play sound #10
+DBDB: 11 46   		Turn Off Bit #46
+DBDD: 53 FF  		Delay FF      
+DBDF: 53 50   		Delay 50
+DBE1: 5A FB F3 46 4C F6 _BEQ OR,NOT,#46,#4C,$DBDD
+DBE7: 8F F1    		MJMP $DBDA
+
+Timeball Display Routine:
+DBE9: 7F 00 E9    clr  $00E9
+DBEC: 96 E8       lda  $E8	Player Display Index, it will never equal current player
+DBEE: 4C          inca
+DBEF: 81 03       cmpa #$03
+DBF1: 23 01       bls  $DBF4
+DBF3: 4F          clra
+DBF4: 91 CD       cmpa $CD	Current Player Up
+DBF6: 27 F6       beq  $DBEE
+DBF8: 97 E8       sta  $E8	Set the Display to scroll through
+DBFA: CE 00 48    ldx  #$0048
+DBFD: 48          asla 
+DBFE: 48          asla 
+DBFF: BD EE FF    jsr  $EEFF	( X = X + A )
+DC02: 96 E7       lda  $E7
+DC04: A7 00       sta  (x+$00)
+DC06: BD EA 2F    jsr  $EA2F	Push Following onto Control Stack with Timer
+DC09: 08         Timer Data 
+DC0A: 96 E7       lda  $E7
+DC0C: 16          tab  
+DC0D: BD EC F3    jsr  $ECF3	Shift A<<4 B>>4
+DC10: CA F0       orb  #$F0
+DC12: 8A 0F       ora  #$0F
+DC14: E7 00       stb  (x+$00)
+DC16: 8C 00 57    cmpx #$0057
+DC19: 27 02       beq  $DC1D
+DC1B: A7 01       sta  (x+$01)
+DC1D: BD EA 2F    jsr  $EA2F	Push Following onto Control Stack with Timer
+DC20: 08         Timer Data  
+DC21: 86 FF       lda  #$FF
+DC23: A7 00       sta  (x+$00)
+DC25: 08          inx  
+DC26: 7C 00 E9    inc  $00E9	Digit Counter
+DC29: 96 E9       lda  $E9
+DC2B: 81 04       cmpa #$04
+DC2D: 2D D3       blt  $DC02
+DC2F: 20 B8       bra  $DBE9	Start Back Over Now
+
+-----------------
+Lots-o-space Here
+-----------------
+
+Game Specific Data:
+
+E000: 25 15 F5	Game Number
+E003: B2 A5 	Rom Revision
+E005: 25 	Back-Up HSTD
+E006: 12 	Replay 1 Score
+E007: 25 	Replay 2 Score
+E008: 00 	Replay 3 Score
+E009: 00 	Replay 4 Score
+E00A: 00 	Match Award
+E00B: 00 	Special Award
+E00C: 00 	Replay Award
+E00D: 03 	Max Plumb Bob Tilts
+E00E: 03 	Number of Balls
+E00F: 05	Game Specific Adjustment
+E010: 00 	Game Specific Adjustment
+E011: 00 	Game Specific Adjustment
+E012: 00 	Game Specific Adjustment
+E013: 00 	Game Specific Adjustment
+E014: 00 	Game Specific Adjustment
+E015: 00 	Game Specific Adjustment
+E016: 00 	Game Specific Adjustment
+E017: 00 	Game Specific Adjustment
+E018: 03 	HSTD Award Credits
+E019: 04 	Maximum Extra Balls at one Time
+E01A: 30 	Maximum Credits
+
+Pricing Data: 
+W25 Connected		W25 Not Connected
+E01B: 01 		09			Left Coin Slot Multiplier
+E01C: 04 		45			Center Coin Slot Multiplier
+E01D: 01 		18			Right Coin Slot Multiplier
+E01E: 01 		05			Coin Units Required for Coin
+E01F: 00		45			Coin Units Bonus Point
+E020: 00                00
+
+????
+E027: 01 04 01 02 04 00 01 16 06
+E030: 02 00 00 03 15 03 04 15 00 01 00 04 01 00 00 01
+E040: 00 02 01 00 00 01 00 02 02 00 00 
+
+E04B: 1D 	  Max # of threads in Control Stack
+E04C: 00	  Positive if Diagnostics should Test for ROM at $D800
+E04D: 2A	  Last Switch Number on this Game (Max Switch)
+E04E: 03	  Number of Players Possible-1
+
+E04F: D8 EF       Lamp Effect Table Pointer
+E051: D9 98       Switch Table Pointer
+E053: D9 1D       Sound Effects Table Pointer
+
+E055: 05       	  Data: Lamp Flash Rate   
+E056: 0D          Data: Special Points Sound
+E057: 00          Data: Player 1 Start Sound
+E058: 19	  Data: Player 2 Start Sound
+E059: 19          Data: Player 3 Start Sound
+E05A: 19          Data: Player 4 Start Sound
+E05B: 1E          Data: Match Sound
+E05C: 1A          Data: High Score Sound 
+E05D: 07          Data: Game Over Sound
+E05E: 00          Data: Credit Sound
+
+E05F: 07   	  Data: Extra Ball Lamp1 Location      
+E060: 00          Data: Extra Ball Lamp2 Location
+E061: 3F          Data: Last Lamp Used
+E062: 05          Data: High Score Lamp Location
+E063: 04          Data: Match Lamp Location
+E064: 01          Data: Ball in Play Lamp Location
+E065: 03          Data: Game Over Lamp Location
+E066: 02          Data: Tilt Lamp Location
+
+
+E067: DA 19       Game Over Init Pointer
+
+Switch Trigger Data:
+E069: 00 02  (1)     Standup Switch  
+E06B: 00 09  (2)     Spot Target
+E06D: 00 04  (3)     Rollover Switch
+E06F: 1A 14  (4)     Hole Switch
+E071: 02 05  (5)     Drop Target Switch
+E073: 08 05  (6)     Outhole Switch
+E075: 00 01  (7)     Spinners   
+ 
+Default Player Data for Game Start: 
+E077: 02 00 10 00 04 00 01 00 00 00 00 00 00 80 00 00 
+E087: 00 00 00 00 
+     
+Default Player Data Reset Info:          
+E08B: 83 FF FF DF FF 03 01 00 00 00 00 00 00 80 01 00       
+E09B: 00 00 00 00 
+
+Event Routines:
+E09F: 39 00	rts    		Call from $EE38 (Switch Event)
+E0A1: 39 00     rts		Call From $EDA0 (Sound Event )   
+E0A3: 20 37	bra  $E0DC	Call from $EC0C	(Score Event )
+E0A5: 39 00     rts    		Call from $F6E2 (Extra Ball Event)
+E0A7: 39 00	rts		Call From $F6CE (Special Event)
+E0A9: 39 87	rts		Call from $F3B5 (Start Executing Macro Event)
+E0AB: 39 00	rts		Call From $F900 (Flash Score Event)
+E0AD: 39 00     rts		Call from $F858 (Add Player Event)
+E0AF: 39 00	rts  		Call From $FA1E (Game Over Event) 
+E0B1: 39 00     rts    		Call from $ (not used)
+
+Hook Table:
+E0B3: E0 D3       Pointer: (From $E89F)Reset
+E0B5: E0 D3       Pointer: (From $E8B7)Main Loop Begin
+E0B7: E0 C6       Pointer: (From $F770)Coin Accepted
+E0B9: E0 D3       Pointer: (From $F847)New Game Start
+E0BB: E1 D1       Pointer: (From $F8D8)Init New Player
+E0BD: E1 83       Pointer: (From $F9BA)Outhole
+
+IRQ Entry:
+E0BF: 7E EF F7    jmp  $EFF7	IRQ Entry
+
+Reset HSTD:
+E0C2: 57          asrb 
+E0C3: EF 9D       stx  (x+$9D)
+E0C5: 03           
+
+Coin Action:
+E0C6: BD F3 AB    	jsr  $F3AB
+E0C9: 5A FA F1 F3 7F 05 Branch if AND,GameOver,Not,#7F
+E0CF: 31 CE		Ring the Bell  
+E0D1: 7F		Delay F 
+E0D2: 04    		Return to CPU Execution
+E0D3: 39          rts  
+
+E0D4: EB 	Play Sound  #0B
+E0D5: 8F FB     MJMP $E0D2
+
+(Switch)Credit Button:
+E0D7: 52 08 	Set Priority #08
+E0D9: 5C FB 92  MJMP to $FB92 
+
+Game Scoring Event:
+;This is the main scoring hook. It will spawn one new thread that
+;takes care of the rolling display effect when no points are being
+;scored. It will also increment the stack and bypass returning
+;to system control here so that it can calculate and add the
+;correct points when playfield scores are multiplied.
+
+E0DC: CE E7 48	  ldx  #$E748
+E0DF: BD EA C4    jsr  $EAC4	Push $#$E748 onto control Stack
+E0E2: 8D 31       bsr  $E115	Adjust Amount in A by Score Multiplier
+E0E4: 7C 00 0B    inc  $000B
+E0E7: 31          ins  
+E0E8: 31          ins  
+E0E9: BD EB DB    jsr  $EBDB	Update Extra Ball Count
+E0EC: BD EC 1D    jsr  $EC1D	Add Points to Current Score, Data in A
+E0EF: BD EB A1    jsr  $EBA1	Update Master Display Toggle From Current Player
+E0F2: CE 00 DE    ldx  #$00DE
+E0F5: 8D 0C       bsr  $E103
+E0F7: D7 DE       stb  $DE
+E0F9: DE CE       ldx  $CE	Start of Current Player Score Buffer
+E0FB: 8D 06       bsr  $E103
+E0FD: BD EC B7    jsr  $ECB7
+E100: 7E EC 18    jmp  $EC18
+
+E103: A6 00       lda  (x+$00)
+E105: E6 01       ldb  (x+$01)
+E107: 8D 05       bsr  $E10E
+E109: BD EC F3    jsr  $ECF3
+E10C: 1B          aba  
+E10D: 16          tab  
+E10E: C1 A0       cmpb #$A0
+E110: 25 02       bcs  $E114	Branch if B < #A0
+E112: CB 10       addb #$10
+E114: 39          rts  
+
+Adjust Amount in A by Score Multiplier:
+E115: 36          psha 
+E116: 96 33       lda  $33
+E118: 85 20       bita #$20	See if the 'All Score Multi-Arrow' is Flashing
+E11A: 32          pula 
+E11B: 27 25       beq  $E142	Branch if it is.
+E11D: 16          tab  
+E11E: 84 F8       anda #$F8
+E120: 36          psha 
+E121: 96 14       lda  $14
+E123: 85 02       bita #$02	
+E125: 26 0A       bne  $E131	Branch if 'Time 5x' Lit
+E127: 85 01       bita #$01
+E129: 26 0A       bne  $E135	Branch if 'Time 4x' Lit
+E12B: 96 13       lda  $13
+E12D: 2B 0D       bmi  $E13C	Branch if 'Time 3X' Lit
+E12F: 20 0F       bra  $E140	
+E131: 32          pula 		5X
+E132: 48          asla 
+E133: 20 08       bra  $E13D
+E135: 32          pula 		4X
+E136: 48          asla 
+E137: 48          asla 
+E138: C4 07       andb #$07
+E13A: 20 05       bra  $E141
+E13C: 32          pula 		3X
+E13D: 48          asla 
+E13E: 20 01       bra  $E141
+E140: 32          pula 		2X
+E141: 1B          aba  
+E142: 39          rts  
+
+(Switch)Plumb Bob Tilt:
+E143: 48          	_EXE	Execute Next 6 Bytes as Code
+E144: CE E1 56    		ldx #$E156
+E147: BD EA C4    		jsr  $EAC4	Push data onto Control loop and Jump
+E14A: 5A F0 35  	_BEQrel TILT,$E182
+E14D: E1 		_SND    #01
+E14E: 57 FB DD		_JSRD	#FBDD		Total up Tilts
+E151: 5A F0 14	
+E154: 84 1A		_JMPrel $E570		Flash GI and _KILL
+    
+E156: BD F3 AB    jsr  $F3AB
+E159: 55           
+E15A: F8 A0 52    eorb $A052
+E15D: A5 10       bita (x+$10)
+E15F: 5F          clrb 
+E160: 53          comb 
+E161: A0 11       suba (x+$11)
+E163: 5F          clrb 
+E164: 03 
+      
+(Switch)Ball Roll/Playfield Tilt:
+E165: 57           
+E166: FB E9 F2    
+E169: C5 00       
+E16B: 32           
+E16C: EA 0E       
+E16E: A0 2E       
+E170: 11            
+E171: 87 CB       
+E173: 4C           
+E174: 44           
+E175: 96 D0       
+E177: 5A FC E0 00 03           
+E17C: 10 87           
+E17E:    00       
+E17F: 29 11       
+E181: E1 		_SND	#01
+E182: 03      		_KILL
+
+System Outhole Routine:
+E183: 8D 19       bsr  $E19E
+E185: 96 CA       lda  $CA	Bonus Ball Flag
+E187: BD F3 AB    jsr  $F3AB
+E18A: 32 0A       		Solenoids: 	Turn on G.I Lamps
+         0E         	     			Turn off Bell
+E18D: F2			Sound #12 
+E18E: 5A FB FC E0 00 F0 02 	Branch if RAM$00=00 OR !TILT! to $
+E195: 94 BD   			MJSR $E654	(Do Outhole Bonus)
+E197: 29 51   			Lamp Effect #51 (All Lamps)
+E199: 55 20 20			
+E19C: 04   			Return to CPU Execution        
+E19D: 39          rts  
+
+E19E: BD E7 9C    jsr  $E79C	Start Current Player Flashing
+
+Show Buffer 0:
+E1A1: BD F8 A3    jsr  $F8A3	Set Score Toggles to Show Buffer 0
+E1A4: 96 60       lda  $60
+E1A6: 9A E0       ora  $E0
+E1A8: 97 60       sta  $60
+E1AA: 97 E0       sta  $E0
+E1AC: 39          rts  
+
+(Switch)Outhole:
+E1AD: 5B 4C 08		Branch if Bit #4C to $E1B8, Bit is set if no points scored yet
+E1B0: 94 29   		MJSR $E5DB  	Start Current Player Score to Flashing
+E1B2: 31 40		Kick The Outhole Solenoid      
+E1B4: 5E 26		Clear Outhole Switch          
+E1B6: E2    		Play Sound Table Offset #2
+E1B7: 03  		Get outta here.        
+E1B8: 7F 		Delay F
+E1B9: 5A FB 5F 4B FA	Branch if #5F OR #4B to $E1B8
+E1BE: 55 FF 70  
+E1C1: 04		Resume CPU Execution 
+E1C2: 8D DA 		jsr $E19E
+E1C4: 7E F9 AB		jmp $F9AB (goto Main Outhole Process)
+
+Blank Buffer 1:
+E1C7: 86 FF  	  lda  #$FF
+E1C9: CE 00 48    ldx  #$0048
+E1CC: C6 10       ldb  #$10
+E1CE: 7E F8 40    jmp  $F840	Store A from X to X+B
+
+System Init New Player:
+E1D1: 96 60       lda  $60
+E1D3: 97 E0       sta  $E0
+E1D5: 4F          clra 
+E1D6: C6 08       ldb  #$08
+E1D8: BD EA FB    jsr  $EAFB
+E1DB: 8D EA       bsr  $E1C7	Blank Buffer 1
+E1DD: 96 03       lda  $03
+E1DF: 26 04       bne  $E1E5
+E1E1: 86 30       lda  #$30
+E1E3: 97 03       sta  $03	Initialize Time Ball Counter
+E1E5: 7F 00 0A    clr  $000A
+E1E8: 86 4B       lda  #$4B
+E1EA: BD F1 3C    jsr  $F13C	Set Bit #4B
+E1ED: 86 80       lda  #$80
+E1EF: 97 AA       sta  $AA	
+E1F1: CE D8 8F    ldx  #$D88F	All Lamps Effect
+E1F4: BD EA 78    jsr  $EA78	Push $D88F onto Control Stack
+E1F7: BD EA 2F    jsr  $EA2F	End This Routine, Replace with next routine, next byte is timer.
+
+E1FA: 98	Timer Data 
+E1FB: C6 FF  	  ldb  #$FF
+E1FD: BD EA FB 	  jsr  $EAFB	Clear Threads (Data FF)
+E200: 86 80   	  lda  #$80
+E202: 97 AA       sta  $AA
+E204: CE D8 9F    ldx  #$D89F	BiP/Timeball Display Flip Routine
+E207: BD EA 78    jsr  $EA78	Push $D89F onto Control Stack, Priority #80
+E20A: CE E4 24    ldx  #$E424	T-I-M-E Tube Lamps:
+E20D: BD EA C4    jsr  $EAC4    Push #E424 onto Control Stack, Priority #06
+E210: CE D8 CD    ldx  #$D8CD	Random 50,000 Lamp Routine
+E213: BD EA C4    jsr  $EAC4	Push #EAC4 onto Control Stack, Priority #06
+E216: BD F3 AB    jsr  $F3AB	Start Executing Macros
+E219: 11 FF 			Clear bit #7F
+         4B 	        	Clear bit #4B
+E21C: 5A F0 8E 			Branch if !TILT! to $E2AA			
+E21E: 52 04			Set Priority #04
+E221: 32 0A 			Solenoids: Turn on G.I.
+E223: 	 0E        		Turn off Bell
+E224: E2 			Play Sound #02
+E225: 29 D1 			Lamp Effect #D1 (All Lamps)
+         11			Lamp Effect #11 (All Lamps)
+E228: 5B F5 09 07		Branch if any of Lamp Range #09 (1-5 Lanes) are On to $E233
+E22C: 48 			Store Next (LSDCommand-2) bytes in Buffer $1130 
+  	 CE E2 FA    		ldx  #$E2FA		Lane 1-5 Auto Movement
+         BD EA C4    		jsr  $EAC4		Push $E2FA onto Control Stack, Priority #06
+E233: 5B F8 26 02 		Branch if Switch #26 (Outhole) to $E239
+E237: 31 40			Outhole Solenoid!
+E239: 5B F6 0A 02		Branch if Lamp Range #0A (30,000-90,000) All On to $E23F
+E23D: 19 0A			Lamp Effect #0A (30,000-90,000)
+E23F: 48        		Store Next (LSDCommand-2) bytes in Buffer $1130
+         CE 01 99    		ldx  #$0199	Game Adj #3: Background Sound
+         BD EF 53    		jsr  $EF53		( CMOS,X++ -> A )
+E246: 5B FC E0 00 07		Branch to $E252 if RAM $00=00
+E24B: 48        		Store Next (LSDCommand-2) bytes in Buffer $1130 
+         CE DB D5    		ldx  #$DBD5
+         BD EA C4    		jsr  $EAC4
+E252: 48        		Store Next (LSDCommand-2) bytes in Buffer $1130 
+         CE 01 9B    		ldx  #$019B	Game Adj #4: Bonus Multiplier Memory	
+         BD EF 53    		jsr  $EF53		( CMOS,X++ -> A )
+E259: 5A FB FC E5 78 FC E0 00 07   Branch if RAM$05=78 OR RAM$00=00 to $E269      
+E262: 48        		Store Next (LSDCommand-2) bytes in Buffer $1130 
+E263: 	96 05       		lda  $05
+E265: 	9A 17       		ora  $17
+E267: 	97 17       		sta  $17
+E269: 04     			Return to CPU Execution      
+E26A: 39          		rts  
+
+(Switch)Top Lanes:
+E26B: 42 0B 		Add Points(5000)
+E26D: E9 		Sound Index #09
+E26E: 14    
+E26F: 00           
+E270: 5B           
+E271: FE F2 FF    
+E274: 30         
+E275: 2E 55   
+E277: FF 30 5B   
+E27A: FC           
+E27B: E0 EA   
+E27D: 23 1A       
+E27F: 0C         
+E280: C1 10    
+E282: 29 CC     
+E284: 49         
+E285: 28 8C  
+E287: 09        
+E288: F6 2F CC   
+E28B: 49       
+E28C: 74 5A 4B   
+E28F: 0E       
+E290: B1 FF 5B   
+E293: FC           
+E294: E1 00      
+E296: F1 48 CE  
+E299: E4 68      
+E29B: BD EA C4    jsr  $EAC4
+E29E: 29 CC     
+E2A0: 0C         
+E2A1: 29 C9   
+E2A3: 09       
+E2A4: 5B           
+E2A5: FC           
+E2A6: E0 15      
+E2A8: 04           
+E2A9: C0 10     
+E2AB: A3           
+E2AC: 40         
+E2AD: A3           
+E2AE: 4A        
+E2AF: 5B           
+E2B0: F6 09 46   
+E2B3: 5B           
+E2B4: F5 0A 04  
+E2B7: 42           
+E2B8: 0C        
+E2B9: 80 0E    
+E2BB: C0 1A    
+E2BD: 42           
+E2BE: 1C           
+E2BF: B0 01 5A  
+E2C2: FA E0 F3 
+E2C5: FC           
+E2C6: E0 1D     
+E2C8: F4 19 09    
+E2CB: 5A      
+E2CC: FB 42 4B   
+E2CF: 19         
+E2D0: 10         
+E2D1: 42           
+E2D2: 29 09     
+E2D4: 28 C9    
+E2D6: 0E        
+E2D7: C0 15 
+E2D9: EC           
+E2DA: 2E 09     
+E2DC: 74 B0 FF   
+E2DF: 5B           
+E2E0: FC           
+E2E1: E0 00    
+E2E3: F6 11 42   
+E2E6: 29 C9  
+E2E8: 09         
+E2E9: 1A           
+E2EA: 8A 03      
+E2EC: 48       
+E2ED: CE E2 FA   
+E2F0: BD EA C4  
+E2F3: 5B           
+E2F4: F4 07 02   
+E2F7: 13        
+E2F8: 1D           
+E2F9: 03      
+
+Lane 1-5 Auto Movement:    
+E2FA: BD F3 AB    	jsr  $F3AB
+E2FD: 5B F5 09 F8 	If All Lamps Off (1-5 Lanes) Branch to $E2F9(remove thread)      
+E301: 52 30 	  	Set Priority #30
+E303: 74 	  	Delay 4
+E304: 5A 4B FC 	  	Branch if ???? to $E303
+E307: 29 49    	  	Lamp Effect: 49
+E309: 28 09    	  	Lamp Effect: 09(lane1-5)
+E30B: CA 15       	Set RAM $0A = #15
+E30D: C1 07    	  	Set RAM $01 = #07
+E30F: C0 07       	Set RAM $00 = #07
+E311: B1 FF 	  	Subtract 1 from RAM $01
+E312: 5A FC E1 00 12    Branch if RAM$01=#00 to $E32A
+E318: 24 0A       
+E31A: 60 	  	Delay RAM$00 IRQ's
+E31B: 25 0A
+E31D: 60 	  	Delay RAM$00 IRQ's
+E31E: 5A 4B FC    	Branch if ???? to $E31D
+E321: 5A FC E0 03 EB    Branch if RAM$00=#03 to $E311
+E326: B0 FF    		Subtract 1 from RAM $00
+E328: 8F EE             MJMP $E318
+
+E32A: 7F 		Delay F 
+E32B: BA 01  		Add 1 to RAM $0A
+E32D: 5B FC EA 1A DB	Branch if RAM$0A=#1A to $E30D
+E332: 8F D7    		MJMP $E30B
+
+(Switch)Jet Bumpers:
+E334: 42 0B  Main Add Points Routine (1000)	
+E336: EF     Play Sound #0F
+E337: 03     Remove this Thread
+
+(Switch)10-Point Switches:
+E338: E0 	Play Table Sound #00
+E339: 80 01  	MJMP $E33C 
+
+(Switch)Left/Right Sling:
+E33B: EF 	Play Sound #0F
+E33C: 42 09    	Add Points (10)
+E33E: 1E 87     Lamp Effect: Left/Right Drain
+         13                  Left/Right Return
+E341: 03         
+
+(Switch)Right Return Lane:  
+E342: 11 10 	Turn Off Lamp #10
+E344: 13 0F     Flash Lamp #0F
+E346: 80 04	MJUMP $E34C
+
+(Switch)Left Return Lane:
+E348: 11 0F	Turn Off Lamp #0F
+E34A: 13 10	Flash Lamp #10
+E34C: 42 0B 	Add Points (1000)
+E34E: 55 FF 40         
+E351: 55 FF B0 
+E354: E3    	Play Sound #03
+E355: 5B E0 07  Branch if RAM$00=00????
+E358: C0 05  	Set RAM $00 to 05
+E35A: A2 91     JSRD $E5ED	Add Time From A
+E35C: 42 4B	Add Points (9000)
+E35E: FC        Play Sound #1C   
+E35F: A2 96     JSRD $E5F7	Add Bonus
+E361: 03        End This Thread
+
+(Switch)Left/Right Drain:         
+E362: 42 2B     	Add Points (5000)
+E364: FD      		Play Sound #1D
+E365: 5B E0 03 		_BNE RAM$00 to $E36B
+E368: 19 07		Lamp Effect: #07
+E36A: 05           	Award Special
+E36B: A2 8C      	JSRCODE(rel)
+E36D: 03  
+
+(Switch)Left Lane:         
+E36E: EA 42        
+E370: 2B C0        
+E372: 07             
+E373: B0 01 5A    
+E376: FC           
+E377: E0 0F        
+E379: 46          
+E37A: 5B           
+E37B: E0 F6       
+E37D: 42           
+E37E: 0B          
+E37F: 8F F2 
+
+(Switch)Left/Right Turnaround:
+E381: A2 76 		_JSRD(rel) $E5F9  (Add Bonus Animation)
+E383: EA 		_SND #0A
+E384: 5A F4 E0 58 	_BEQ(rel) LampOOF #E0 to #E3E0
+E388: 55 FF B0		
+E38B: 5A FE F2 FF 40 04	_BEQ(rel) PRI, $E395
+E391: 52 B0         
+E393: 80 56   		_JMP(rel) $E3E9
+E395: 55 FF 40          
+E398: 5B 48 03  	_BNE(rel)    to $E39E
+E39B: 7F 		_WAIT #0F
+E39C: 8F F7   		_JMP(rel) $E395
+E39E: 5B F5 05 04  	_BNE(rel)    to $E3A6
+E3A2: C0 2B     	_RAM $00=#2B
+E3A4: 80 16    		_JMP(rel) $E3BC
+E3A6: C1 2A    
+E3A8: C0 00      
+E3AA: 5B           
+E3AB: 2F 06      
+E3AD: C0 0D     
+E3AF: 1A           
+E3B0: 07     
+E3B1: 80 09      
+E3B3: B1 01 B0   
+E3B6: 08     
+E3B7: 5A         
+E3B8: E1 F9     
+E3BA: B0 04 FB    
+E3BD: 57       
+E3BE: EC           
+E3BF: 05           
+E3C0: 5A          decb 
+E3C1: 4B           
+E3C2: 1A           
+E3C3: 10          sba  
+E3C4: 48          asla 
+E3C5: 29 C5       bvs  $E38C
+E3C7: 05           
+E3C8: 47          asra 
+E3C9: 86 C5       lda  #$C5
+E3CB: BD F1 D5    jsr  $F1D5
+E3CE: 74 46 96    lsr  $4696
+E3D1: 25 84       bcs  $E357
+E3D3: 80 5A       suba #$5A
+E3D5: FC           
+E3D6: E0 00       subb (x+$00)
+E3D8: EF 29       stx  (x+$29)
+E3DA: 45           
+E3DB: 11          cba  
+E3DC: 48          asla 
+E3DD: 1A           
+E3DE: 05           
+E3DF: 03  
+         
+E3E0: 55           
+E3E1: FF 40 5A    stx  $405A
+E3E4: FE F2 FF    ldx  $F2FF
+E3E7: B0 05 52    suba $0552
+E3EA: 40          nega 
+E3EB: 53          comb 
+E3EC: 40          nega 
+E3ED: 03           
+E3EE: 55           
+E3EF: FF B0 5B    stx  $B05B
+E3F2: 48          asla 
+E3F3: 03           
+E3F4: 7F 8F FA    clr  $8FFA
+E3F7: 5A          decb 
+E3F8: F5 05 28    bitb $0528
+E3FB: E5 10       bitb (x+$10)
+E3FD: 48          asla 
+E3FE: 29 05       bvs  $E405
+E400: 2A 45       bpl  $E447
+E402: 2D 45       blt  $E449
+E404: 76 5B F6    ror  $5BF6
+E407: C5 F7       bitb #$F7
+E409: 20 6F       bra  $E47A
+E40B: 80 02       suba #$02
+E40D: 2D 05       blt  $E414
+E40F: 78 5B F7    asl  $5BF7
+E412: 2A F9       bpl  $E40D
+E414: 1C           
+E415: 05           
+E416: 2C 45       bge  $E45D
+E418: 2E 45       bgt  $E45F
+E41A: 78 5B F5    asl  $5BF5
+E41D: C5 F7       bitb #$F7
+E41F: 29 05       bvs  $E426
+E421: 11          cba  
+E422: 48          asla 
+E423: 03
+
+T-I-M-E Tube Lamps:           
+E424: BD F3 AB    jsr  $F3AB	Start Executing Macros
+E427: 52 56	Set Priority to #56
+E429: 55 FF 56         
+E42C: 5A 4B F4	If ????, Branch to $E423(remove this thread)
+E42F: 29 CB 0B 
+E432: 1E 0B 
+E434: 48 
+	B6 01 96   	lda $0196	Game Adj: T-I-M-E Ramp Timing
+	84 0F   	and #$0F
+	4C		inca
+E43B: 28 4B      
+E43D: 78 	Delay 8
+E43E: 29 4B   
+E440: 78 	Delay 8
+E441: B0 FF   	Subtract 1 from RAM $00
+E443: 5B FC E0 00 F3	Branch if RAM$00=00 to $E43B
+E448: 8F E8 	MJUMP to $E432
+
+T-I-M-E Target Hit Lamp Effect:
+E44A: BD F3 AB		Start Executing Macros
+E44D: 10 49    		Set Bit #49
+E44F: C0 10       	Set RAM$00=10
+E451: 55 FF 56         
+E454: 28 CB  		Lamp Effect: 
+         0B       
+E457: 74 		Delay 4
+E458: 2F 4B   		Lamp Effect:
+E45A: B0 FF 		Subtract 1 from RAM$00
+E45C: 5B FC E0 00 F6 	BNE RAM$00=00 to $E457
+E461: 29 CB    
+         0B         
+E464: 11 49  		Clear Bit #49
+E466: 8F BF 		JMP $E427 	Go back to T-I-M-E Lamp Cycle
+
+E468: BD F3 AB 
+E46B: 5A F6 0C 46
+E46F: 03          
+
+(Switch)Time-Tube Target: 
+E470: 5B F4 06 07 	Branch if Lamp #06(50,000) is NOT 'on' OR 'flashing' to $E47B
+E474: 11 06       	Turn Off Lamp #06 (50,000)
+E476: 42 2C  		Add Points (50,000)        
+E478: F8 		Play Sound #18
+E479: 80 03		MJMP $E47E
+E47B: 42 2B   		Add Points (5,000)       
+E47D: E2 		Play Sound #02     
+E47E: C0 22    		Set RAM#00=22
+E480: 5A E0 04   	Branch if RAM$00=00 to $E487
+E483: B0 01 		Add 1 to RAM$00
+E485: 8F F9 		MJMP $E480
+E487: B0 04  		Add 4 to RAM$00
+E489: 52 06 		Set Priority
+E48B: 5A FB 49 4B 07    Branch if Bit#49 OR Bit#4B to $E497
+E490: 48         	Push Next 6 bytes:
+   	 CE E4 4A    		ldx  #$E44A	T-I-M-E Target Hit Lamp Effect
+	 BD EA C4    		jsr  $EAC4
+E497: 5A E0 1A		Branch if RAM$00 = 00
+E49A: 14 00		Turn on Lamp @$00 
+E49C: 5A F6 0C 15 	Branch if Lamp Range #0C(T-I-M-E) All On to $E4B5
+E4A0: 5A 4B 11 		Branch if Bit#4B to $E4B4
+E4A3: 29 0C    		Lamp Effect: #0C
+E4A5: C1 10    		Set RAM$01=10
+E4A7: 26 00      	Invert Lamp #00 (BackBox KeepShooting)
+E4A9: E2   		Play Sound #02
+E4AA: 74		Delay 4
+E4AB: B1 FF		Subtract 1 from RAM$01 
+E4AD: 5B FC E1 00 F5	Branch if RAM$E1 != 00 to $E4A7
+E4B2: 29 4C   		Lamp Effect: #4C(T-I-M-E)
+E4B4: 03           	Kill This Thread
+E4B5: 19 0C		Lamp Effect:
+E4B7: 5B 4B 03 		Branch if Bit#4B to $E4BD
+E4BA: 79 		Delay 9
+E4BB: 8F FA   		MJMP $E4B7
+E4BD: 5B 4C 03		Branch if Bit#4C to $E4C3
+E4C0: 1A 07		Lamp Effect
+E4C2: 03 		Kill This Thread      
+E4C3: 13 87   		Flash Lamp #07(Playfield Keep Shooting)     
+E4C5: 	 00    		Flash Lamp #00(BackBox Keep Shooting)
+E4C6: 10 4C   		Set Bit#4C
+E4C8: 5A F5 03 02	Branch if Lamp Range #03 (Time2x-5x) All Off to $E4CE
+E4CC: 13 1D 		Flash Lamp #1D(All Score Multi-Arrow)
+E4CE: C3 00   		Set RAM$03=00
+E4D0: 52 00		Set Priority 
+E4D2: F2 		Play Sound #12
+E4D3: 48 		Push Next 6 Bytes:
+E4D4: CE DB AE    		ldx  #$DBAE    TimeBall Bell
+E4D7: BD EA C4    		jsr  $EAC4
+E4DA: 55 FF 80          
+E4DD: 7A   		Delay A
+E4DE: 11 01 		Turn Off Lamp: #01(Ball in Play)
+E4E0: 04           	RTE
+E4E1: 86 90       	lda  #$90
+E4E3: 97 AA       	sta  $AA
+E4E5: CE DB E9    	ldx  #$DBE9	TimeBall Display Routine
+E4E8: BD EA 78    	jsr  $EA78	Push it on the stack
+E4EB: BD E1 C7    	jsr  $E1C7	
+E4EE: BD F8 A4    	jsr  $F8A4	Store A in Display Toggles
+E4F1: BD E7 9C    	jsr  $E79C
+E4F4: 96 60       	lda  $60
+E4F6: 97 E0       	sta  $E0
+E4F8: BD F9 19    	jsr  $F919	Get Active Player Display Toggle Data
+E4FB: 94 60       	anda $60
+E4FD: 97 60       	sta  $60
+E4FF: 96 59       	lda  $59
+E501: 81 A0       	cmpa #$A0
+E503: 25 2D       	bcs  $E532
+E505: 84 0F       	anda #$0F
+E507: 20 29       	bra  $E532
+E509: 36          	psha 
+E50A: 86 0F       	lda  #$0F
+E50C: BD EC FC    	jsr  $ECFC	Play Sound #0F
+E50F: 32          	pula 
+E510: BD EA 2F    	jsr  $EA2F	End This Routine, Replace with next routine, next byte is timer
+      20 	Timer (1/2 Second)
+E514  C6 FF	  	ldb  #$FF   	
+E516: D7 59    	  	stb  $59
+E518: D7 5B       	stb  $5B
+E51A: D6 D6       	ldb  $D6	Ball in Play Flag
+E51C: 27 07       	beq  $E525
+E51E: 36          	psha 
+E51F: 86 0E       	lda  #$0E
+E521: BD EC FC    	jsr  $ECFC	Play Sound #0E
+E524: 32          	pula 
+E525: BD EA 2F    	jsr  $EA2F	End This Routine, Replace with next routine, next byte is timer
+      20 	Timer (1/2 Second)
+E529: D6 D6		ldb  $D6  	Check Ball in Play Flag    
+E52B: 27 05		beq  $E531   
+E52D: 8B 00       	adda #$00	Subtract 1 Second
+E52F: 8B 99       	adda #$99
+E531: 19          	daa  
+E532: 16          	tab  
+E533: C5 F0       	bitb #$F0
+E535: 26 02       	bne  $E539
+E537: CA F0       	orb  #$F0
+E539: D7 59       	stb  $59
+E53B: D7 5B       	stb  $5B
+E53D: D7 E7       	stb  $E7
+E53F: 4D          	tsta 
+E540: 26 C7       	bne  $E509	Still time on TimeBall
+E542: BD E1 9E    	jsr  $E19E	Start Player Flashing Mode
+E545: BD E1 C7    	jsr  $E1C7	Blank Score Buffer 1
+E548: 86 80       	lda  #$80
+E54A: 97 AA       	sta  $AA
+E54C: CE D8 9F    	ldx  #$D89F	BiP/Timeball Display Flip Routine	
+E54F: BD EA 78    	jsr  $EA78	Start the thread
+E552: 96 D0       	lda  $D0
+E554: BD F3 AB    	jsr  $F3AB	Start Executing Macros:
+E557: 55 FF 90          
+E55A: 11 87  		Turn Off Lamp #07(Playfield Keep Shooting) 
+         00     		      #00(Backbox Keep Shooting)
+E55D: 5A FC E0 00 03 	Branch if RAM$00=00 to $E565
+E562: 10 87		Turn On Lamp  #07(Playfield Keep Shooting)       
+E563:    00                           #00(Backbox Keep Shooting)
+E565: 11 9D		Turn Off Lamp #1D(All Score Multi-Arrow)        
+E566:    4C     	Clear Bit #4C
+E568: 19 03  		Lamp Effect: 
+E56A: E8		Play Sound #08 
+E56B: 53 40		Delay 40
+E56D: 31 4A   		Flash G.I. Lamps
+E56F: 7A 		Delay A
+E570: 31 4A    		Flash G.I. Lamps
+E572: 03  		Kill This Thread
+
+(Switch)FANTASY Targets:         
+E573: 42 0B A0 82          
+E577: E6 
+E578: 5A E0 21    
+E57B: 14           
+E57C: 00 
+          
+E57D: 5A F6 04 1F    
+E581: 5A FB 41 4B 16 
+E586: 29 04      
+E588: C1 08     
+E58A: E4 74      
+E58C: 5A FB 41 4B 0C
+E591: 26 00      
+E593: B1 FF 
+E595: 5B FC E1 00 F0 
+E59A: 29 44   
+E59C: 03           
+E59D: 24 00       
+E59F: 03           
+E5A0: 19       
+E5A1: 04           
+E5A2: 42           
+E5A3: 14           
+E5A4: C0 05     
+E5A6: A0 45     
+E5A8: EC           
+E5A9: 5B           
+E5AA: F6 02 02   
+E5AD: 42           
+E5AE: 14           
+E5AF: 1A           
+E5B0: 02           
+E5B1: 5A         
+E5B2: FB 41 4B    addb $414B
+E5B5: 24 29       bcc  $E5E0
+E5B7: 04           
+E5B8: 10          sba  
+E5B9: 41           
+E5BA: 28 94       bvc  $E550
+E5BC: 44          lsra 
+E5BD: C1 0C       cmpb #$0C
+E5BF: 2E 04       bgt  $E5C5
+E5C1: 74 B1 FF    lsr  $B1FF
+E5C4: 5B           
+E5C5: FC           
+E5C6: E1 00       cmpb (x+$00)
+E5C8: F6 C1 10    ldb  $C110
+E5CB: 2D 04       blt  $E5D1
+E5CD: 73 B1 FF    com  $B1FF
+E5D0: 5B           
+E5D1: FC           
+E5D2: E1 00       cmpb (x+$00)
+E5D4: F6 29 C4    ldb  $29C4
+E5D7: 04           
+E5D8: 11          cba  
+E5D9: 41           
+E5DA: 03 
+
+From Outhole Switch:          
+E5DB: 55 FF 70         
+E5DE: C0 70   	  	Set RAM $00 = #70
+E5E0: 4D 	  	Put Next 11 Bytes into Buffer $1130
+E5E1: 97 AA 	  		sta $AA
+E5E3: 7F 00 D6	  		clr $00D6	Ball in Play Flag
+E5E6: CE F8 DD 	  		ldx #$F8DD	Start Current Player Score to Flashing
+E6E8: BD EA 78    		jsr $EA78	Push Control Stack: Data in A,B,X,$AA,$A6,$A7
+E5EC: 02          	MRTS
+
+Add Time From A:
+E5ED: 9B 03       adda $03
+E5EF: 19          daa  
+E5F0: 24 02       bcc  $E5F4
+E5F2: 86 99       lda  #$99
+E5F4: 97 03       sta  $03
+E5F6: 39          rts 
+
+Add Bonus Routine:
+E5F7: 8D 00       bsr  $E5F9
+E5F9: CE E6 05    ldx  #$E605
+E5FC: 36          psha 
+E5FD: 86 01       lda  #$01
+E5FF: 97 AA       sta  $AA
+E601: 32          pula 
+E602: 7E EA 78    jmp  $EA78	Push Control Stack: Data in A,B,X,$AA,$A6,$A7
+
+Add 1 Bonus:
+E605: BD F3 AB    	jsr  $F3AB	Start Executing Macros
+E608: 74 		Delay 4
+E609: 5A 7F 23  	Branch if #7F to $E62F	(Kill)
+E60C: 5A FB 44 4B F7 	Branch if #44 OR #4B to $E608
+E611: 10 44  		Set Bit #44
+E613: 5A F6 01 19	Branch if Lamp Range (Bonus1-9) All On to $E630
+E617: 29 C1     	Lamp Effect: #01 (Bonus1-9)
+         01        	Lamp Effect: #01
+E61A: 2A 41      	Lamp Effect: #01
+E61C: 74                Delay 4
+E61D: 2E 41		Lamp Effect: #01 
+E61F: 46       		Push Next 4 Bytes into Buffer $1130   
+E620: 96 27         		lda  $27
+E622: 84 01      		anda #$01
+E624: 5A FC E0 00 F3	Branch if RAM$00=00 to $E61C
+E629: 29 41     	Lamp Effect: #01
+E62B: 1A 01		Lamp Effect: #01
+E62D: 11 44        	Clear Bit #44
+E62F: 03           	Kill This Thread!!!
+E630: 5B F6 0D 0E 	Branch if Lamp Range #0D(Bonus10-20) All On to $E644
+E634: 42 0B		Add Points (1000)
+E636: 5A 43 F4		Branch if Bit #43 to $E62D
+E639: 48 		Push Next 6 Bytes:
+	 CE E6 DE      		ldx  #$E6DE
+         BD EA C4    		jsr  $EAC4	Push $E6DE Bonus Lamps Attract 
+E640: 8F EB 		MJMP $E62D
+E641: 75    		Delay 5
+E643: 1C 01         	Lamp Effect: #01
+E645: 5B F5 01 F9 	Branch if Lamp Range #01 (Bonus 1-9) All Off to $E641
+E649: 5B 39 04 		Branch if Bit #39 to $E650
+E64C: 1E 0D 		Lamp Effect: #0D (Bonus10-20)
+E64E: 8F DD 		MJMP $E62D
+E650: 10 39 		Turn On Lamp #39(Bonus10)
+E652: 8F D9 		MJMP $E62D
+
+Count Down Bonus:
+E654: 7A  		Delay A  
+E655: 5A 44 FC 		Branch if Bit #44 to $E654
+E658: 10 7F		Set Bit #7F
+E65A: F2 55 FF  
+E65D: 60  		Delay RAM$00
+E65E: 48		Push Next 6 Bytes:
+         96 17       		lda  $17
+         84 78       		anda #$78
+         97 05       		sta  $05
+E665: C0 00       	Set RAM$00=00
+E667: 57 F3 02		JSRD $F302	???? Something with Lamps
+E66A: 28 40     	Lamp Effect: #00(Bonus1-20)
+E66C: C1 07     	Set RAM$01=07
+E66E: C8 01     	Set RAM$08=01
+E670: 5A F5 02 2D	Branch if Lamp Range #02 (2x-10x) All Off to $E6A1
+E674: C8 00       	Set RAM$08=00
+E676: E5       		Sound #05
+E677: 2F 42		Lamp Effect: #02 (2x-10x)
+E679: 74   	   	Delay 4
+E67A: B8 01   		Add 1 to RAM$08
+E67C: 5B FC E8 08 F5 	Branch if RAM$08 = #08 to $E676
+E681: 5B 3E 06		Branch if Lamp #3E (10x) On to $E68A
+E684: C1 04      	Set RAM$01=#04
+E686: C8 05      	Set RAM$08=#05
+E688: 80 10      	MJMP $E69A
+E68A: C1 04     	Set RAM$01=#04
+E68C: DA 15    		 	
+E68E: C8 02    		Set RAM$08=#02
+E690: 5A 3D 07  	Branch if Lamp #3D (5X) On to $E69A
+E693: C8 01       	Set RAM$08=#01
+E695: 5A 3C 02       	Branch if Lamp #3C (3X) On to $E69A
+E698: C8 02       	Set RAM$08=#02
+E69A: 1C 02          	Lamp Effect: #02 (2x-10x)
+E69C: C0 00        	Set RAM$00=00
+E69E: 57 F3 02         	JSRD $F302	???? Something with Lamps
+E6A1: 5A F0 34 		Branch if !Tilt! to $E6D8
+E6A4: 5A F5 81 13	Branch if Lamp Range #81 (Bonus1-9) All Off to $E6BB
+E6A8: 2C 01      	Lamp Effect: #01 (Bonus1-9)
+E6AA: 42 0B		Add Points (1000)
+E6AC: 5B 3D 08		Branch if Lamp #3D (5X) to $E6B7
+E6AF: 12 4A		Invert Bit #4A 
+E6B1: 5A 4A 04 		Branch if Bit #4A to $E6B8
+E6B4: F5 		Sound #15
+E6B5: 80 01   		MJMP $E6B8
+E6B7: F3           	Sound #13
+E6B8: 61 		Delay RAM$01          
+E6B9: 8F E6 		MJMP $E6A1
+E6BB: 5A F5 8D 0E	Branch if Lamp Range #8D (Bonus10-20) All Off to $E6CD
+E6BF: 28 01     	Lamp Effect: #01 (Bonus1-9)
+E6C1: 5B F7 39 04 	Branch if 0028,#39 to $E6C9
+E6C5: 21 79    		????
+E6C7: 8F E1 		MJMP $E6AA
+E6C9: 2D 0D  		Lamp Effect: #0D (Bonus10-20)
+E6CB: 8F DD   		MJMP $E6AA 
+E6CD: B8 FF		Subtract 1 from RAM$08	
+E6CF: 5B FC E8 00 C8	Branch if RAM$08=00 to $E69C
+E6D4: 5B F5 02 9C 	Branch if Lamp Range #02 (2x-10x) All Off to $E674
+E6D8: 29 40      	Lamp Effect: #40 (Bonus10-20)
+E6DA: 11 43		Clear Bit #43
+E6DC: F2		Sound #12 
+E6DD: 02 		MRTS
+
+(Attract) Bonus Lamps:
+E6DE: BD F3 AB    	jsr  $F3AB	Start Executing Macros 
+E6E1: 52 60		Put $60 into Control Stack $X,0D
+E6E3: 10 43		Turn on Lamp 03: Game Over
+E6E5: 74 		Delay 4
+E6E6: 29 81		Turn On All Lamps: Bonus 1-9
+E6E8:    0D    		Turn On All Lamps: Bonus 10-20
+E6E9: 76 		Delay 6
+E6EA: 2A 55 		Fill Off From Left
+E6EC: 46 
+	96 27		lda $27
+    	84 01      	anda #$01
+E6F1: 5A FC E0 00 F3	Branch if RAM$00=#00 to $E6E9
+E6F6: 22 3A       	Invert Lamp (Bonus 20)
+E6F8: 76 		Delay 6
+E6F9: 2D 55    		Shift Single Invert Right
+E6FB: 46           
+E6FC: 96 26       	lda  $26
+E6FE: 84 01       	anda #$01
+E700: 5B FC E0 00 F3
+E705: 22 3A       	Invert Lamp (Bonus 20)
+E707: 76 		Delay 6
+E708: 2E 55    		Shift Single Invert Left
+E70A: 46         
+E70B: 96 27       	lda  $27
+E70D: 84 02       	anda #$02
+E70F: 5B FC E0 00 F3
+E714: 22 3A      	Invert Lamp (Bonus 20)
+E716: 76 		Delay 6
+E717: 2C 55   		Fill On From Left
+E719: 46          
+E71A: 96 26       	lda  $26
+E71C: 84 02       	anda #$02
+E71E: 5B FC E0 00 F3
+E723: 22 3A       	Invert Lamp (Bonus 20)
+E725: 76 		Delay 6
+E726: 2E 55   		Shift Single Invert Left
+E728: 46         
+E729: 96 27       	lda  $27
+E72B: 84 02       	anda #$02
+E72D: 5A FC E0 00 F3
+E732: 22 3A     	Invert Lamp (Bonus 20)
+E734: 76 		Delay 6
+E735: 2D 55   		Shift Single Invert Right
+E737: 46         
+E738: 96 26       	lda  $26
+E73A: 84 01       	anda #$01
+E73C: 5A FC E0 00 F3 
+E741: 22 3A       	Invert Lamp (Bonus 20)
+E743: 8F A4 		MJMP $E6E9
+
+(Switch)Lane Change Switch:
+E745: 1E 09
+E747: 03  
+         
+From Main Score Event:
+E748: BD F3 AB    	jsr  $F3AB	Start Executing Macros
+E74B: 52 70  		Set Priority #70        
+E74D: 55 F8 70  
+E750: A0 4A			JSRD $E79C	Clear Display Mask:
+E752: 10 46 		Set Bit #46
+E754: 44 			Put Next 2 Bytes Into $1130 Buffer
+         4F         		clra 
+         5F          		clrb 
+E757: 53 58			Delay 58
+E759: 5A 4C 22 		Branch if #4C to $E77F
+E75C: 04       		Resume CPU Execution
+E75D: 88 80       	eora #$80
+E75F: C8 01       	eorb #$01
+E761: 47          	asra 
+E762: 36          	psha 
+E763: 8D 2C       	bsr  $E791	Get Pointer to Buffer 1 for Current Player
+E765: 8A 80       	ora  #$80
+E767: 6D 00       	tst  (x+$00)
+E769: 2B 02       	bmi  $E76D
+E76B: 84 7F       	anda #$7F
+E76D: A7 00       	sta  (x+$00)
+E76F: 37          	pshb 
+E770: BD F9 19    	jsr  $F919	Get Active Player Display Toggle Data
+E773: 43          	coma 
+E774: 94 60       	anda $60
+E776: 97 60       	sta  $60
+E778: 8D 2C       	bsr  $E7A6	Update Master Display Toggle From Current Player
+E77A: 33          	pulb 
+E77B: BD EA 2F    	jsr  $EA2F	Push Following Routine onto Control Stack with Timer
+E77E: 03           	delay 3
+E77F: 32          	pula 
+E780: 36          	psha 
+E781: 84 01       	anda #$01
+E783: 11          	cba  
+E784: 32          	pula 
+E785: 26 DA       	bne  $E761
+E787: 5D          	tstb 
+E788: 26 D3       	bne  $E75D
+E78A: BD F3 AB    	jsr  $F3AB	Start Executing Macros
+E78D: 53 18        	Delay 18
+E78F: 8F C8 		MJMP $E759
+
+Get Pointer to Display Mask for Current Player:
+E791: 36    	  psha
+E792: 96 CD       lda  $CD	Player Up(0-3)
+E794: CE 00 5C    ldx  #$005C
+E797: BD EE FF    jsr  $EEFF	( X = X + A )
+E79A: 32          pula 
+E79B: 39          rts 
+
+Clear Display Mask: 
+E79C: 8D F3       bsr  $E791	Get Pointer to Display Mask for Current Player
+E79E: 36          psha 
+E79F: A6 00       lda  (x+$00)
+E7A1: 84 80       anda #$80
+E7A3: A7 00       sta  (x+$00)		;Blank all digits except 10,000,000 digit
+E7A5: 32          pula 
+E7A6: 7E EB A1    jmp  $EBA1	Update Commas
+
+
+Turn on Lamp String:
+E7A9: 08          inx  
+E7AA: E6 00       ldb  (x+$00)
+E7AC: 27 ED       beq  $E79B	(rts)
+E7AE: 17          tba  
+E7AF: 84 7F       anda #$7F
+E7B1: DF 9E       stx  $9E
+E7B3: BD F1 8D    jsr  $F18D	Turn on lamp?
+E7B6: 5D          tstb 
+E7B7: 2B F0       bmi  $E7A9	Loop it!
+E7B9: BD EA 2F    jsr  $EA2F	Loop it with delay of 2 IRQ's
+E7BC: 02   	Timer Data        
+E7BD: 20 EA       bra  $E7A9
+
+Turn off Lamp String:
+E7BF: 08          inx  
+E7C0: E6 00       ldb  (x+$00)
+E7C2: 27 D7       beq  $E79B
+E7C4: 17          tba  
+E7C5: 84 7F       anda #$7F
+E7C7: DF 9E       stx  $9E
+E7C9: BD F1 92    jsr  $F192	Turn off Lamp?
+E7CC: 5D          tstb 
+E7CD: 2B F0       bmi  $E7BF	Loop it!
+E7CF: BD EA 2F    jsr  $EA2F	Loop it with Delay of 2
+E7D2: 02           
+E7D3: 20 EA       bra  $E7BF
+

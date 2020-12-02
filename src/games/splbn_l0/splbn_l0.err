@@ -1,0 +1,21 @@
+TASM 6800-6811 AssemblerVersion 3.1  February, 1998.
+Copyright (C) 1998 Squak Valley Software
+tasm: pass 1 complete.
+ERROR: splbn_l0.asm line 0718: Label not found: (BB_LEFT_FLASH_OF)
+ERROR: splbn_l0.asm line 0718: Label not found: (BB_RIGHT_FLASH_OF)
+ERROR: splbn_l0.asm line 0718: Label not found: (F)
+ERROR: splbn_l0.asm line 0718: Label not found: (PF_TOP_FLASH_OFFPF_BOT_FLASH_OFFPF_CENTER_FLASH_FF)
+ERROR: splbn_l0.asm line 0718: Label not found: (PF_BOT_FLASH_OFFPF_CENTER_FLASH_FF)
+ERROR: splbn_l0.asm line 0718: Label not found: (PF_CENTER_FLASH_FF)
+ERROR: splbn_l0.asm line 0718: Label not found: (FF)
+ERROR: splbn_l0.asm line 0718: Label not found: (GI_RELAY_BB_OFFBALL_LIFT_OFF)
+ERROR: splbn_l0.asm line 0804: Label not found: (PF_CENTER_FLASH_N4)
+ERROR: splbn_l0.asm line 0804: Label not found: (N4)
+ERROR: splbn_l0.asm line 1058: Label not found: (PF_CENTER_FLASH_FF)
+ERROR: splbn_l0.asm line 1058: Label not found: (FF)
+ERROR: splbn_l0.asm line 1058: Label not found: (BB_LEFT_FLASH_OF)
+ERROR: splbn_l0.asm line 1058: Label not found: (BB_RIGHT_FLASH_OF)
+ERROR: splbn_l0.asm line 1058: Label not found: (F)
+tasm: pass 2 complete.
+tasm: Number of errors = 15
+Elapsed time = 3.67 secs  lines = 7730   lines/sec = 2106

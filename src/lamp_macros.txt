@@ -1,0 +1,66 @@
+Lamp Summary for Williams Level 7 
+Jess M. Askey 2006
+---------------------------------------
+Level 7 code supports 64 lamps and each lamp has four 'state' flags. This totals 8 bytes per lamp 
+matrix times 4 bits each = 32 bytes of RAM space. The lamp state flags are stored in sequential 
+groups of 8 bytes, this allows the different bits for each lamp to be mathematically compared very
+easy. The state flags are stored at the following RAM locations
+
+$0010	buffer0
+$0018	flashflag
+$0020	buffer1
+$0028	bufferselect
+
+Buffer 0 - This buffer holds the displayed lamp state when the lampbufferselect bit for the 
+			associated lamp is at 0.
+			
+FlashFlag - This flag determines if the lamp is using the system defined flash rate. Note: When
+			this flag is set, there is a system process that scans for set flags and then 
+			toggles the actual lamp value in buffer0. Therefore, if you have this flag set
+			you cannot rely on knowing the state of the buffer0 value anymore. If you want to
+			maintain state info for the lamp, while also using this flash flag, maintain
+			your state in buffer1 since that is unchanged by the flash routine.
+			
+Buffer 1 - This buffer holds the displayed lamp state when the lampbufferselect bit for the
+			associated lamp is at 1.
+			
+BufferSelect - This flag determines which buffer is used by the IRQ routine when setting the state
+			of each lamp. 0 selects buffer0 while 1 selects buffer1.
+
+Notes:			
+lamp flash only effects lamp if it is on buffer 0
+lamp flash bit physically toggles the buffer 0 bit when enabled, when it is disabled, the state of buffer 0 is unknown
+
+Because of the space in which the macros are defined, there are two macro sets that manipulate the lamp ranges.
+the *0_ macros effect the first two lamp flags and the *1_ macros effect the last two flags. 
+
+I will combine these two seperate commands into one command in the future. But for now, there are two of them as 
+the native macros are defined.
+
+0_ Range Macros Effect
+0 lampbuffer0
+1 lampflashflag
+
+1_ Range Macros Effect
+0 lampbuffer1	
+1 lampbufferselect
+
+For each Range Macro Set, bit $40 determines which buffer to act upon for effect.
+
+RSET0_/RSET1_		Set Entire Range in Specified Buffer + Set Select to Buffer 0
+RCLR0_/RCLR1_		Clear Entire Range in Specified Buffer + Set Select to Buffer 0
+RSET1R0_/RSET1R1_		Goes through range bits from low to high and
+				finds first cleared bit, sets it and exits.
+RSET1RC0_/RSET1RC1_	Goes through range bits from low to high and
+				finds first cleared bit, sets it and exits. If 
+				all bits in range are already set, then routine 
+				clears all bits in range.
+RCLR1L0_/RCLR1L1_		Goes through range bits from high to low, routine
+				finds first bit in range that is set and clears
+				it and then exits.
+RROL0_/RROL1_		Rotate current range bits from high to low
+RROR0_/RROR1_		Rotate current range bits from low to high
+RINV0_/RINV1_		Inverts state of all bits in range
+
+
+
