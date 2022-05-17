@@ -1,5 +1,5 @@
 # wms_perc
-Source code and compilations for Williams Level 7 Pinball Machines
+Source code and compilations for Williams Level 7 Pinball Machines. Also includes wdasm executable that with a configuration file (barracora included as example)... will reverse the ROM images into a 'fully compilable' version of the code using the WMS_PERC files and also files potentially contained in my TASMx-Library repo here -> https://github.com/jessaskey/TASMx-Library
 
 NOTES:
 
