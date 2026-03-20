@@ -61,7 +61,9 @@ switch_masked		.block	8
 switch_pending		.block	8
 switch_aux			.block	8
 switch_b4			.block	8
-irq_counter			.block	1
+irq_counter			.block	1       ;IRQ Counter is the main driver for the Display Digit
+                                    ;Strobes. It cycles from 01-10 and then repeats, skipping 00
+                                    
 lamp_index_word		.block	1		;Rotating bit for lamp columns
 lamp_index_wordx	.block	1		;Rotating bit for extended lamp colulmns
 cur_lampstrobe		.block	1		;
