@@ -4825,7 +4825,7 @@ sys_irq
 			;***********************************
 			;* Now we will do the displays
 			;***********************************
-			ldx	lamp_index_word		;Reset X back to $0000
+			ldx	    lamp_index_word		;Reset X back to $0000
 			ldab	irq_counter
 			andb	#$07
 			ifeq				;Branch on Digits 2-8 or 10-16 (scores)
@@ -4857,7 +4857,7 @@ sys_irq
 			beq	b_084
 			subb	#$03
 			ifeq
-b_084				rol	comma_data_temp			;Commas...
+b_084			rol	comma_data_temp			;Commas...
 				rorb	
 				rol	comma_data_temp
 				rorb	

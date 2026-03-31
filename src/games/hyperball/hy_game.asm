@@ -230,7 +230,7 @@ special_event	ldx	#adj_ec_award_level
 			beq	gb_02
 			ldx	#wave_p1_b0
 gb_02			ldaa	#$01
-			jmp	add_a_to_wave
+			jmp	add_a_to_xptr
 
 hook_reset		jsr	restore_hstd
 			ldx	#aud_game1
@@ -307,7 +307,7 @@ gb_52			cmpb	#$02
 			staa	p2_ecs
 			pula	
 			ldx	#wave_p1_b0
-			bsr	add_a_to_wave
+			bsr	add_a_to_xptr
 gb_53			bsr	extend_game
 			ldab	p1_ecs
 			psha	
@@ -315,7 +315,7 @@ gb_53			bsr	extend_game
 			staa	p1_ecs
 			pula	
 			ldx	#wave_p2_b0
-			bsr	add_a_to_wave
+			bsr	add_a_to_xptr
 			bra	to_kill2
 
 jmp_cmosa		jmp	cmos_a
@@ -328,10 +328,10 @@ get_aud_ec_ex	ldx	#adj_energyextended
 			anda	#$0F
 			rts	
 
-add_a_to_wave	ldab	$00,X
+add_a_to_xptr	ldab	$00,X
 			bpl	gb_4D
 			andb	#$0F
-gb_4D			aba	
+gb_4D		aba	
 			daa	
 			cmpa	#$09
 			bgt	gb_4E
@@ -599,7 +599,7 @@ hook_playerinit	inc	flag_tilt
 			staa	$02,X
 			jsr	clr_alpha_set_b1
 			jsr	ani_starslide
-plyer_load		ldx	#gj_01
+plyer_load	ldx	#gj_01
 			jsr	addthread_clra
 			bsr	get_current_ecs
 			clr	hy_unknown_4
@@ -2924,7 +2924,7 @@ sw_slam		.db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ; D1B9 jmp_cmosa
 ; D1BC extend_game
 ; D1C4 get_aud_ec_ex
-; D1CC add_a_to_wave
+; D1CC add_a_to_xptr
 ; D1D2 gb_4D
 ; D1DA gb_4E
 ; D1DD ani_game_lr

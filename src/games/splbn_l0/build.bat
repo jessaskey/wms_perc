@@ -3,7 +3,8 @@ echo off
 
 echo Compiling Spellbinder...
 
-tasmx.exe -68 -b -y -s splbn_l0.asm  > splbn_l0.err
+tasmx.exe -68 -b -wtext.tab -y -s splbn_l0.asm  > splbn_l0.err
+tasmx.exe -68 -b -y -s splbnsnd.asm  > splbnsnd.err
 
 echo ...splitting files
 rem main output is 32K
@@ -16,6 +17,12 @@ echo ...cleaning files
 move splbn_l0.obj.1 roms\ic20.532
 move splbn_l0.obj.2 roms\ic14.532
 move splbn_l0.obj.3 roms\ic17.532
+
+echo ...copying files to PinMame
+copy .\roms\ic20.532 "C:\Users\jess\Downloads\PinMAME-3.6.0-1227-ecd032e-win-x64\roms\hypbl_l4\ic20.532"
+copy .\roms\ic14.532 "C:\Users\jess\Downloads\PinMAME-3.6.0-1227-ecd032e-win-x64\roms\hypbl_l4\ic14.532"
+copy .\roms\ic17.532 "C:\Users\jess\Downloads\PinMAME-3.6.0-1227-ecd032e-win-x64\roms\hypbl_l4\ic17.532"
+
 
 echo ...copying files to Visual Pinball
 copy .\roms\ic20.532 "C:\Program Files (x86)\Visual Pinball\VPinMame\roms\splbn_l0\ic20.532"

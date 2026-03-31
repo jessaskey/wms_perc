@@ -1,0 +1,25 @@
+Spellbinder Gameplay
+
+NOTE: I bought this playfield and backglass from Ted Estes in about 2003 who had these items at his house after Williams had gone out of business. He said he came into possesion of them simply
+because they were on his office wall at the new WMS factory up north, he believed that they were down at California Ave originally on the walls before his time. I also bought a very 
+poor condition backglass at Pinball Expo 1998 for $50 from someone that showed up with a bunch of random old Williams factory parts and prototype PCB's. These are the only two
+backglasses I have ever seen and the only Playfield I have ever seen.
+
+I also reached out to Barry Oursler who was the original designer of this game in about 2013. He said this...
+
+I wish I could be more help, but this was over 30 years ago. I don't have any documentation on the game. The game wasn't around very long, so I didn't have 
+much time to play it like I would a pinball game. The only feature that I remember was a "bonus round" where you would shoot at the dragon targets along the 
+back. Every time you hit it, he would reverse his direction. It was an idea that I took from the old electro-mechanical gun games where you shoot the "bear". 
+You have to hit him before he ran off on either side. Every time you hit him, he would growl and reverse direction.
+
+So, that is all I have to go on. I did receive some handwritten documents showing the switch and lamp matrix... unfortunately those got 'lost' in my divorce which sucks.
+
+
+Upon Power On the game will show 00 in both player displays and loop through attract mode. During attract mode, hitting the 'Cast Spell' button will show the high
+score leader.
+
+Pressing the Player 1 button will start a game with the adjustable number of wizards on Player 1 only. Pressing the player 1 button after this will do nothing
+until the player 1 game is over. Pressing the Player 2 start button will start a 2 player game with the adjustable number of wizards for both Player 1 and Player 2. 
+Pressing the Player 2 button after this will do nothing until both players games have ended.
+
+Upon game start, the game will announce the game play has started using the display on on the playfield. "Prepare to Battle... Player 1".

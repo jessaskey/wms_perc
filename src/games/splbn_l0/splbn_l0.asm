@@ -7,7 +7,8 @@
 #include  "68logic.asm"     ;680X logic structure definitions   
 #include  "7gen.asm"        ;Level 7 helper macros    
 #include  "sb_wvm.asm"      ;Virtual Machine Instruction Definitions                           
-#include  "sb_hard.asm"     ;Hardware Definitions                
+#include  "sb_hard.asm"     ;Hardware Definitions       
+#include  "splbnsnd.exp"    ;Sound Commands         
 
 
 ;--------------------------------------------------------------------------
@@ -322,32 +323,42 @@ gr_swi_entry    cli
 ;* Wizard is killed
 ;*****************************************************
 hook_outhole    ldaa    #$78
-                bsr killthreads_ff          ;kill any game running threads
-                inc flag_tilt               ;turn off the shooters 
-                bsr get_pwizards
+                bsr     killthreads_ff          ;kill any game running threads
+                inc     flag_tilt               ;turn off the shooters 
+                bsr     get_pwizards
                 ifeq
-                    jsr showplayer
+                    jsr     clr_alpha_set_b0
+                    ldx     #msg_gameover
+                    jsr     copy_msg_full
                     SLEEP($60)
-                    ldx #msg_gameover
-                    jsr copy_msg_full
-                    ldaa    #$09
-                    jsr isnd_once
-                    SLEEP($F0)
-                endif
+                    jsr     showplayer
+                    ldaa    #sndcmd_gameover                   ;Game Over Sound
+                    jsr     isnd_once
+                    SLEEP($60)
+                endif             
 goto_sme        rts
 
-get_pwizards    
-                ldaa    player_up
-                ifne
-                    ldab    p2_wizards
+get_pwizards    ldab    player_up
+                ifeq
+                    ldaa    p1_dispwiz
                 else
-                    ldab    p1_wizards
+                    ldaa    p2_dispwiz
                 endif
                 rts
             
 killthreads_ff  ldab    #$FF
                 jmp kill_threads
 
+showplayerx     jsr     clr_alpha_set_b0
+                ldx     #msg_prepare
+                jsr     copy_msg_full
+                SLEEP($45)
+                ldx     #msg_to
+                jsr     copy_msg_full
+                SLEEP($45)
+                ldx     #msg_battle
+                jsr     copy_msg_full
+                SLEEP($45)
 showplayer      ldx     #msg_player
                 jsr     copy_msg_full
                 ;ldx    current_thread
@@ -361,8 +372,8 @@ showplayer      ldx     #msg_player
                 jmp     ani_starslide
 
 ; Player Init:
-hook_playerinit inc flag_tilt           ;turn off the shooters 
-                jsr showplayer
+hook_playerinit inc     flag_tilt           ;turn off the shooters 
+                jsr     showplayerx
                 swi
                 SOL_(GI_RELAY_PF_OFF)       ;Sol#6:gi_relay_pf
                 SND_($07)               ;Sound #07
@@ -457,8 +468,8 @@ ani_starslide   jsr     clr_alpha_set_b1
                     bsr     gb_4F
                     jsr     hex2bitpos
                     comb    
-                    andb    dmask_p3
-                    stab    dmask_p3
+                    andb    dmask_alpha
+                    stab    dmask_alpha
                     inx 
                     deca    
                 miend
@@ -467,8 +478,8 @@ ani_starslide   jsr     clr_alpha_set_b1
                     bsr     gb_4F
                     jsr     hex2bitpos
                     comb    
-                    andb    dmask_p4
-                    stab    dmask_p4
+                    andb    dmask_alpha+1
+                    stab    dmask_alpha+1
                     inx 
                     deca    
                 miend
@@ -580,18 +591,18 @@ gb_10           bsr step_r
 setup_msg_endptr    
                 psha    
                 pshb    
-                stx sys_temp5
-                ldx #alpha_b0
-                stx temp1
-                bsr clr_next_12
-                ldx sys_temp5
-                ldab    $00,X
-                ldx temp1
-                jsr split_ab
+                stx     sys_temp5
+                ldx     #alpha_b0
+                stx     temp1
+                bsr     clr_next_12
+                ldx     sys_temp5
+                ldab    $00,X               ;Get first byte of string into B
+                ldx     temp1
+                jsr     split_ab
                 stab    game_var_0
-                jsr xplusb
-                stx temp1
-                ldx sys_temp5
+                jsr     xplusb
+                stx     temp1
+                ldx     sys_temp5
 pulab_rts       pulb    
                 pula    
                 rts 
@@ -603,14 +614,15 @@ pulab_rts       pulb
 ;* message into the buffer for more complex 
 ;* rendering
 ;**************************************************
-copy_msg_full   bsr setup_msg_endptr
+copy_msg_full   bsr     setup_msg_endptr
 copy_msg_part   ldab    $00,X
                 andb    #$0F
                 inx 
-                jmp copyblock
+                jmp     copyblock
 
-ani_msg_letters bsr setup_msg_endptr
-                ldaa    $00,X                   ;get first letter
+ani_msg_letters bsr     setup_msg_endptr
+                ldaa    $00,X                   ;get first byte
+                                                ;FLAGS + LENGTH
                 anda    #$0F
                 begin
                     ldab    #$0C
@@ -650,12 +662,12 @@ clr_next_12     clra
                 ldab    #$0C
                 jmp     write_range
 
-invert_alphamsk ldab    dmask_p3
+invert_alphamsk ldab    dmask_alpha
                 comb    
                 andb    #$7F
 stab_all_alphmsk    
-                stab    dmask_p3
-                stab    dmask_p4
+                stab    dmask_alpha
+                stab    dmask_alpha+1
                 rts
         
 ani_spinner     psha    
@@ -707,10 +719,22 @@ sw_evilking_r
 sw_gargoyle_br  KILL_
 
 
-sw_spell        KILL_
+sw_spell        
 
-sw_l_shooter        
-sw_r_shooter    KILL_
+KILL_
+
+sw_l_shooter
+sw_r_shooter	PRI_($B0)				;Priority=#B0
+gj_0A			.db $5B,$FB,$D0,$30,$FE,$F2,$F0,$F2,$F0,$09;BNE_((#F0 P #F0) || BIT2#30) to gb_0A
+			.db $5A,$FE,$F2,$F0,$B0,$0A	;BEQ_(BIT#70 P #F0) to gb_0B
+			SLEEP_(1)
+			JMPR_(gj_0A)
+			
+gb_0A		PRI_($F0)				;Priority=#F0
+			SND_($04)				;Sound #04
+			JSRD_(solenoid_wait)		
+			SLEEP_(11)
+gb_0B		KILL_					;Remove This Thread
 
     
 
@@ -721,6 +745,9 @@ go_loop         RCLR0_(grp_alllamps)        ;All lamps off buffer 0
                 RCLR1_(grp_alllamps)        ;All lamps off buffer 1
                 PRI_($10)               ;Priority=#10
                 CPUX_
+                ldaa #$FF
+                staa   p1_dispwiz  
+                staa   p2_dispwiz
                 jsr start_attract
                 clr flag_tilt
                 ldaa    #$01
@@ -1306,36 +1333,54 @@ character_defs  .dw $0000   ;SPACE (00)
 ;   where X:  flags
 ;         Y:  length
 ;********************************************************************************
-msg_williams    .db $28,$17,$09,$0C,$0C,$09,$01,$0D,$13
+msg_williams     .wtext "WILLIAMS",2
+;msg_williams2    .db $28,$17,$09,$0C,$0C,$09,$01,$0D,$13
 
-msg_electronics .db $0B,$05,$0C,$05,$03,$14,$12,$0F,$0E,$09,$03,$13
+msg_electronics  .wtext "ELECTRONICS"
+                ;.db $0B,$05,$0C,$05,$03,$14,$12,$0F,$0E,$09,$03,$13
 
-msg_presents    .db $28,$10,$12,$05,$13,$05,$0E,$14,$13
+msg_presents    .wtext "PRESENTS",2
+                ;.db $28,$10,$12,$05,$13,$05,$0E,$14,$13
 
-msg_spellbinder .db $0C,$13,$10,$05,$0C,$0C,$02,$09,$0E,$04,$05,$12,$00
+msg_spellbinder .wtext "SPELLBINDER "
+                ;.db $0C,$13,$10,$05,$0C,$0C,$02,$09,$0E,$04,$05,$12,$00
 
-msg_credit      .db $17,$03,$12,$05,$04,$09,$14,$13
+msg_credit      .wtext "CREDITS",1
+                ;.db $17,$03,$12,$05,$04,$09,$14,$13
 
-msg_gameover    .db $0C,$00,$07,$01,$0D,$05,$00,$00,$0F,$16,$05,$12,$00
+msg_gameover    .wtext "GAME  OVER",1
+                ;.db $0C,$00,$07,$01,$0D,$05,$00,$00,$0F,$16,$05,$12,$00
 
-msg_player      .db $26,$10,$0C,$01,$19,$05,$12
+msg_player      .wtext "PLAYER",2
+                ;.db $26,$10,$0C,$01,$19,$05,$12
 
-msg_boom        .db $04,$02,$0F,$0F,$0D
+msg_boom        .wtext "BOOM",4
+                ;.db $04,$02,$0F,$0F,$0D
 
-msg_destroy     .db $27,$04,$05,$13,$14,$12,$0F,$19
+msg_destroy     .wtext "DESTROY",2
+                ;.db $27,$04,$05,$13,$14,$12,$0F,$19
 
-msg_enemies     .db $27,$05,$0E,$05,$0D,$09,$05,$13
+msg_enemies     .wtext "ENEMIES",2
+                ;.db $27,$05,$0E,$05,$0D,$09,$05,$13
 
-msg_battlethe   .db $1A,$02,$01,$14,$14,$0C,$05,$00,$14,$08,$05
+msg_battlethe   .wtext "BATTLE THE",1
+                ;.db $1A,$02,$01,$14,$14,$0C,$05,$00,$14,$08,$05
 
-msg_dragon      .db $36,$04,$12,$01,$07,$0F,$0E
+msg_dragon      .wtext "DRAGON",3
+                ;.db $36,$04,$12,$01,$07,$0F,$0E
 
-msg_top_wizard  .db $1A,$14,$0F,$10,$00,$17,$09,$1A,$01,$12,$04
+msg_top_wizard  .wtext "TOP WIZARD",1
+                ;.db $1A,$14,$0F,$10,$00,$17,$09,$1A,$01,$12,$04
 
-msg_defhs       .db $2C,$00,$00,$2C,$0D,$08,$01,$16,$0F,$03,$2C,$00,$00
+msg_defhs       .wtext "  *MHAVOC*  "
+                ;.db $2C,$00,$00,$2C,$0D,$08,$01,$16,$0F,$03,$2C,$00,$00
 
-msg_tilt        .db $28,$2C,$00,$14,$09,$0C,$14,$00,$2C
+msg_tilt        .wtext "* TILT *",2
+                ;.db $28,$2C,$00,$14,$09,$0C,$14,$00,$2C
 
+msg_prepare     .wtext "PREPARE",3
+msg_to          .wtext "TO",5
+msg_battle      .wtext "BATTLE",3
 
 ;*****************************************************************************
 ;* Williams Spellbinder System Code
@@ -1466,9 +1511,11 @@ clear_all       jsr factory_zeroaudits      ;Restore Factory Settings and Zero A
             jsr clear_displays          ;Blank all Player Displays (buffer 0)
             staa    score_p1_b0+3           ;Set player one score to '00'
             staa    score_p2_b0+3           ;Set player one score to '00'
-            ;deca
-            ;staa   p2_ec_b0
-            ;staa   p1_ec_b0
+            deca
+            staa   p1_dispwiz           ;Set to $FF which is blank
+            staa   p2_dispwiz
+            staa   p1_dispalt
+            staa   p2_dispalt
             cli
             ldx gr_reset_ptr
             jsr $00,X                   ;jsr GameROM
@@ -2415,22 +2462,22 @@ isnd_mult_x jsr xplusa              ;X = X + A
                 stab    cur_sndflags            
                 ldab    $01,X
                 stab    soundirqcount+1         
-                clr soundirqcount
-                ldx soundirqcount           ;Clear the MSB of the word counter ($BD,$BE)
-                stx soundindex_com          ;Store the whole counter in the Common Sound Index
+                clr     soundirqcount
+                ldx     soundirqcount           ;Clear the MSB of the word counter ($BD,$BE)
+                stx     soundindex_com          ;Store the whole counter in the Common Sound Index
                 ldab    #$40
                 stab    sys_soundflags          ;Sound Flag?
-                bsr send_snd_save           ;Send the Command, Save in 'lastsound'
+                bsr     send_snd_save           ;Send the Command, Save in 'lastsound'
             else                        ;Complex Sound
-                ldx $00,X                   ;Here if Complex Sound Command
+                ldx     $00,X                   ;Here if Complex Sound Command
                 ldab    #$80
                 stab    sys_soundflags          ;Set Status Flag
                 orab    $00,X
                 stab    cur_sndflags
                 inx 
-                stx soundindex_com
-                stx soundptr
-                bsr do_complex_snd          ;Process it and send
+                stx     soundindex_com
+                stx     soundptr
+                bsr     do_complex_snd          ;Process it and send
             endif
 snd_exit_pull   
             pulb    
@@ -3007,17 +3054,17 @@ b_082           inc     irqcount16
                 staa    comma_data_temp
                 ldaa    dmask_p1
                 staa    credp1p2_bufferselect
-                ldaa    dmask_p3
+                ldaa    dmask_alpha
                 staa    alpha_bufferselect
-                ;ldab  p2_ec_b0
-                rol   credp1p2_bufferselect
-                ;ifcs
-                ;   ldab   p2_ec_b1
-                ;endif
-                ;ldaa  p1_ec_b0
-                rol   alpha_bufferselect
-                ;bcc   b_083
-                ;ldaa  p1_ec_b1
+                ldab    p2_dispalt
+                rol     credp1p2_bufferselect
+                ifcs
+                   ldab   p2_dispalt
+                endif
+                ldaa    p1_dispalt
+                rol     alpha_bufferselect
+                bcc     b_083
+                ldaa    p1_dispalt
                 bra     b_083
 
             ;***********************************
@@ -3092,20 +3139,22 @@ b_083               lsrb                        ;B BCD Values goes to high nybbl
                     lsrb    
                     anda    #$F0
                     bra     disp_save                   ;save it now to PIA
+                    
 skip_lots           ldaa    dmask_p2
                     staa    credp1p2_bufferselect
-                    ldaa    dmask_p4
+                    ldaa    dmask_alpha+1
                     staa    alpha_bufferselect
-                    ;ldab   p2_ec_b0
-                    rol credp1p2_bufferselect
-                    ;ifcs
-                    ;   ldab    p2_ec_b1
-                    ;endif
-                    ;ldaa   p1_ec_b0
-                    rol alpha_bufferselect
-                    ;ifcs
-                    ;   ldaa    p1_ec_b1
-                    ;endif
+                    
+                    ldaa    p2_dispwiz
+                    rol     credp1p2_bufferselect
+                    ifcs
+                       ldaa    p2_dispalt
+                    endif
+                    ldab    p1_dispwiz
+                    rol     alpha_bufferselect
+                    ifcs
+                       ldab    p1_dispalt
+                    endif
                 endif
                 asla                        ;Show AB
                 asla    
@@ -3145,20 +3194,20 @@ disp_save       aba
                         staa    pia_lamp_row_data           ;Store Lamp Row Data
 
                         ;* In Hyperball we have another half matrix of lamps too
-                        ldaa  lamp_index_wordx
+                        ldaa    lamp_index_wordx
                         tab   
                         lsra  
                         staa    lamp_index_wordx
-                        ldx   lamp_index_word
-                        stab  lamp_index_wordx
-                        ldaa  lampbufferselectx,X
+                        ldx     lamp_index_word
+                        stab    lamp_index_wordx
+                        ldaa    lampbufferselect+8,X
                         tab   
                         comb  
-                        andb  lampbuffer0x,X
-                        anda  lampbuffer1x,X
+                        andb    lampbuffer0+8,X
+                        anda    lampbuffer1+8,X
                         aba   
                         coma  
-                        ldab   lamp_index_wordx
+                        ldab    lamp_index_wordx
                         clc   
                         rorb  
                         ifcs
@@ -3309,7 +3358,6 @@ irq_sol         ldaa    solenoid_counter            ;Solenoid Counter
 ;*************************************************************************
 ;* End IRQ
 ;*************************************************************************
-
 sparkleb        pshb
                 ldab     bitflags
                 asrb
@@ -3352,8 +3400,8 @@ lamp_commit     stab    $00,X                   ;turn it on
                 pulb    
                 bcc lamp_done
                 comb                        ;If we are here, then we must switch buffers.
-                andb    lampbufferselectx,X     ;We are now on buffer 0
-                stab    lampbufferselectx,X
+                andb    lampbufferselect+8,X     ;We are now on buffer 0
+                stab    lampbufferselect+8,X
 lamp_done       pulb    
                 ldx temp3
                 rts
@@ -3465,8 +3513,8 @@ lampm_buf0      staa    $00,X
                 ifcs
                     tba 
                     coma    
-                    anda    lampbufferselectx,X
-                    staa    lampbufferselectx,X
+                    anda    lampbufferselect+8,X
+                    staa    lampbufferselect+8,X
                 endif
                 rts  
 
@@ -3678,32 +3726,32 @@ b_0A3           psha
                 pula    
                 rts
 
-lampm_z         jsr lampr_end               ;A = Last Lamp Level, B = Last Lamp BitPos
+lampm_z         jsr     lampr_end               ;A = Last Lamp Level, B = Last Lamp BitPos
                 ifeq
                     begin
-                        bsr lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
-                        bcs to_abx_ret
+                        bsr     lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+                        bcs     to_abx_ret
                     neend
                 endif
                 tba 
                 eora    $00,X
                 staa    $00,X
-                jsr lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
-                bcs to_abx_ret
+                jsr     lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+                bcs     to_abx_ret
                 orab    $00,X
                 stab    $00,X
-to_abx_ret      jmp abx_ret
+to_abx_ret      jmp     abx_ret
 
-lfill_a         jsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lfill_a         jsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
 b_0AB           ifne
-                    jsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
-                    bcc b_0AB
-                    bra to_abx_ret
+                    jsr     lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    bcc     b_0AB
+                    bra     to_abx_ret
                 endif
 lmp_clc         clc 
-                bra to_abx_ret
+                bra     to_abx_ret
 
-lfill_b         jsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lfill_b         jsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
                 begin
                     bne lmp_clc
                     jsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
@@ -3729,10 +3777,10 @@ lampm_x         anda    #$3F
                     staa    thread_priority         ;This is probably just a temp location?
                     tba 
                     coma    
-                    anda    bitflagsx,X
+                    anda    bitflags+8,X
                     oraa    thread_priority         ;Recall temp
-                    staa    bitflagsx,X
-                    jsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    staa    bitflags+8,X
+                    jsr lamp_left                   ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
                 csend
                 bra to_abx_ret
             
@@ -4618,8 +4666,8 @@ do_game_init    ldx gr_gamestart_ptr            ;Game Start Hook
                 jsr $00,X                   ;jsr to Game ROM Hook
                 jsr dump_score_queue            ;Clean the score queue
                 bsr clear_displays          ;Blank all Player Displays (buffer 0)
-                ;deca
-                ;staa   p1_ec_b0
+                deca
+                staa   p1_dispalt
                 bsr initialize_game         ;Remove one Credit, init some game variables
                 bsr add_player              ;Add one Player
                 jmp init_player_up
@@ -4645,9 +4693,9 @@ add_player      jsr   gr_addplayer_event
                 jsr cmosinc_a           
                 tstb
                 ifne
-                    staa    p2_wizards
+                    staa    p2_dispwiz
                 else
-                    staa    p1_wizards
+                    staa    p1_dispwiz
                 endif
 ap_shft         aslb
                 aslb
@@ -4689,8 +4737,8 @@ clear_displays  ldaa    #$FF
                 bsr     write_range
                 
 clr_dis_masks   clra
-                staa    dmask_p4                ;These are the Display Buffer Toggles
-                staa    dmask_p3
+                staa    dmask_alpha+1                ;These are the Display Buffer Toggles
+                staa    dmask_alpha
 set_dis_masks12 staa    dmask_p2
                 staa    dmask_p1
                 rts 
@@ -4725,9 +4773,9 @@ init_player_game
 ;* Output:      X
 ;**********************************************************         
 setplayerbuffer ldaa    #gamedata_size          ;Length of Player Buffer
-                ldx #p1_gamedata-gamedata_size  ;Player 1 base
+                ldx     #p1_gamedata-gamedata_size  ;Player 1 base
                 begin
-                    jsr xplusa  ;X = X + A
+                    jsr     xplusa  ;X = X + A
                     decb    
                 miend
                 rts 
@@ -4738,19 +4786,22 @@ setplayerbuffer ldaa    #gamedata_size          ;Length of Player Buffer
 ;*
 ;* Requires: Player Buffer to Fill in X
 ;***********************************************************            
-copyplayerdata  stx temp1
-                ldx #gr_playerstartdata     ;*** Table Pointer ***
+copyplayerdata  stx     temp1
+                ldx     #gr_playerstartdata     ;*** Table Pointer ***
                 ldab    #$1E
-                jmp copyblock               ;Copy Block: X -> temp1 B=Length
+                jmp     copyblock               ;Copy Block: X -> temp1 B=Length
 
 ;***********************************************************
-;
+; Player Init
+;    Subtracts 1 from current Wizards remaining
+;    Resets Player Data
+;    Flashes Score until a score is made
 ;***********************************************************
 init_player_up  bsr     init_player_sys
-                ldx     #p1_wizards
+                ldx     #p1_dispwiz
                 ldab    player_up
                 ifne
-                    ldx     #p2_wizards
+                    ldx     #p2_dispwiz
                 endif
                 ldaa   $00,X
                 ;ifmi
@@ -4912,17 +4963,17 @@ outhole_main    bsr dump_score_queue
 ;*                   ball to ball.            
 ;*********************************************************************
 saveplayertobuffer  
-                jsr setplayerbuffer         ;X=#1126+((B+1)*#1A))
-                stx temp1
-                ldx #lampbuffer0
+                jsr     setplayerbuffer         ;X=#1126+((B+1)*#1A))
+                stx     temp1
+                ldx     #lampbuffer0
                 ldab    #$12
-                bsr to_copyblock            ;Save current lamp settings
-                ldx #lampflashflag
+                bsr     to_copyblock            ;Save current lamp settings
+                ldx     #lampflashflag
                 ldab    #$0C
-                bsr to_copyblock            ;Save Flashing lamps too!
-                ldx #$0002
+                bsr     to_copyblock            ;Save Flashing lamps too!
+                ldx     #$0002
                 ldab    #$06
-to_copyblock    jmp copyblock               ;Finally, save player game data.
+to_copyblock    jmp     copyblock               ;Finally, save player game data.
 
 ;*********************************************************************
 ;* Ball Update: This will increment to next player if there is one   
@@ -4944,18 +4995,18 @@ badj_loop       clrb
                         beq   badj_p2
 badj_rts                rts 
                     endif
-                    ldaa   p2_wizards
+                    ldaa   p2_dispwiz
                     ;cmpa  #$00
                     bne   badj_rts
 badj_p2             bsr   chk_p1
                     bne   badj_loop
-                    cmpa  p2_wizards
+                    cmpa  p2_dispwiz
                     bne   badj_loop
                 else
                     bsr   chk_p1
                     ifne
                         rts 
-chk_p1                  ldaa   p1_wizards
+chk_p1                  ldaa   p1_dispwiz
                         ;cmpa  #$F0
                         rts   
 show_hstd               ldx   #score_p1_b1

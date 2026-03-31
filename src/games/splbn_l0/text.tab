@@ -1,0 +1,60 @@
+" TASM Atari Major Havoc Custom Text Definition.    "
+/****************************************************************************
+/* Id: $ atext.tab 1.1 2016/08/20 01:12:40 jma Exp $
+/****************************************************************************
+/* This is the custom text definition file for TASMx. For each character
+/* at the start of the line (single characters only - ASCII only) the 
+/* value will be written. The value may be in normal numeric representation
+/* just like the rest of TASMx.
+/*
+/*CHAR 	VALUE */
+/*-------------------------------------------*/
+/* note that this first line has a 'space' character in it */
+ 		00
+/* normal characters from here on out */		
+A		01
+B		02
+C		03
+D		04
+E 	    05
+F 	    06 
+G		07
+H 	    08
+I		09
+J		0A
+K		0B
+L		0C
+M		0D
+N		0E
+O		0F
+P		10
+Q		11
+R		12
+S		13
+T 	    14
+U		15
+V		16
+W		17
+X		18
+Y		19
+Z		1A
+0		1B
+1		1C
+2		1D
+3		1E
+4		1F
+5		20
+6		21
+7		22
+8		23
+9		24
+"		25
+-       26
+\		27
+|		28
+/		29
+@       2A
+>       2B
+*       2C
+<       2D
+_       2E

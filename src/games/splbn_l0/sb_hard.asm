@@ -27,34 +27,36 @@ reflx_cur_pts		.block	1		;Reflex wave current point value
 
 
 
-lampbuffer0			.block	8		;Lamp Buffer 0
-lampbuffer0x		.block	4		;Extended Lamp Buffer 0
-bitflags			.block	8		;Game Flags
-bitflagsx			.block	4		;Extended Game Flags
-lampbufferselect	.block	8		;Lamp Buffer Selection Bit
-lampbufferselectx	.block	4
-lampbuffer1			.block	8		;Lamp Buffer 1
-lampbuffer1x		.block	4		;Extended Lamp Buffer 1
-lampflashflag		.block	8		;Lamp Flashing Bits
-lampflashflagx		.block	4		
+;NOTE these next 12 bytes are saved between player switches to restore on resume
+lampbuffer0			.block	12d		;Lamp Buffer 0
+;specific bitflags
+bitflags			.block	12d		;Game Flags
+                                    ;80 - Sparkle Enabled
+                                    ;40 -
+                                    ;20 - 
+                                    ;10 - 
+                                    ;08 - 
+                                    ;04 - 
+                                    ;02 - 
+                                    ;01 - 
+lampbufferselect	.block	12d		;Lamp Buffer Selection Bit
+lampbuffer1			.block	12d		;Lamp Buffer 1 + Extension
+lampflashflag		.block	12d		;Lamp Flashing Bits + Extension	
 
 score_p1_b0			.block	4
 score_p2_b0			.block	4
 score_p1_b1			.block	4
 score_p2_b1			.block	4
-p1_wizards			.block	1
-p2_wizards			.block	1
-;p1_ec_b0			.block	1
-;p1_ec_b1			.block	1
-;p2_ec_b0			.block	1		
-;p2_ec_b1			.block	1
+p1_dispwiz			.block	1
+p2_dispwiz			.block	1
+p1_dispalt			.block	1	
+p2_dispalt			.block	1
 alpha_b0			.block	12
 alpha_b1			.block	12
 
 dmask_p1			.block	1
 dmask_p2			.block	1
-dmask_p3			.block	1
-dmask_p4			.block	1
+dmask_alpha			.block	2       ;Two bytes for the Alpha Display
 comma_flags			.block	1
 switch_debounced	.block	8
 switch_masked		.block	8
