@@ -6279,10 +6279,10 @@ ut_laugh5_end
 swi_entry
 reset
 			sei
-			lds	#$007F
-			ldx	#$0400		        ;Set up the PIA
-			clr	$01,X			    ;Clear Control Register A
-			clr	$03,X			    ;Clear Control Register B
+			lds	    #$007F
+			ldx	    #$0400		        ;Set up the PIA
+			clr	    $01,X			    ;Clear Control Register A
+			clr	    $03,X			    ;Clear Control Register B
 			ldaa	#$FF
 			staa	$00,X			;Set DDRA to Outputs
 			ldab	#$80
@@ -6930,7 +6930,7 @@ xplusa 		stx	xtemp2
 ;*******************************************************
 ;* Sound Command 01: Tilt Warning Sound
 ;*******************************************************			
-snd_tilt 		ldx	#$00E0
+snd_tilt 	ldx	#$00E0
 			begin
 				ldaa	#$20
 				bsr	xplusa
@@ -6950,7 +6950,7 @@ snd_tilt 		ldx	#$00E0
 ;****************************************************
 ;* NMI Entry: Sound Test
 ;****************************************************
-nmi_entry		begin
+nmi_entry	begin
 				begin
 					sei
 					lds	#$007F
@@ -7069,7 +7069,7 @@ command_lookup   SNDCMD(sndcmd_blank,h_none_cmd,$00,$00)    ;00(3f) - EMPTY ALWA
                  SNDCMD(sndcmd_spookybg,h_bg_cmd,$00,$00)              ;15(2a) - Spooky BG
                  SNDCMD(sndcmd_mejl,h_speech2_cmd,$0F,$08)         ;16(29) - "Me Jungle Lord" +08
                  SNDCMD(sndcmd_explode,h_simp1_cmd,$00,$00)           ;17(28) - Explosion
-                 SNDCMD(sndcmd_youwin,h_speech2_cmd,$10,$08)         ;18(27) - "You Win! Fight in Jungle Again" +08           
+                 SNDCMD(sndcmd_youwinf,h_speech2_cmd,$10,$08)         ;18(27) - "You Win! Fight in Jungle Again" +08           
                  SNDCMD(sndcmd_fightjt,h_speechrnd_cmd,$11,$3E)       ;19(26) - "Fight Jungle Tiger and Win!" OR "Can you be Jungle Lord?" OR "Beat Tiger and be Jungle Lord" OR "Can you fight in Jungle?" +1F
                  SNDCMD(sndcmd_elecgo,h_sum_cmd,$01,$00)          	  ;1A(25) - Electric Game Over
                  SNDCMD(sndcmd_stwarp,h_sum_cmd,$02,$00)          	  ;1B(24) - Stellar Warp 
@@ -7285,6 +7285,6 @@ nmi_vector	.dw nmi_entry
 res_vector	.dw swi_entry
 
 
-.export sndcmd_tilt 
+
 
 .end

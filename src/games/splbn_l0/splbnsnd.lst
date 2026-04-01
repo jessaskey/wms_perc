@@ -1,4 +1,3 @@
-ERROR: splbnsnd.asm line 7072: Duplicate label: (sndcmd_youwin)
 0001   0000             ;************************************************************
 0002   0000             ;* Jungle Lord Sound/Speech Code
 0003   0000             ;* Version 2.0
@@ -7079,10 +7078,10 @@ ERROR: splbnsnd.asm line 7072: Duplicate label: (sndcmd_youwin)
 6279   F800             swi_entry
 6280   F800             reset
 6281   F800 0F          			sei
-6282   F801 8E 00 7F    			lds	#$007F
-6283   F804 CE 04 00    			ldx	#$0400		        ;Set up the PIA
-6284   F807 6F 01       			clr	$01,X			    ;Clear Control Register A
-6285   F809 6F 03       			clr	$03,X			    ;Clear Control Register B
+6282   F801 8E 00 7F    			lds	    #$007F
+6283   F804 CE 04 00    			ldx	    #$0400		        ;Set up the PIA
+6284   F807 6F 01       			clr	    $01,X			    ;Clear Control Register A
+6285   F809 6F 03       			clr	    $03,X			    ;Clear Control Register B
 6286   F80B 86 FF       			ldaa	#$FF
 6287   F80D A7 00       			staa	$00,X			;Set DDRA to Outputs
 6288   F80F C6 80       			ldab	#$80
@@ -8767,7 +8766,7 @@ ERROR: splbnsnd.asm line 7072: Duplicate label: (sndcmd_youwin)
 6930   FB9A             ;*******************************************************
 6931   FB9A             ;* Sound Command 01: Tilt Warning Sound
 6932   FB9A             ;*******************************************************			
-6933   FB9A CE 00 E0    snd_tilt 		ldx	#$00E0
+6933   FB9A CE 00 E0    snd_tilt 	ldx	#$00E0
 6934   FB9D             			begin
 6934   FB9D             
 6935   FB9D 86 20       				ldaa	#$20
@@ -8823,7 +8822,7 @@ ERROR: splbnsnd.asm line 7072: Duplicate label: (sndcmd_youwin)
 6950   FBB5             ;****************************************************
 6951   FBB5             ;* NMI Entry: Sound Test
 6952   FBB5             ;****************************************************
-6953   FBB5             nmi_entry		begin
+6953   FBB5             nmi_entry	begin
 6953   FBB5             
 6954   FBB5             				begin
 6954   FBB5             
@@ -9159,7 +9158,7 @@ ERROR: splbnsnd.asm line 7072: Duplicate label: (sndcmd_youwin)
 7071   FC7F 00          
 7071   FC80 00          
 7071   FC81             
-7072   FC81                              SNDCMD(sndcmd_youwin,h_speech2_cmd,$10,$08)         ;18(27) - "You Win! Fight in Jungle Again" +08           
+7072   FC81                              SNDCMD(sndcmd_youwinf,h_speech2_cmd,$10,$08)         ;18(27) - "You Win! Fight in Jungle Again" +08           
 7072   FC81             
 7072   FC81             
 7072   FC81 0B          
@@ -9770,6 +9769,6 @@ ERROR: splbnsnd.asm line 7072: Duplicate label: (sndcmd_youwin)
 7285   FFFE F8 00       res_vector	.dw swi_entry
 7286   10000             
 7287   10000             
-7288   10000             .export sndcmd_tilt 
+7288   10000             
 7289   10000             
-7290   10000             .endtasm: Number of errors = 1
+7290   10000             .endtasm: Number of errors = 0

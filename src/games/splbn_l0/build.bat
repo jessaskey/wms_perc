@@ -10,6 +10,8 @@ echo ...splitting files
 rem main output is 32K
 split splbn_l0.obj 4096
 
+split splbnsnd.obj 4096
+
 md roms
 del /Q roms
 
@@ -18,11 +20,14 @@ move splbn_l0.obj.1 roms\ic20.532
 move splbn_l0.obj.2 roms\ic14.532
 move splbn_l0.obj.3 roms\ic17.532
 
+move splbnsnd.obj.8 roms\SOUND12.532
+
 echo ...copying files to PinMame
 copy .\roms\ic20.532 "C:\Users\jess\Downloads\PinMAME-3.6.0-1227-ecd032e-win-x64\roms\hypbl_l4\ic20.532"
 copy .\roms\ic14.532 "C:\Users\jess\Downloads\PinMAME-3.6.0-1227-ecd032e-win-x64\roms\hypbl_l4\ic14.532"
 copy .\roms\ic17.532 "C:\Users\jess\Downloads\PinMAME-3.6.0-1227-ecd032e-win-x64\roms\hypbl_l4\ic17.532"
 
+copy .\roms\SOUND12.532 "C:\Users\jess\Downloads\PinMAME-3.6.0-1227-ecd032e-win-x64\roms\hypbl_l4\SOUND12.532"
 
 echo ...copying files to Visual Pinball
 copy .\roms\ic20.532 "C:\Program Files (x86)\Visual Pinball\VPinMame\roms\splbn_l0\ic20.532"

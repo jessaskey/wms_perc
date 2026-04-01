@@ -3,7 +3,7 @@
 sndcmd_blank     .EQU  $0000
 sndcmd_tilt      .EQU  $0001
 sndcmd_melt      .EQU  $0002
-sndcmd_youwin    .EQU  $0018
+sndcmd_youwin    .EQU  $0003
 sndcmd_trump     .EQU  $0004
 sndcmd_tfcred    .EQU  $0005
 sndcmd_dtmiss    .EQU  $0006
@@ -24,6 +24,7 @@ sndcmd_lngexp    .EQU  $0014
 sndcmd_spookybg  .EQU  $0015
 sndcmd_mejl      .EQU  $0016
 sndcmd_explode   .EQU  $0017
+sndcmd_youwinf   .EQU  $0018
 sndcmd_fightjt   .EQU  $0019
 sndcmd_elecgo    .EQU  $001a
 sndcmd_stwarp    .EQU  $001b

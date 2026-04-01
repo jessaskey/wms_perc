@@ -335,8 +335,28 @@ hook_outhole    ldaa    #$78
                     ldaa    #sndcmd_gameover                   ;Game Over Sound
                     jsr     isnd_once
                     SLEEP($60)
+                else
+                    jsr     clr_alpha_set_b0
+                    swi
+                    BITON4_(bf_dispspkl)
+                    CPUX_
+                    ldaa    #$f0
+                    staa    sparkle_rate                  
+                    ldaa    randomseed
+                    anda    #$03
+                    asla
+                    ldx     #deathtbl           ;Death Messages
+                    jsr     xplusa             ;X = X + A
+                    ldx     $0,X
+                    ;ldx     #msg_death1
+                    jsr     copy_msg_full
+                    SLEEP($C0)
+                    swi
+                    BITON4_(bf_dispspkl)
+                    CPUX_
                 endif             
 goto_sme        rts
+
 
 get_pwizards    ldab    player_up
                 ifeq
@@ -765,7 +785,7 @@ go_loop         RCLR0_(grp_alllamps)        ;All lamps off buffer 0
                     ldx #msg_spellbinder
                     jsr copy_msg_full
                     swi
-                        BITON4_(bf_dispspkl)
+                    BITON4_(bf_dispspkl)
                     CPUX_
                     ldaa    #$10
                     staa    sparkle_rate
@@ -1382,6 +1402,18 @@ msg_prepare     .wtext "PREPARE",3
 msg_to          .wtext "TO",5
 msg_battle      .wtext "BATTLE",3
 
+;Death messages
+msg_death1      .wtext "YOU DIED",2
+msg_death2      .wtext "YOU ARE DONE"
+msg_death3      .wtext "NOT GOOD BOB"
+msg_death4      .wtext "YOU ARE DEAD"
+
+
+deathtbl        .dw msg_death1
+                .dw msg_death2
+                .dw msg_death3
+                .dw msg_death4
+
 ;*****************************************************************************
 ;* Williams Spellbinder System Code
 ;***************************************************************************
@@ -1414,9 +1446,9 @@ irq_per_minute =    $0EFF
 ;* Main Entry from Reset
 ;**************************************
 reset       sei 
-            lds #pia_ddr_data-1     ;Point stack to start of init data
+            lds     #pia_ddr_data-1     ;Point stack to start of init data
             ldab    #$0C                ;Number of PIA sections to initialize
-            ldx #pia_sound_data     ;Start with the lowest PIA
+            ldx     #pia_sound_data     ;Start with the lowest PIA
             ldaa    #$04
             staa    pia_control,X       ;Select control register
             ldaa    #$7F                
@@ -1427,14 +1459,14 @@ reset       sei
                 begin
 nxt_pia             ldx temp1           ;Get next PIA address base
                     begin
-                        clr pia_control,X   ;Initialize all PIA data direction registers
+                        clr     pia_control,X   ;Initialize all PIA data direction registers
                         pula                ;Get DDR data
                         staa    pia_pir,X
                         pula    
                         staa    pia_control,X   ;Get Control Data
-                        cpx #pia_sound_data ;This is the last PIA to do in shooter games
+                        cpx     #pia_sound_data ;This is the last PIA to do in shooter games
                         ifne
-                            clr pia_pir,X       ;If we are on the sound PIA, then clear the PIR 
+                                clr pia_pir,X       ;If we are on the sound PIA, then clear the PIR 
                         endif
                         inx 
                         inx 
@@ -1467,61 +1499,61 @@ csum1       .chk $d000,$dfff,$80,C
 ;***************************************************************
 ;* PIA initialization is done now, set up the vm etc.
 ;***************************************************************            
-init_done       ldx #$13FF              ;\
-            txs                     ;|
+init_done   ldx     #$13FF              ;\
+            txs                         ;|
             begin                       ;|
-                clr $00,X               ;Clear RAM 1000-13FF
-                dex                 ;|
-                cpx #$0FFF          ;|
+                clr     $00,X           ;| - Clear RAM 1000-13FF
+                dex                     ;|
+                cpx     #$0FFF          ;|
             eqend                       ;/
-            jsr setup_vm_stack          ;Initially Set up the VM
+            jsr     setup_vm_stack          ;Initially Set up the VM
             ldaa    gr_lampflashrate            ;Get Lamp Flash Rate
             staa    lamp_flash_rate
-            ldx #switch_queue
-            stx switch_queue_pointer
-            ldx #sol_queue              ;Works from top down
-            stx solenoid_queue_pointer      ;Set up Solenoid Buffer Pointer
-            ldx #adj_cmoscsum           ;CMOS Checksum
-            jsr cmosinc_a               ;CMOS,X++ -> A
-            jsr cmosinc_b               ;CMOS,X++ -> B
+            ldx     #switch_queue
+            stx     switch_queue_pointer
+            ldx     #sol_queue              ;Works from top down
+            stx     solenoid_queue_pointer      ;Set up Solenoid Buffer Pointer
+            ldx     #adj_cmoscsum           ;CMOS Checksum
+            jsr     cmosinc_a               ;CMOS,X++ -> A
+            jsr     cmosinc_b               ;CMOS,X++ -> B
             aba 
             cmpa    #$57                    ;CSUM CMOS RAM
             ifne
-clear_all       jsr factory_zeroaudits      ;Restore Factory Settings and Zero Audit Totals
+clear_all       jsr     factory_zeroaudits      ;Restore Factory Settings and Zero Audit Totals
             endif
-            ldx #aud_currentcredits     ;Current Credits
-            jsr cmosinc_a               ;CMOS,X++ -> A
+            ldx     #aud_currentcredits     ;Current Credits
+            jsr     cmosinc_a               ;CMOS,X++ -> A
             staa    current_credits
-            jsr cmos_a              ;CMOS, X -> A Audit 50 Command
-            clr $00,X
-            clr $01,X
+            jsr     cmos_a              ;CMOS, X -> A Audit 50 Command
+            clr     $00,X
+            clr     $01,X
             cmpa    #$15                    ;Auto-Cycle?
             ifeq
-                ldx #st_autocycle           ;Set-Up Auto Cycle Mode
-                jsr newthread_06            ;Push VM: Data in A,B,X,$A6,$A7,$AA=#06
+                ldx     #st_autocycle           ;Set-Up Auto Cycle Mode
+                jsr     newthread_06            ;Push VM: Data in A,B,X,$A6,$A7,$AA=#06
             endif
             cmpa    #$45
-            beq clear_all               ;Restore Factory Setting/Zero Audits
+            beq     clear_all               ;Restore Factory Setting/Zero Audits
             cmpa    #$35
             ifeq                        ;Zero Audits
-                jsr reset_audits            ;(Reset Audits 0100-0165)
+                jsr     reset_audits            ;(Reset Audits 0100-0165)
             endif
-            jsr coinlockout             ;Check Max Credits, Adjust Coin Lockout If Necessary
-            dec switch_debounced
-            jsr clear_displays          ;Blank all Player Displays (buffer 0)
+            jsr     coinlockout             ;Check Max Credits, Adjust Coin Lockout If Necessary
+            dec     switch_debounced
+            jsr     clear_displays          ;Blank all Player Displays (buffer 0)
             staa    score_p1_b0+3           ;Set player one score to '00'
             staa    score_p2_b0+3           ;Set player one score to '00'
             deca
-            staa   p1_dispwiz           ;Set to $FF which is blank
-            staa   p2_dispwiz
-            staa   p1_dispalt
-            staa   p2_dispalt
+            staa    p1_dispwiz           ;Set to $FF which is blank
+            staa    p2_dispwiz
+            staa    p1_dispalt
+            staa    p2_dispalt
             cli
-            ldx gr_reset_ptr
-            jsr $00,X                   ;jsr GameROM
-            ldx #powerup_init           ;Jump to Game Over Mode
-            jsr newthread_06            ;Start the thread
-            jmp check_threads           ;Run the loop
+            ldx     gr_reset_ptr
+            jsr     $00,X                   ;jsr GameROM
+            ldx     #powerup_init           ;Jump to Game Over Mode
+            jsr     newthread_06            ;Start the thread
+            jmp     check_threads           ;Run the loop
             
 ;************************************************************************************
 ;* Begin Main Loop - This is the end of all initialization and the start of the loop
@@ -1659,7 +1691,7 @@ snd_queue   ldaa    sys_soundflags          ;Sound Flag??
                 ifne
                     ldab    pia_comma_data          ;Do immediate, but only if sound board is not busy.
                     andb    #$20
-                    beq check_threads           ;Get Outta Here
+                    beq     check_threads           ;Get Outta Here
                 else
                     ldaa    soundirqcount+1         ;LSB Sound IRQ Counter
                     suba    irqcount                ;Subtract the number of IRQ's that have cycled
@@ -1667,21 +1699,21 @@ snd_queue   ldaa    sys_soundflags          ;Sound Flag??
                     ldaa    soundirqcount           ;Update the counter
                     sbca    #$00
                     staa    soundirqcount           ;Carry over to MSB of couter as well
-                    bcc check_threads           ;Leave if counter has not gone under zero.
+                    bcc     check_threads           ;Leave if counter has not gone under zero.
                 endif
                 ldaa    #$7F
-                jsr send_snd            ;Send A->Sound Board (mute?)
+                jsr     send_snd            ;Send A->Sound Board (mute?)
                 ldaa    cur_sndflags        ;Is this a simple sound
                 ifpl                    ;yes
                     dec soundcount
                     beq _sndnext            ;Sound Repeat Counter
                     ldab    sys_soundflags      ;
                     ifpl
-                        ldx soundindex_com
-                        stx soundirqcount
+                        ldx     soundindex_com
+                        stx     soundirqcount
                         ldaa    lastsound
-                        jsr send_snd_save       ;Send the Command, Save in 'lastsound'
-                        bra check_threads       ;Get Outta here.
+                        jsr     send_snd_save       ;Send the Command, Save in 'lastsound'
+                        bra     check_threads       ;Get Outta here.
                     endif
                     oraa    #$80
                     staa    cur_sndflags        ;make it a complex sound now.
@@ -2387,30 +2419,30 @@ sound_sub   stx thread_priority
             psha    
             pshb    
             ldab    sys_soundflags          ;Sound Status
-            beq b_04E                   ;Goto Sound Routine #2
+            beq     b_04E                   ;Goto Sound Routine #2
             tab                     
             asla    
             aba                               ;A=A*3
-            ldx gr_soundtable_ptr           ;Game ROM Table: Sounds
-            jsr xplusa              ;X = X + A
+            ldx     gr_soundtable_ptr           ;Game ROM Table: Sounds
+            jsr     xplusa              ;X = X + A
             ldaa    $02,X                         ;get the actual sound command that will be sent
             inca    
             ifeq                        ;If value is $FF, then this is complex sound
-                ldx $00,X
+                    ldx $00,X
             endif
             ldaa    $00,X
             ldab    cur_sndflags
             bitb    #$40
             ifeq
-                bsr isnd_test               ;If (A&0f)&(B&0f)=0) & (B&20=00) Then Set Carry
+                bsr     isnd_test               ;If (A&0f)&(B&0f)=0) & (B&20=00) Then Set Carry
                 ifcc
-b_04E                   pulb    
+b_04E               pulb    
                     pula    
-                    bra b_051
+                    bra     b_051
                 endif
             endif
 b_050       tsta    
-            bpl snd_exit_pull           ;pula,pulb,rts.
+            bpl     snd_exit_pull           ;pula,pulb,rts.
             ldab    next_sndcnt
             ifne
                 ldab    next_sndflags
@@ -2447,13 +2479,13 @@ b_051       psha
             stab    soundcount
             tab                               ;store our sound in B temporarily
             ldaa    #$7F
-            bsr send_snd                ;Send Sound Stop Command
+            bsr     send_snd                ;Send Sound Stop Command
             tba                               ;get it back
             staa    soundindex              ;Sound Command Table Index
             asla    
             aba                     ;Index * 3
-            ldx gr_soundtable_ptr           ;Game ROM: Sound Table Pointer
-isnd_mult_x jsr xplusa              ;X = X + A
+            ldx     gr_soundtable_ptr           ;Game ROM: Sound Table Pointer
+isnd_mult_x jsr     xplusa              ;X = X + A
             ldaa    $02,X                   ;Sound Command
             cmpa    #$FF
             ifne                        ;Simple Sound

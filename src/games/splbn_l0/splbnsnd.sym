@@ -203,7 +203,7 @@ speechtog_cmd     fc36  00003
 sndcmd_blank      0000  00000
 sndcmd_tilt       0001  00000
 sndcmd_melt       0002  00000
-sndcmd_youwin     0018  00000
+sndcmd_youwin     0003  00000
 sndcmd_trump      0004  00000
 sndcmd_tfcred     0005  00000
 sndcmd_dtmiss     0006  00000
@@ -224,6 +224,7 @@ sndcmd_lngexp     0014  00000
 sndcmd_spookybg   0015  00000
 sndcmd_mejl       0016  00000
 sndcmd_explode    0017  00000
+sndcmd_youwinf    0018  00000
 sndcmd_fightjt    0019  00000
 sndcmd_elecgo     001a  00000
 sndcmd_stwarp     001b  00000
