@@ -110,6 +110,11 @@ soundptr			.block	2
 soundirqcount		.block	2
 soundindex_com		.block	2
 sys_soundflags		.block	1		;$00DF
+        ;SOUND BITFLAGS
+        ; 80 - complex sound being played
+        ; 40 - simple sound being played
+        ; 20 -
+        ; 10
 soundindex			.block	1		;$00E0
 csound_timer		.block	2		;$00E1
 next_sndflags		.block	1		;$00E3

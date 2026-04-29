@@ -16,10 +16,52 @@ So, that is all I have to go on. I did receive some handwritten documents showin
 
 
 Upon Power On the game will show 00 in both player displays and loop through attract mode. During attract mode, hitting the 'Cast Spell' button will show the high
-score leader.
+score leader. The (PSD) player status display (commonly known as the Match/Ball in play) will be blank.
 
-Pressing the Player 1 button will start a game with the adjustable number of wizards on Player 1 only. Pressing the player 1 button after this will do nothing
-until the player 1 game is over. Pressing the Player 2 start button will start a 2 player game with the adjustable number of wizards for both Player 1 and Player 2. 
-Pressing the Player 2 button after this will do nothing until both players games have ended.
+Pressing the Player 1 button will start a game with the adjustable number of wizards on Player 1. Pressing the player 1 button after this will do nothing
+until the player 1 game is over. Pressing the Player 2 start button will start a 2 player game. Pressing the Player 2 button after this will do nothing 
+until both players games have ended.
 
 Upon game start, the game will announce the game play has started using the display on on the playfield. "Prepare to Battle... Player 1".
+
+'Wizards Remaining' on the playfield will light up for the number of Wizards the current player has remaining. Only 5 wizards can be shown but additional wizards can be earned.
+
+Level 1 will start with a random enemy flashing and then counting down by sucessively faster flashing. If the enemy completes the flashing cycle, the current player takes a
+damage point as shown on the Axe display
+
+
+
+Speech Phrases
+
+You are the Spellbinder
+Welcome Spellbinder
+You died horribly
+You died gracefully
+You died 
+Enemy Defeated
+Enemy Frenzy
+You defeated the Dragon
+You slayed the Dragon
+Bonus Wizard
+Spell of Protection
+Spell of Power
+
+
+Unique Words
+You
+Are
+The 
+Spellbinder
+Welcome
+died
+horribly
+gracefully
+Enemy
+Defeated
+Dragon 
+Slayed
+Bonus
+Wizard 
+Spell of
+Protection
+Power

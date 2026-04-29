@@ -687,18 +687,19 @@ gb_64			clrb
 			ldaa	game_ram_c
 			deca	
 			cmpa	#$03
-			blt	gb_69
-			staa	game_ram_c
-gb_69			pula	
-gb_6B			adda	#$99
+			ifge
+                staa	game_ram_c
+            endif
+gb_69		pula	
+gb_6B		adda	#$99
 			daa	
-			beq	gb_6A
-			incb	
-			cmpb	#$05
-			beq	gb_64
-			bra	gb_6B
-
-gb_6A			ldaa	game_ram_5
+			ifne
+                incb	
+                cmpb	#$05
+                beq	gb_64
+                bra	gb_6B
+            endif
+            ldaa	game_ram_5
 			cmpb	#$04
 			beq	start_reflex
 			tst	game_ram_3

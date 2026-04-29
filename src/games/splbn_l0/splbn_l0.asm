@@ -15,98 +15,102 @@
 ; Lamp Definitions for Spellbinder 
 ;--------------------------------------------------------------------------
 
-lamp_wiz1       .equ    $00
-lamp_wiz2       .equ    $01
-lamp_wiz3       .equ    $02
-lamp_wiz4       .equ    $03
-lamp_wiz5       .equ    $04
-lamp_2xl        .equ    $05
-lamp_3xl        .equ    $06
-lamp_5xl        .equ    $07
-lamp_troll1     .equ    $08
-lamp_09         .equ    $09
-lamp_gargll     .equ    $0a
-lamp_warlokl    .equ    $0b
-lamp_bkl        .equ    $0c
-lamp_ekl        .equ    $0d
-lamp_gargtl     .equ    $0e
-lamp_demon1     .equ    $0f
+lamp_wiz1       .equ    $00 ;01
+lamp_wiz2       .equ    $01 ;02
+lamp_wiz3       .equ    $02 ;03
+lamp_wiz4       .equ    $03 ;04
+lamp_wiz5       .equ    $04 ;05
+lamp_2xl        .equ    $05 ;06
+lamp_3xl        .equ    $06 ;07
+lamp_5xl        .equ    $07 ;08
+lamp_troll1     .equ    $08 ;09
+lamp_09         .equ    $09 ;10 - Not Used
+lamp_gargll     .equ    $0a ;11
+lamp_warlokl    .equ    $0b ;12
+lamp_bkl        .equ    $0c ;13
+lamp_ekl        .equ    $0d ;14
+lamp_gargtl     .equ    $0e ;15
+lamp_demon1     .equ    $0f ;16
 
-lamp_troll2     .equ    $10
-lamp_demon2     .equ    $11
-lamp_troll3     .equ    $12
-lamp_demon3     .equ    $13
-lamp_troll4     .equ    $14
-lamp_demon4     .equ    $15
-lamp_troll5     .equ    $16
-lamp_demon5     .equ    $17
-lamp_troll6     .equ    $18
-lamp_gargtr     .equ    $19
-lamp_warlokr    .equ    $1a
-lamp_bkr        .equ    $1b
-lamp_ekr        .equ    $1c
-lamp_gargbr     .equ    $1d
-lamp_1e         .equ    $1e
-lamp_demon6     .equ    $1f
+lamp_troll2     .equ    $10 ;17
+lamp_demon2     .equ    $11 ;18
+lamp_troll3     .equ    $12 ;19
+lamp_demon3     .equ    $13 ;20
+lamp_troll4     .equ    $14 ;21
+lamp_demon4     .equ    $15 ;22
+lamp_troll5     .equ    $16 ;23
+lamp_demon5     .equ    $17 ;24
+lamp_troll6     .equ    $18 ;25
+lamp_gargtr     .equ    $19 ;26
+lamp_warlokr    .equ    $1a ;27
+lamp_bkr        .equ    $1b ;28
+lamp_ekr        .equ    $1c ;29
+lamp_gargbr     .equ    $1d ;30
+lamp_1e         .equ    $1e ;31 - Not Used
+lamp_demon6     .equ    $1f ;32
 
-lamp_gargtla    .equ    $20
-lamp_demon1a    .equ    $21
-lamp_troll2a    .equ    $22
-lamp_demon2a    .equ    $23
-lamp_troll3a    .equ    $24
-lamp_demon3a    .equ    $25
-lamp_troll4a    .equ    $26
-lamp_demon4a    .equ    $27
-lamp_troll5a    .equ    $28
-lamp_demon5a    .equ    $29
-lamp_troll6a    .equ    $2a
-lamp_gargtra    .equ    $2b
-lamp_gargtlb    .equ    $2c
-lamp_demon1b    .equ    $2d
-lamp_troll2b    .equ    $2e
-lamp_demon2b    .equ    $2f
+lamp_gargtla    .equ    $20 ;33
+lamp_demon1a    .equ    $21 ;34
+lamp_troll2a    .equ    $22 ;35
+lamp_demon2a    .equ    $23 ;36
+lamp_troll3a    .equ    $24 ;37
+lamp_demon3a    .equ    $25 ;38
+lamp_troll4a    .equ    $26 ;39
+lamp_demon4a    .equ    $27 ;40
+lamp_troll5a    .equ    $28 ;41
+lamp_demon5a    .equ    $29 ;42
+lamp_troll6a    .equ    $2a ;43
+lamp_gargtra    .equ    $2b ;44
+lamp_gargtlb    .equ    $2c ;45
+lamp_demon1b    .equ    $2d ;46
+lamp_troll2b    .equ    $2e ;47
+lamp_demon2b    .equ    $2f ;48
 
-lamp_troll3b    .equ    $30
-lamp_demon3b    .equ    $31
-lamp_troll4b    .equ    $32
-lamp_demon4b    .equ    $33
-lamp_troll5b    .equ    $34
-lamp_demon5b    .equ    $35
-lamp_troll6b    .equ    $36
-lamp_gargtrb    .equ    $37
-lamp_500        .equ    $38
-lamp_1k         .equ    $39
-lamp_2k         .equ    $3a
-lamp_4k         .equ    $3b
-lamp_8k         .equ    $3c
-lamp_16k        .equ    $3d
-lamp_32k        .equ    $3e
-lamp_2xu        .equ    $3f
+lamp_troll3b    .equ    $30 ;49
+lamp_demon3b    .equ    $31 ;50
+lamp_troll4b    .equ    $32 ;51
+lamp_demon4b    .equ    $33 ;52
+lamp_troll5b    .equ    $34 ;53
+lamp_demon5b    .equ    $35 ;54
+lamp_troll6b    .equ    $36 ;55
+lamp_gargtrb    .equ    $37 ;56
+lamp_500        .equ    $38 ;57
+lamp_1k         .equ    $39 ;58
+lamp_2k         .equ    $3a ;59
+lamp_4k         .equ    $3b ;60
+lamp_8k         .equ    $3c ;61
+lamp_16k        .equ    $3d ;62
+lamp_32k        .equ    $3e ;63
+lamp_2xu        .equ    $3f ;64
 
-lamp_3xu        .equ    $40
-lamp_5xu        .equ    $41
-lamp_extrawiz   .equ    $42
-lamp_red1       .equ    $43
-lamp_red2       .equ    $44
-lamp_red3       .equ    $45
-lamp_red4       .equ    $46
-lamp_red5       .equ    $47
-lamp_red6       .equ    $48
-lamp_red7       .equ    $49
-lamp_red8       .equ    $4a
-lamp_red9       .equ    $4b
-lamp_axe1       .equ    $4c
-lamp_axe2       .equ    $4d
-lamp_axe3       .equ    $4e
-lamp_axe4       .equ    $4f
+lamp_3xu        .equ    $40 ;65
+lamp_5xu        .equ    $41 ;66
+lamp_extrawiz   .equ    $42 ;67
+lamp_red1       .equ    $43 ;68
 
-lamp_axe5       .equ    $50
-lamp_axe6       .equ    $51
-lamp_axe7       .equ    $52
-lamp_axe8       .equ    $53
-lamp_axe9       .equ    $54
-lamp_hand1      .equ    $55
-lamp_hand2      .equ    $56
+lamp_red2       .equ    $44 ;69
+lamp_red3       .equ    $45 ;70
+lamp_red4       .equ    $46 ;71
+lamp_red5       .equ    $47 ;72
+
+lamp_red6       .equ    $48 ;73
+lamp_red7       .equ    $49 ;74
+lamp_red8       .equ    $4a ;75
+lamp_red9       .equ    $4b ;76
+
+lamp_axe1       .equ    $4c ;77
+lamp_axe2       .equ    $4d ;78
+lamp_axe3       .equ    $4e ;79
+lamp_axe4       .equ    $4f ;80
+
+lamp_axe5       .equ    $50 ;81
+lamp_axe6       .equ    $51 ;82
+lamp_axe7       .equ    $52 ;83
+lamp_axe8       .equ    $53 ;84
+
+lamp_axe9       .equ    $54 ;85
+lamp_hand1      .equ    $55 ;86
+lamp_hand2      .equ    $56 ;87
 
 
 
@@ -236,7 +240,7 @@ gr_p1_startsound        .db $03
 gr_p2_startsound        .db $03
 gr_unknownvar1          .db $1A
 gr_hssound              .db $11
-gr_gameoversound        .db $1A
+gr_gameoversound        .db $18
 gr_creditsound          .db $00
 
 gr_gameover_lamp        .db $5F
@@ -256,19 +260,15 @@ gr_switchtypetable      .db $00,$02
                         .db $00,$00
                         .db $00,$00
 
-gr_playerstartdata  .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
+gr_playerstartdata  .db $00,$00,$00,$00,$00,$00,$00,$00
+                    .db $00,$00,$00,$00,$00,$00,$00,$00
+                    .db $00,$00,$00,$00,$00,$00,$00,$00
+                    .db $00,$00,$00,$00,$00,$00
 
-gr_playerresetdata  .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
-                    .db $FF,$03,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00
+gr_playerresetdata  .db $00,$00,$00,$00,$00,$00,$00,$00
+                    .db $00,$00,$FF,$03,$00,$00,$00,$00
+                    .db $00,$00,$00,$00,$00,$00,$00,$00
+                    .db $00,$00,$00,$00,$00,$00
 
 
 
@@ -396,29 +396,30 @@ hook_playerinit inc     flag_tilt           ;turn off the shooters
                 jsr     showplayerx
                 swi
                 SOL_(GI_RELAY_PF_OFF)       ;Sol#6:gi_relay_pf
-                SND_($07)               ;Sound #07
+                SND_($07)                   ;Sound #07
                 EXE_
                     jsr get_pwizards
-                    incb
-                    stab    game_ram_2
+                    staa    game_ram_2
                 EXEEND_
-                ;A contains the current number of wizards for the user...
+                ;A and game_ram_2 contains the current number of wizards for the user...
                 RCLR0_(grp_wizard)
-                BEGIN_
-                    RSET1R0_(grp_wizard)
-                    SLEEP_(2)
-                    ADDRAM_($02,$ff)            ;RAM$00+=$01
-                EQEND_($FC,$E2,$00)
+                IFNER_(game_ram_2)
+                    BEGIN_
+                        RSET1R0_(grp_wizard)
+                        SLEEP_(2)
+                        ADDRAM_($02,$ff)            ;RAM$02-=1
+                    EQEND_($FC,$E2,$00)
+                ENDIF_
                 SLEEP_(10)
-                SOL_(BALL_LIFT_ON)      ; Sol#9:ball_lift
+                SOL_(BALL_LIFT_ON)          ; Sol#9:ball_lift
                 SLEEP_(64)
                 REMTHREADS_($FF,$48)        ;Remove Multiple Threads Based on Priority
                 CPUX_
-                jsr clr_alpha_set_b1
+                jsr     clr_alpha_set_b1
                 clra    
                 staa    flag_tilt           ;turn ON the shooters 
-                ldx #start_play
-to_addthr_noa   bra addthread_clra
+                ldx     #start_play
+to_addthr_noa   bra     addthread_clra
                 ;rts
 
 hook_reset      ldx     #aud_game1
@@ -937,11 +938,16 @@ attract_mult    swi
 attract_axe     swi
                 PRI_($43)               ;Priority=#43
                 RCLR0_(grp_axe)
-                BEGIN_
-                    RSET1RC0_(grp_axe)      
-                    SLEEP_(8)
+                BEGIN_                 
+                    BEGIN_
+                        RSET1R0_(grp_axe)      
+                        SLEEP_(8)
+                    EQEND_($F6,grp_axe)
+                    BEGIN_
+                        RCLR1L0_(grp_axe) 
+                        SLEEP_(8)
+                    EQEND_($F5,grp_axe)
                 LOOP_
-
             
 ;********************************************************
 ;* Red Lamps Attract
@@ -993,7 +999,7 @@ attract_wiz     swi
                 LOOP_
             
 ;**********************************************************
-;* Aarow Lamp Attract
+;* Arrow Lamp Attract
 ;********************************************************** 
 attract_arrows  swi
                 PRI_($43)               ;Priority=#43
@@ -1266,7 +1272,7 @@ soundtable      .db $22, $30,   $3C     ;(00)
                 .db $23, $20,   $3D     ;(15) 
                 .db $22, $20,   $26     ;(16) 
                 .db $22, $20,   $25     ;(17) 
-                .db $24, $20,   $3E     ;(18) 
+                .db $24, $20,   sndcmd_youaresb     ;(18)       ;Game Boot Sound
                 .db $22, $20,   $24     ;(19) 
                 .db $22, $20,   $23     ;(1A) 
                 .db $22, $20,   $22     ;(1B) 
@@ -1731,12 +1737,12 @@ _sndnext        ldab    next_sndcnt         ;Here if we are done iterating the s
                 endif
             endif
 doscoreq    clr     sys_soundflags      ;Reset the Sound Flag??
-            ldx     #$1127          ;See if there is something in this stack
+            ldx     #$score_queue-1     ;See if there is something in the scoring queue?
             ldaa    #$08
             begin
                 inx 
                 deca    
-                bmi     check_threads       ;Nuttin' Honey, Skip this Sound Crap!
+                bmi     check_threads       ;Nuttin' Honey, Skip this Scoring Sound Crap!
                 ldab    $00,X
             neend                   ;Nuttin' Honey, Check next Entry!
             dec     $00,X               ;Re-Adjust the Sound Command So Sound #00 will still work!
@@ -3904,23 +3910,23 @@ vm_lookup_5x
                 .dw macro_clearswitch
                 .dw macro_jmp_abs
 
-branch_lookup
-                .dw branch_tilt         ;Tilt Flag              
-                .dw branch_gameover     ;Game Over Flag         
-                .dw macro_getnextbyte   ;NextByte = Straight Data       
-                .dw branch_invert       ;Invert Result          
-                .dw branch_lamp_on      ;Check if Lamp is On or Flashing
-                .dw branch_lamprangeoff ;Lamp Range All Off         
-                .dw branch_lamprangeon  ;Lamp Range All On          
-                .dw branch_lampbuf1     ;RAM Matrix $0028           
-                .dw branch_switch       ;Check Encoded Switch       
-                .dw branch_add          ;A = A + B              
-                .dw branch_and          ;Logical AND                
-                .dw branch_or           ;Logical OR                 
-                .dw branch_equal        ;A = B ??               
-                .dw branch_ge           ;A >= B ??              
-                .dw branch_threadpri    ;Check for Priority Thread??    
-                .dw branch_bitwise      ;A && B 
+branch_cmpop
+                .dw branch_tilt         ;F0: Tilt Flag              
+                .dw branch_gameover     ;F1: Game Over Flag         
+                .dw macro_getnextbyte   ;F2: NextByte = Straight Data       
+                .dw branch_invert       ;F3: Invert Result          
+                .dw branch_lamp_on      ;F4: Check if Lamp is On or Flashing
+                .dw branch_lamprangeoff ;F5: Lamp Range All Off         
+                .dw branch_lamprangeon  ;F6: Lamp Range All On          
+                .dw branch_lampbuf1     ;F7: RAM Matrix $0028           
+                .dw branch_switch       ;F8: Check Encoded Switch       
+                .dw branch_add          ;F9: A = A + B              
+                .dw branch_and          ;FA: Logical AND                
+                .dw branch_or           ;FB: Logical OR                 
+                .dw branch_equal        ;FC: A = B ??               
+                .dw branch_ge           ;FD: A >= B ??              
+                .dw branch_threadpri    ;FE: Check for Priority Thread??    
+                .dw branch_bitwise      ;FF: A && B 
 
 ;*************************************************************
 ;* Virtual Machine Routines:
@@ -3937,17 +3943,17 @@ macro_rts
                 pula    
                 staa    vm_pc+1
 macro_go        
-                jsr gr_macro_event
-                jsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                jsr     gr_macro_event
+                jsr     macro_getnextbyte           ;Macro Data: A = Next Byte
                 tab 
-                lsrb    
+                lsrb                                ;Shift down to get macro handler lookup
                 lsrb    
                 lsrb    
                 andb    #$1E
                 ldx #master_vm_lookup
                 jsr xplusb
                 ldx $00,X
-                jmp $00,X
+                jmp $00,X                           ;do it
 
 macro_next      stx vm_pc
 abreg_sto       staa    vm_reg_a
@@ -4082,14 +4088,17 @@ gettabledata_b  asla
                 jsr xplusa
                 ldx $00,X
                 rts
-            
+
+;******************************************************
+;Get the next byte from the VM PC and return it in A   
+;******************************************************         
 macro_getnextbyte   
-                stx temp1
-                ldx vm_pc
+                stx     temp1
+                ldx     vm_pc
                 ldaa    $00,X
                 inx 
-                stx vm_pc
-getx_rts        ldx temp1
+                stx     vm_pc
+getx_rts        ldx     temp1
                 rts 
 
 vm_control_5x   ldx #vm_lookup_5x
@@ -4169,11 +4178,11 @@ macro_a_ram     stx temp1
                 staa    $00,X
 to_getx_rts     bra getx_rts
 
-macro_b_ram     stx temp1
+macro_b_ram     stx     temp1
                 anda    #$0F
                 staa    temp2+1
-                clr temp2
-                ldx temp2
+                clr     temp2
+                ldx     temp2
                 ldaa    $00,X
                 bra to_getx_rts             ;ldx temp1, rts.
 
@@ -4221,12 +4230,12 @@ macro_jmp_abs   jsr macro_getnextword           ;Macro Data: Load X with Next Tw
                 bra pc_sto
             
 vm_control_bx   tab 
-                bsr macro_b_ram             ;RAM Data (A&0f)->A
+                bsr     macro_b_ram             ;RAM Data (A&0f)->A
                 staa    temp2
-                bsr to_macro_getnextbyte
+                bsr     to_macro_getnextbyte
                 adda    temp2
-ram_sto         bsr macro_a_ram             ;A->RAM(B&0f)
-                bra to_macro_go4
+ram_sto         bsr     macro_a_ram             ;A->RAM(B&0f)
+                bra     to_macro_go4
 
 vm_control_cx   tab 
                 bsr to_macro_getnextbyte
@@ -4282,9 +4291,12 @@ to_macro_go3    jmp macro_go
 to_macro_getnextbyte            
                 jmp macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
 
+;-------------------------------------------
+; Branch Handler for $55,$59,$5A,$5B
+;-------------------------------------------
 macro_branch    pshb    
                 bsr branchdata              ;Gets Main Result
-                jsr test_a              ;Returns #80 or #81 in (A) based on Test of A
+                jsr test_a                  ;Returns #80 or #81 in (A) based on Test of A
                 pulb                        ;Get Back Command in B
                 aba 
                 psha    
@@ -4307,19 +4319,21 @@ macro_branch    pshb
                 bcc to_macro_go3            ;If result was #80, then ignore this branch (jmp  $F3B5)
                 jmp pc_sto2             ;Else, we will branch now. (stx  $D1, jmp $F3B5)
 
-
-branchdata      bsr to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
+;-----------------------------------------------------
+; This appears to be the main routine for doing a 
+; logic test
+branchdata      bsr     to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
                 cmpa    #$D0
-                beq cbra2
-                bcs to_rts3             ;(rts) if data is below #D0
+                beq     cbra2
+                bcs     to_rts3             ;(rts) if data is below #D0
                 cmpa    #$F0
-                bcc complexbranch           ;Branch if #F0 or above (Complex)
+                bcc     complexbranch           ;Branch if #F0 or above (Complex)
                 cmpa    #$E0
                 ifcc                        ;Branch if less than #E0
                     jmp macro_b_ram             ;RAM Data (A&0f)->A (Data is E_)
                 endif
                 ldx #adj_gamebase           ;Pointer to Bottom of Game Adjustments
-                anda    #$0F                    ;A = Index for Game Adjustment Lookup
+                anda    #$0F                ;A = Index for Game Adjustment Lookup
                 asla    
                 jsr xplusa              ;X = X + A
                 jmp cmosinc_a               ;CMOS,X++ -> A
@@ -4342,11 +4356,11 @@ cbra2               psha                        ;Push Current Branch Inst.
                     endif
                 endif
                 cmpa    #$D0
-                beq branch_bitflag
-                ldx #branch_lookup
-                jsr gettabledata_w          ;X = data at (X + LSD(A)*2)
+                beq     branch_bitflag
+                ldx     #branch_cmpop
+                jsr     gettabledata_w          ;X = data at (X + LSD(A)*2)
                 ldaa    temp1
-                jmp $00,X
+                jmp     $00,X
 
 branch_invert   bsr test_a
                 eora    #$01
@@ -4416,18 +4430,18 @@ to_rts4         rts
 
 set_logic       psha    
                 tba 
-                bsr test_a
+                bsr     test_a
                 staa    temp1
                 pula    
 test_a          tsta    
-                bmi to_rts4             ;rts
-                jsr bit_lamp_buf_0          ;Bit Test B with Lamp Data (A)
-                beq ret_false               ;return false
+                bmi     to_rts4             ;rts
+                jsr     bit_lamp_buf_0          ;Bit Test B with Lamp Data (A)
+                beq     ret_false               ;return false
                 cmpa    #$40                    ;Check Encoded Lamp #
-                bcc ret_true                ;return true
-                jsr bit_lamp_flash          ;Bittest with $0030
-                bne ret_false               ;return false
-                bra ret_true                ;return true
+                bcc     ret_true                ;return true
+                jsr     bit_lamp_flash          ;Bittest with $0030
+                bne     ret_false               ;return false
+                bra     ret_true                ;return true
             
 ;*******************************************************
 ;* End VM Code Section
@@ -4896,18 +4910,18 @@ disp_clear      ldx     pscore_buf              ;Start of Current Player Score B
 ;********************************************************           
 init_player_sys ldaa    switch_debounced
                 anda    #$FE
-                staa    switch_debounced                ;Blank the Tilt Lines?
+                staa    switch_debounced        ;Blank the Tilt Lines?
                 clra    
                 staa    flag_tilt               ;Clear Tilt Flag
                 staa    num_tilt                ;Clear Plumb Bob Tilts
                 staa    random_bool             ;Clear Random
                 ldaa    #$F9
-                jsr     solbuf              ;Turn on Solenoid $09 (Ball Lift)
-                ldaa    player_up               ;Current Player Up (0-3)
+                jsr     solbuf                  ;Turn on Solenoid $09 (Ball Lift)
+                ldaa    player_up               ;Current Player Up (0-2)
                 asla    
                 asla    
                 ldx     #score_p1_b0
-                jsr     xplusa                  ;X= P1:0038 P2:003C P3:0040 P4:0044
+                jsr     xplusa                  ;X= P1:0038 P2:003C
                 stx     pscore_buf              ;Pointer to Start of Score Buffer 0
                 rts 
 
@@ -5165,8 +5179,9 @@ fill_hstd_digits
                     decb    
                 eqend
                 rts
-                
-send_sound      begin
+ 
+;Stay in this loop until the current sound has finished playing 
+wait_sound      begin
                     SLEEP($02)
                     ldaa  sys_soundflags            
                 eqend
