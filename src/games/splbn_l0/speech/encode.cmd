@@ -5,6 +5,7 @@ set "INPUT_DIR=C:\Users\jess\Documents\GitHub\wms_perc\src\games\splbn_l0\speech
 set "OUTPUT_DIR=C:\Users\jess\Documents\GitHub\wms_perc\src\games\splbn_l0\speech\wav"
 set "ENCODE_DIR=C:\Users\jess\Documents\GitHub\wms_perc\src\games\splbn_l0\speech\cvsd"
 set "DECODE_DIR=C:\Users\jess\Documents\GitHub\wms_perc\src\games\splbn_l0\speech\decode"
+set "SOURCE_DIR=C:\Users\jess\Documents\GitHub\wms_perc\src\games\splbn_l0\speech\asm"
 set "SPEECH_DIR=C:\Users\jess\Documents\GitHub\wms_perc\src\games\splbn_l0\speech"
 
 REM Create output directory if it doesn't exist
@@ -24,7 +25,7 @@ for %%F in ("%INPUT_DIR%\*.mp3") do (
     
     python cvsd-encoder.py  "%OUTPUT_DIR%\%%~nF.wav" "%ENCODE_DIR%\%%~nF.cvsd"
     python cvsd-decoder.py  "%ENCODE_DIR%\%%~nF.cvsd" 8000 "%DECODE_DIR%\%%~nF.wav"
-    python formatter.py "%ENCODE_DIR%\%%~nF.cvsd" "%SPEECH_DIR%\speechdata.asm"
+    python formatter.py "%ENCODE_DIR%\%%~nF.cvsd" "%SOURCE_DIR%\%%~nF.asm"
 )
 
 echo Done!

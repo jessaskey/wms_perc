@@ -639,6 +639,30 @@ SOLENOID_OFF               .equ  $00
 #define	LOOP_		\ .pop wml1_, wml2_, wml3_ \ JMPR_(wml3_)
 
 ;*******************************************************************
+;* Constants for Logic Statements
+;*******************************************************************
+#define AND_        $FF
+#define PRIORITY_   $FE
+#define GTEQUAL_    $FD
+#define EQUAL_      $FC
+#define LOGIC_OR_   $FB
+#define LOGIC_AND_  $FA
+#define ADD_        $F9
+#define SWITCH_     $F8
+#define BIT_        $F7
+#define RANGEON_    $F6
+#define RANGEOFF_   $F5
+#define LAMP_       $F4
+#define NOT_        $F3
+#define IMM_        $F2
+#define GAME_       $F1   
+#define TILT_       $F0
+
+#define RAM_        $E0
+
+
+
+;*******************************************************************
 ;* Conditional Looping
 ;*******************************************************************
 #define	EQEND_(z)						BNER_(z,*+3) \ LOGIC_LOOPEND_(1)		

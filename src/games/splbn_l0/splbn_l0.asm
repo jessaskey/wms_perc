@@ -408,7 +408,7 @@ hook_playerinit inc     flag_tilt           ;turn off the shooters
                         RSET1R0_(grp_wizard)
                         SLEEP_(2)
                         ADDRAM_($02,$ff)            ;RAM$02-=1
-                    EQEND_($FC,$E2,$00)
+                    EQEND_(EQUAL_,$E2,$00)
                 ENDIF_
                 SLEEP_(10)
                 SOL_(BALL_LIFT_ON)          ; Sol#9:ball_lift
@@ -437,11 +437,16 @@ to_kill         jmp     killthread
 hook_mainloop   rts
 hook_gamestart  rts
 
+;0443   D1BC~                            BEQR_($FB,$FB,$F0,$D0,$30,$F3,$F1,$F3) ;BEQ_((!GAME) || (BIT2#30 || TILT)) to gj_1F           
+;0443   D1BC 5AFBFBF0D030
+;0443   D1C2 F3F1D2
+
 ; Coin Routine, jumps to Credits display if game is not being played
 hook_coin       swi
                 SND_($06)               ;Sound #06
-                BEQR_($FB,$FB,$F0,$D0,$30,$F3,$F1,$F3) ;BEQ_((!GAME) || (BIT2#30 || TILT)) to gj_1F
-                REMTHREADS_($FF,$10)        ;Remove Multiple Threads Based on Priority
+                IFNER_(LOGIC_OR_,LOGIC_OR_,TILT_,$D0,$30,NOT_,GAME_) ;BEQ_((!GAME) || (BIT2#30 || TILT)) to gj_1F
+                    REMTHREADS_($FF,$10)        ;Remove Multiple Threads Based on Priority
+                ENDIF_
                 CPUX_                   ;Resume CPU Execution
                 ldaa    #$10
                 ldx     #show_cred
@@ -740,22 +745,24 @@ sw_evilking_r
 sw_gargoyle_br  KILL_
 
 
-sw_spell        
+sw_spell        KILL_
 
-KILL_
 
+;*******************************************************************
+; Shooter Routine - limits number of shots by controlling delay
+;*******************************************************************
 sw_l_shooter
 sw_r_shooter	PRI_($B0)				;Priority=#B0
-gj_0A			.db $5B,$FB,$D0,$30,$FE,$F2,$F0,$F2,$F0,$09;BNE_((#F0 P #F0) || BIT2#30) to gb_0A
-			.db $5A,$FE,$F2,$F0,$B0,$0A	;BEQ_(BIT#70 P #F0) to gb_0B
-			SLEEP_(1)
-			JMPR_(gj_0A)
-			
-gb_0A		PRI_($F0)				;Priority=#F0
-			SND_($04)				;Sound #04
-			JSRD_(solenoid_wait)		
-			SLEEP_(11)
-gb_0B		KILL_					;Remove This Thread
+gj_0A			IFEQR_(LOGIC_OR_,$D0,$30,PRIORITY_,IMM_,$F0,IMM_,$F0)  ;.db $5B,$FB,$D0,$30,$FE,$F2,$F0,$F2,$F0,$09;BNE_((#F0 P #F0) || BIT2#30) to gb_0A
+                    BEQR_(PRIORITY_,IMM_,$F0,$B0,shotkill)         ;.db $5A,$FE,$F2,$F0,$B0,$0A	;BEQ_(BIT#70 P #F0) to gb_0B
+                    SLEEP_(1)
+                    JMPR_(gj_0A)
+                ENDIF_
+shotgo		    PRI_($F0)				;Priority=#F0
+                SND_($04)				;Sound #04
+                JSRD_(solenoid_wait)		
+                SLEEP_(11)
+shotkill	    KILL_					;Remove This Thread
 
     
 
@@ -852,7 +859,7 @@ go_attract      swi
                     SOL_(PF_CENTER_FLASH_ON4)
                     SLEEP_(8)
                     ADDRAM_(rega,1)
-                EQEND_($FC,$E0,5)
+                EQEND_(EQUAL_,RAM_+rega,5)
                 SOL_(GI_RELAY_PF_OFF,GI_RELAY_BB_OFF)
                 JMPR_(go_loop)
             
@@ -889,7 +896,7 @@ attract_dragon  swi
                 BEGIN_
                     BEGIN_
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-atd_loop                BEQR_($FC,$FF,$E0,$01,$00,atd_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
+atd_loop                BEQR_(EQUAL_,AND_,RAM_+rega,$01,$00,atd_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
                     NEEND_(lamp_gargtl)         ;BEQR_BIT#26
                     RROL0_(grp_dragons)         
                     JMPR_(atd_2)            
@@ -910,7 +917,7 @@ attract_bonus   swi
                 BEGIN_
                     BEGIN_
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-atb_loop                BEQR_($FC,$FF,$E0,$01,$00,atb_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
+atb_loop                BEQR_(EQUAL_,AND_,RAM_+rega,$01,$00,atb_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
                     NEEND_(lamp_500)            ;BEQR_BIT#26
                     RROL0_(grp_bonmult)     ;Effect: Range #06 Range #05
                     JMPR_(atb_2)            
@@ -942,11 +949,11 @@ attract_axe     swi
                     BEGIN_
                         RSET1R0_(grp_axe)      
                         SLEEP_(8)
-                    EQEND_($F6,grp_axe)
+                    EQEND_(RANGEON_,grp_axe)
                     BEGIN_
                         RCLR1L0_(grp_axe) 
                         SLEEP_(8)
-                    EQEND_($F5,grp_axe)
+                    EQEND_(RANGEOFF_,grp_axe)
                 LOOP_
             
 ;********************************************************
@@ -987,7 +994,7 @@ attract_wiz     swi
                         RROR0_(grp_wizard)              ;Rotate Right Lamp Group
                         SLEEP_(4)
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-                    EQEND_($FC,$E0,24)
+                    EQEND_(EQUAL_,RAM_+rega,24)
                     RCLR0_(grp_wizard)
                     SLEEP_(4)
                     SETRAM_(rega,$00)
@@ -995,7 +1002,7 @@ attract_wiz     swi
                         RINV0_(grp_wizard)
                         SLEEP_(4)
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-                    EQEND_($FC,$E0,10)
+                    EQEND_(EQUAL_,RAM_+rega,10)
                 LOOP_
             
 ;**********************************************************
@@ -1011,7 +1018,7 @@ attract_arrows  swi
                         RINV0_(grp_seriesa)
                         SLEEP_(2)
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-                    EQEND_($FC,$E0,$10)
+                    EQEND_(EQUAL_,RAM_+rega,$10)
                 LOOP_           
     
 ;**********************************************************
@@ -1049,7 +1056,7 @@ disp_hy_score   ldx     #msg_top_wizard
                 ldab    comma_flags
                 stab    dynamic_disp_buf+9
                 coma    
-                tst score_p1_b1
+                tst     score_p1_b1
                 ifeq
                     staa    score_p1_b1
                     staa    score_p2_b1
@@ -1059,28 +1066,30 @@ disp_hy_score   ldx     #msg_top_wizard
                 SLEEP($60)
                 ldaa    #$0C
                 staa    hy_unknown_9
-                ldx #hy_unknown_a
-                stx temp1
-                ldx #aud_game1
+                ldx     #hy_unknown_a
+                stx     temp1
+                ldx     #aud_game1
                 ldab    #$0C
-                jsr block_copy
-                ldx #hy_unknown_9
-                jsr gb_0E
-                jsr slide_l
+                jsr     block_copy
+                ldx     #hy_unknown_9
+                jsr     gb_0E
+                jsr     slide_l
                 SLEEP($A0)
                 ldab    dynamic_disp_buf+9
                 stab    comma_flags
                 clra    
-                jmp set_dis_masks12 
+                jmp     set_dis_masks12 
 
-sw_plumbtilt    BEQR_($FE,$F2,$FF,$C0,$10)  ;BEQ_(BIT#80 P #FF) to tilt_kill
-                EXE_($06)               ;CPU Execute Next 6 Bytes
-                ldx #tilt_sleeper
-                jsr newthread_06
-                SND_($15)               ;Sound #15
-                JSRD_(tilt_warning)     
-                BEQR_($F0,$09)          ;BEQ_TILT to game_tilt
-                SOL_(GI_RELAY_PF_ON)        ; Sol#6:gi_relay_pf
+                ;1083   D5E7 5AFEF2FFC0DD
+sw_plumbtilt    IFNER_(PRIORITY_,IMM_,$FF,$C0)    ;BEQR_(PRIORITY_,IMM_,$FF,$C0,$10)  ;BEQ_(BIT#80 P #FF) to tilt_kill
+                    EXE_($06)               ;CPU Execute Next 6 Bytes
+                    ldx #tilt_sleeper
+                    jsr newthread_06
+                    SND_($15)               ;Sound #15
+                    JSRD_(tilt_warning)     
+                    BEQR_(TILT_,game_tilt)          ;BEQ_TILT to game_tilt  ;5A F0 F2   
+                    SOL_(GI_RELAY_PF_ON)        ; Sol#6:gi_relay_pf
+                ENDIF_
 tilt_kill       KILL_                   ;Remove This Thread
 
 tilt_sleeper    swi 
@@ -1116,12 +1125,12 @@ end_player      SOL_(GI_RELAY_PF_OFF,PF_CENTER_FLASH_OFF,BB_LEFT_FLASH_OFF,BB_RI
             
 start_play      ;do stuff here for gameplay
                 swi
-                RSET0_(grp_reds)        ;Turn on all reds
+                RCLR0_(grp_reds)        ;Turn on all reds
                 SLEEP_(90)
                 BEGIN_
-                    RCLR1L0_(grp_reds)
+                    RSET1R0_(grp_reds)
                     SLEEP_(30)
-                EQEND_($F5,grp_reds)        
+                EQEND_(RANGEON_,grp_reds)        
                 ;when the player is out of reds, end the round
                 JMPR_(end_player)
 
@@ -1144,11 +1153,11 @@ lampstr_on      pshb
                         inx  
                         ldab    $00,X
                         cmpb    #$ff
-                        beq lampstr_rts
+                        beq     lampstr_rts
                         tba  
-                        anda #$7F
-                        stx  temp3
-                        jsr  lamp_onx
+                        anda    #$7F
+                        stx     temp3
+                        jsr     lamp_onx
                         tstb 
                     miend
                     SLEEP(2) 
@@ -1163,11 +1172,11 @@ lampstr_off     pshb
                         inx  
                         ldab    $00,X
                         cmpb    #$ff
-                        beq lampstr_rts
+                        beq     lampstr_rts
                         tba  
-                        anda #$7F
-                        stx  temp3
-                        jsr  lamp_offx
+                        anda    #$7F
+                        stx     temp3
+                        jsr     lamp_offx
                         tstb 
                     miend
                     SLEEP(2)   
@@ -2116,7 +2125,7 @@ set_ss_on   comb
 ;*          X - PIA address
 ;*************************************************  
 soladdr     anda    #$0F                ;Mask to under 16 Solenoids
-            ldx #pia_sol_high_data
+            ldx     #pia_sol_high_data
             cmpa    #$07                ;Normal solenoids or ball shooter/ball lift
             ifgt                    ;Get Regular Solenoid Address (PIA)
                 inx
@@ -2171,9 +2180,9 @@ update_commas
                 endif
             endif
             ldab    #$08                ;1000's Digit
-            bsr test_mask_b         ;Bittest Current Player Display Toggles against B
+            bsr     test_mask_b         ;Bittest Current Player Display Toggles against B
             ifeq
-                ldx pscore_buf          ;Start of Current Player Score Buffer
+                ldx     pscore_buf          ;Start of Current Player Score Buffer
                 ldab    $02,X
                 cmpb    #$F0
                 ifcs
@@ -2201,26 +2210,26 @@ test_mask_b ldaa    player_up               ;Current Player Up (0-1)
 ;**********************************************************         
 isnd_pts    psha    
             tba 
-            bra snd_pts
+            bra     snd_pts
 dsnd_pts    psha    
             anda    #$07
-snd_pts     jsr isnd_once           ;Play Sound Index(A) Once
+snd_pts     jsr     isnd_once           ;Play Sound Index(A) Once
             pula
             ;Fall Through to points 
 
 score_main  psha    
             pshb    
-            dec randomseed          ;Change the Random # seed
-            stx x_temp_1            ;Protect X
-            jsr gr_score_event      ;Check Game ROM Hook
+            dec     randomseed          ;Change the Random # seed
+            stx     x_temp_1            ;Protect X
+            jsr     gr_score_event      ;Check Game ROM Hook
             ldab    random_bool
             ifeq
-                com random_bool
+                com     random_bool
             endif
-            bsr score_update        ;Add Points to Current Score, Data in A:
-            bsr update_commas       ;Update Master Display Toggle From Current Player
-            jsr checkreplay         ;Check Current Player Score against all Replay Levels
-            ldx x_temp_1            ;Get it back
+            bsr     score_update        ;Add Points to Current Score, Data in A:
+            bsr     update_commas       ;Update Master Display Toggle From Current Player
+            jsr     checkreplay         ;Check Current Player Score against all Replay Levels
+            ldx     x_temp_1            ;Get it back
             pulb    
             pula    
             rts 
@@ -2230,10 +2239,10 @@ score_main  psha
 ; Update Score Routine: Score to add is in A
 ;**********************************************
 score_update    
-            ldx pscore_buf          ;Start of Current Player Score Buffer
-            ldx $00,X               ;Get XX,XX_,b__
-            stx x_temp_2            ;Store it!
-            ldx pscore_buf          ;Start of Current Player Score Buffer
+            ldx     pscore_buf          ;Start of Current Player Score Buffer
+            ldx     $00,X               ;Get XX,XX_,b__
+            stx     x_temp_2            ;Store it!
+            ldx     pscore_buf          ;Start of Current Player Score Buffer
             ldab    #$04
             stab    flag_timer_bip      ;Run Ball Play Timer (Audit)
             stab    sys_temp1           ;Number of Ram Location to iterate (4)
@@ -2250,35 +2259,35 @@ _su02       ldab    sys_temp3
             lsrb    
             lsrb    
             lsrb    
-            bsr score2hex           ;Convert MSD Blanks to 0's on (X+03)
+            bsr     score2hex           ;Convert MSD Blanks to 0's on (X+03)
             begin
                 adda    temp3               ;(data&07)+1
-                bsr hex2dec         ;Decimal Adjust A, sys_temp2 incremented if A flipped
+                bsr     hex2dec         ;Decimal Adjust A, sys_temp2 incremented if A flipped
                 decb                    
             eqend
 _su03       ldab    sys_temp2
-            beq _su05           ;A didn't Flip, Branch.
+            beq     _su05           ;A didn't Flip, Branch.
             staa    $03,X           ;Store this digit
             dex 
-            dec sys_temp1           ;Do next set of digits
+            dec     sys_temp1           ;Do next set of digits
             ifne
-                bsr score2hex               ;Convert MSD Blanks to 0's on (X+03)
-                clr sys_temp2
+                bsr     score2hex               ;Convert MSD Blanks to 0's on (X+03)
+                clr     sys_temp2
                 aba 
-                bsr hex2dec             ;Decimal Adjust A, sys_temp2 incremented if A flipped
-                bra _su03
+                bsr     hex2dec             ;Decimal Adjust A, sys_temp2 incremented if A flipped
+                bra     _su03
 _su04           decb    
                 ifeq
                     ldab    #$10
                     stab    temp3
-                    bra _su02
+                    bra     _su02
                 endif
-                bsr score2hex               ;Convert MSD Blanks to 0's on (X+03)
+                bsr     score2hex               ;Convert MSD Blanks to 0's on (X+03)
                 staa    $03,X
-                dec sys_temp1
+                dec     sys_temp1
                 dex 
                 decb    
-                bra _su01
+                bra     _su01
 _su05           ldab    sys_temp4
                 ifne
                     cmpa    #$10
@@ -2304,10 +2313,10 @@ score2hex   ldaa    $03,X
             ifne                    ;Leave if both digits are blanked
                 deca    
                 cmpa    #$F0
-                bcs sh_exit         ;if A was less than #F0
+                bcs     sh_exit         ;if A was less than #F0
                 adda    #$10                ;Set High Digit to a 0
             endif
-            inc sys_temp4           ;Digit was cleared
+            inc     sys_temp4           ;Digit was cleared
 sh_exit     rts 
 
 ;**************************************************************
@@ -2317,7 +2326,7 @@ add_points  psha
             pshb    
             tab 
             andb    #$07
-            ldx #score_queue_end    
+            ldx     #score_queue_end    
             begin
                 dex 
                 decb    
@@ -2335,33 +2344,33 @@ add_points  psha
 ;* Checks the current player score against the energy base
 ;* award level multiplier. 
 ;**********************************************************
-checkreplay ldx #x_temp_2
-            bsr get_hs_digits       ;Put Player High Digits into A&B, convert F's to 0's
+checkreplay ldx     #x_temp_2
+            bsr     get_hs_digits       ;Put Player High Digits into A&B, convert F's to 0's
             stab    x_temp_2
-            ldx pscore_buf          ;Current Player Score Buffer Pointer
-            bsr get_hs_digits       ;Put Player High Digits into A&B, convert F's to 0's
+            ldx     pscore_buf          ;Current Player Score Buffer Pointer
+            bsr     get_hs_digits       ;Put Player High Digits into A&B, convert F's to 0's
             nop
             nop
             nop
             nop
-            jsr get_aud_baseawd     ;loads the P1 or P1 audit location for base awards
-            jsr cmosinc_a
+            jsr     get_aud_baseawd     ;loads the P1 or P1 audit location for base awards
+            jsr     cmosinc_a
             cba
             iflo
                 cmpa    x_temp_2
                 ifge
-                    stx thread_priority
+                    stx     thread_priority
                     nop
                     nop
                     nop
                     nop
                     nop
                     nop
-                    ldx #(aud_replay1times + 2)
+                    ldx     #(aud_replay1times + 2)
                     nop
-                    jsr ptrx_plus_1         ;add 1 to address in X
-                    ldx thread_priority
-                    jsr award_replay
+                    jsr     ptrx_plus_1         ;add 1 to address in X
+                    ldx     thread_priority
+                    jsr     award_replay
                 endif
             endif
             nop
@@ -2380,8 +2389,8 @@ get_hs_digits
             ldaa    $00,X
             anda    #$0F
             ldab    $01,X
-            bsr b_plus10        ;If B minus then B = B + 0x10
-            bsr split_ab        ;Shift A<<4 B>>4
+            bsr     b_plus10        ;If B minus then B = B + 0x10
+            bsr     split_ab        ;Shift A<<4 B>>4
             aba 
             tab
 b_plus10    cmpb    #$A0
@@ -2413,7 +2422,7 @@ split_ab    asla
 ;*********************************************************          
 isnd_once   pshb    
             ldab    #$01
-            bsr sound_sub
+            bsr     sound_sub
             pulb    
             rts
 
@@ -2421,7 +2430,7 @@ isnd_once   pshb
 ;* This is the main sound subroutine. It will play index
 ;* sound contained in A, B times.
 ;*********************************************************              
-sound_sub   stx thread_priority
+sound_sub   stx     thread_priority
             psha    
             pshb    
             ldab    sys_soundflags          ;Sound Status
@@ -2452,15 +2461,15 @@ b_050       tsta
             ldab    next_sndcnt
             ifne
                 ldab    next_sndflags
-                bsr isnd_test               ;If (A&0f)&(B&0f)=0) & (B&20=00) Then Set Carry
-                bcs snd_exit_pull           ;pula,pulb,rts.
+                bsr     isnd_test               ;If (A&0f)&(B&0f)=0) & (B&20=00) Then Set Carry
+                bcs     snd_exit_pull           ;pula,pulb,rts.
             endif
             staa    next_sndflags
             pulb    
             pula    
             staa    next_sndcmd
             stab    next_sndcnt
-            bra snd_exit                    ;rts
+            bra     snd_exit                    ;rts
             
 isnd_test   psha    
             pshb    
@@ -2479,7 +2488,7 @@ isnd_test   psha
             
 ;A=sound command
 ;B=count
-isnd_mult   stx thread_priority
+isnd_mult   stx     thread_priority
 b_051       psha    
             pshb    
             stab    soundcount
@@ -2520,7 +2529,7 @@ isnd_mult_x jsr     xplusa              ;X = X + A
 snd_exit_pull   
             pulb    
             pula    
-snd_exit    ldx thread_priority
+snd_exit    ldx     thread_priority
             rts 
 
 ;*****************************************************************
@@ -2537,7 +2546,7 @@ send_snd    jsr     gr_sound_event
 ;* This routine will send the next item in a complex sound
 ;* index to the Sound board PIA.
 ;*****************************************************************          
-do_complex_snd  ldx soundptr
+do_complex_snd  ldx     soundptr
 _csnd_loop      ldaa    $00,X               ;Load the first byte of this sequence
                 tab 
                 andb    #$C0
@@ -2552,18 +2561,18 @@ b_05B                   staa    csound_timer+1
                         anda    #$EF            ;Flag this sound as non-immediate (timer based)
 store_csndflg           staa    cur_sndflags    ;Store Flag
                         inx 
-                        bra _csnd_loop
+                        bra     _csnd_loop
                     endif
-                    clr csound_timer
+                    clr     csound_timer
                     anda    #$7F
-                    bne b_05B           ;If the timer is not zero, then flag this sound as non-immediate
+                    bne     b_05B           ;If the timer is not zero, then flag this sound as non-immediate
                     ldaa    cur_sndflags
                     oraa    #$10            ;Flag as non-immediate
-                    bra store_csndflg
+                    bra     store_csndflg
                 endif
-                bsr send_snd_save       ;Send the Command, Save in 'lastsound'
+                bsr     send_snd_save       ;Send the Command, Save in 'lastsound'
                 inx 
-                stx soundptr            ;Move pointer to next byte
+                stx     soundptr            ;Move pointer to next byte
                 ldaa    $00,X
                 cmpa    #$3F                ;Are we done?
                 ifeq
@@ -2571,8 +2580,8 @@ store_csndflg           staa    cur_sndflags    ;Store Flag
                     anda    #$7F                ;Mark it as a simple sound now
                     staa    cur_sndflags
                 endif
-                ldx csound_timer
-                stx soundirqcount
+                ldx     csound_timer
+                stx     soundirqcount
                 rts 
 
 ;**********************************************************
@@ -2587,13 +2596,13 @@ check_sw_mask   psha
                 ifge                        ;Out of Range!
                     bitb    #$40                    ;Flag 40: Active on Game Tilt
                     ifeq
-                        tst flag_tilt               ;Tilt Flag
-                        bne sw_ignore
+                        tst     flag_tilt               ;Tilt Flag
+                        bne     sw_ignore
                     endif
                     bitb    #$20                    ;Flag 20: Active on Game Over
-                    bne sw_active
-                    tst flag_gameover           ;Game Over?
-                    beq sw_active
+                    bne     sw_active
+                    tst     flag_gameover           ;Game Over?
+                    beq     sw_active
                 endif
 sw_ignore       sec                     ;Ignore this switch when carry is set
 sw_active       pula    
@@ -2602,17 +2611,17 @@ sw_active       pula
 ;**********************************************************
 ;* Switch is in down position, see if we should run it.
 ;**********************************************************         
-sw_down         jsr sw_tbl_lookup       ;Loads X with pointer to switch table entry
+sw_down         jsr     sw_tbl_lookup       ;Loads X with pointer to switch table entry
                 ldab    $00,X               ;GAME ROM Switch Data 1(Flags,etc)
                 ldaa    sys_temp5
                 bita    sys_temp3
-                beq sw_dtime            ;Is switch still down?
+                beq     sw_dtime            ;Is switch still down?
                 bitb    #$08                ;No, but check Flag 08 which is Instant Trigger
                 ifne                    ;Not instant,.. leave now.
-                    bra sw_trig_yes         ;Must have been instant, do it now. 
+                    bra     sw_trig_yes         ;Must have been instant, do it now. 
 sw_dtime            bitb    #$10                ;Switch has been down enough, but is it enabled?
                     ifne                    ;no.. leave now.
-sw_trig_yes             bsr check_sw_mask       ;Checks Switch Flags for Tilt and Gameover and if switch is in range
+sw_trig_yes             bsr     check_sw_mask       ;Checks Switch Flags for Tilt and Gameover and if switch is in range
                         ifcc                    ;If not okay to run... leave
                             clra    
                             bitb    #$40                ;Is it Active on Game Tilt?
@@ -2621,7 +2630,7 @@ sw_trig_yes             bsr check_sw_mask       ;Checks Switch Flags for Tilt an
                             endif
                             staa    thread_priority
                             ldaa    sw_encoded          ;Switch # (encoded)
-                            ldx $01,X
+                            ldx     $01,X
                             bitb    #$07                ;Was this a inline defined switch type? Type = 0
                             ifeq                    ;Always?
                                 ldx $02,X               ;Get handler address at base pointer + 2
@@ -2631,18 +2640,18 @@ sw_trig_yes             bsr check_sw_mask       ;Checks Switch Flags for Tilt an
                                 stx sys_temp_w2         ;X = Handler Address
                                 ldx #macro_next     ;Will put this routine into VM.
                             endif
-                            jsr gr_switch_event     ;Game ROM switch event hook
-                            jsr newthread_sp        ;Push VM: Data in A,B,X,threadpriority,$A6,$A7
-                            bcs _clc_rts            ;Carry set if VM was full and thread not added
+                            jsr     gr_switch_event     ;Game ROM switch event hook
+                            jsr     newthread_sp        ;Push VM: Data in A,B,X,threadpriority,$A6,$A7
+                            bcs     _clc_rts            ;Carry set if VM was full and thread not added
                                                 ;Exit now and don't mark switch as attended too.
                         endif
                     endif
                 endif
-                ldx sys_temp1
+                ldx     sys_temp1
                 ldaa    sys_temp3
                 eora    switch_debounced,X      ;Clear Switch Matrix Flag (switch attended too)
                 staa    switch_debounced,X
-sw_proc         ldx sys_temp1
+sw_proc         ldx     sys_temp1
                 ldab    sys_temp3
                 comb    
                 tba 
@@ -2661,34 +2670,34 @@ sw_proc         ldx sys_temp1
 ;****************************************************************************
 ;*
 ;****************************************************************************           
-check_sw_close  stx sys_temp1
+check_sw_close  stx     sys_temp1
                 ldab    switch_debounced,X
                 stab    sys_temp5               ;Store 
                 staa    sys_temp4
-_sc01           bsr getswitch               ;Clear Carry if Switch Active or Done
-                bcs to_ldx_rts              ;get outta here!
-                bsr sw_pack             ;$A5 = ($A1<<3)+BitPos($A2)
-                bsr sw_get_time             ;Gets Switch Trigger Data
+_sc01           bsr     getswitch               ;Clear Carry if Switch Active or Done
+                bcs     to_ldx_rts              ;get outta here!
+                bsr     sw_pack             ;$A5 = ($A1<<3)+BitPos($A2)
+                bsr     sw_get_time             ;Gets Switch Trigger Data
                 ifne                        ;If it is not 0 then we must time it
                     adda    irqcount                ;Number of IRQ's since last loop
-                    ldx switch_queue_pointer
-                    cpx #switch_queue_end
-                    beq _sc01
+                    ldx     switch_queue_pointer
+                    cpx     #switch_queue_end
+                    beq     _sc01
                     staa    $00,X
                     ldaa    sw_encoded              ;Encoded Switch Number
                     staa    $01,X
                     inx 
                     inx 
-                    stx switch_queue_pointer
-                    ldx sys_temp1
+                    stx     switch_queue_pointer
+                    ldx     sys_temp1
                     ldaa    switch_b4,X
                     oraa    sys_temp3
                     staa    switch_b4,X
                     bra _sc01
                 endif
-                jsr sw_down             ;Ready to do switch now!
-                bra _sc01
-to_ldx_rts      ldx sys_temp1
+                jsr     sw_down             ;Ready to do switch now!
+                bra     _sc01
+to_ldx_rts      ldx     sys_temp1
                 rts
             
 ;****************************************************************************
@@ -2725,29 +2734,29 @@ sw_pack     ldaa    sys_temp2
             ldab    sys_temp3
             begin
                 rorb    
-                bcs pack_done
+                bcs     pack_done
                 inca    
             loopend
-pack_done       staa    sw_encoded
+pack_done   staa    sw_encoded
             rts
 
 ;****************************************************************************
 ;*
 ;****************************************************************************               
 check_sw_open   staa    sys_temp4
-                stx sys_temp1
-next_switch     bsr getswitch               ;Clear Carry if Switch Activated
-                bcs to_ldx_rts              ;ldx $A0, rts.
-                bsr sw_pack             ;$A5(A) = ($A1<<3)+BitPos($A2) Encode Matrix Position
-                ldx #switch_queue
+                stx     sys_temp1
+next_switch     bsr     getswitch               ;Clear Carry if Switch Activated
+                bcs     to_ldx_rts              ;ldx $A0, rts.
+                bsr     sw_pack             ;$A5(A) = ($A1<<3)+BitPos($A2) Encode Matrix Position
+                ldx     #switch_queue
                 begin
-                    cpx switch_queue_pointer
-                    beq next_switch
+                    cpx     switch_queue_pointer
+                    beq     next_switch
                     cmpa    $01,X                   ;Is this switch in the buffer?
                     ifeq
-                        bsr copy_word               ;Copy Word: $96--  Data,$96 -> Data,X
-                        jsr sw_proc
-                        bra next_switch
+                        bsr     copy_word               ;Copy Word: $96--  Data,$96 -> Data,X
+                        jsr     sw_proc
+                        bra     next_switch
                     endif
                     inx 
                     inx 
@@ -2760,15 +2769,15 @@ next_switch     bsr getswitch               ;Clear Carry if Switch Activated
 ;* type as 0, then the trigger data is pulled from the location in bytes
 ;* 2 and 3 of the switch table entry.
 ;****************************************************************************               
-sw_get_time     bsr sw_tbl_lookup       ;X = Data@ (E051 + $A5*3)
+sw_get_time     bsr     sw_tbl_lookup       ;X = Data@ (E051 + $A5*3)
                 ldaa    $00,X
                 anda    #$07                ;Get the trigger type for this switch
                 ifne                    ;If 1-7, then look up data in switch type table
                     asla                        
-                    ldx #gr_switchtypetable-2       ;Game ROM Table: Switch Trigger Table
-                    bsr xplusa              ;X = X + A
+                    ldx     #gr_switchtypetable-2       ;Game ROM Table: Switch Trigger Table
+                    bsr     xplusa              ;X = X + A
                 else                    ;Otherwise, this switch has inline trigger data pointer
-                    ldx $01,X
+                    ldx     $01,X
                 endif
                 ldaa    sys_temp5           ;Matrix Data
                 anda    sys_temp3           ;Bit Position
@@ -2782,26 +2791,26 @@ sw_tbl_lookup   ldaa    sw_encoded
                 tab 
                 asla                    ;Times 3 for switch table entry length
                 aba 
-                ldx gr_switchtable_ptr      ;*** Table Pointer ***
+                ldx     gr_switchtable_ptr      ;*** Table Pointer ***
 xplusa          psha    
-                stx sys_temp_w2
+                stx     sys_temp_w2
                 adda    sys_temp_w2+1
                 staa    sys_temp_w2+1
                 ifcs
-                    inc sys_temp_w2
+                    inc     sys_temp_w2
                 endif 
-                ldx sys_temp_w2
+                ldx     sys_temp_w2
                 pula    
                 rts   
 
-copy_word       stx sys_temp_w2
-                ldx switch_queue_pointer
+copy_word       stx     sys_temp_w2
+                ldx     switch_queue_pointer
                 dex 
                 dex 
-                stx switch_queue_pointer
+                stx     switch_queue_pointer
                 ldaa    $00,X
                 ldab    $01,X
-                ldx sys_temp_w2
+                ldx     sys_temp_w2
                 staa    $00,X
                 stab    $01,X
                 rts 
@@ -2816,10 +2825,10 @@ copy_word       stx sys_temp_w2
 ;* grow towards each other.
 ;**************************************************
 setup_vm_stack  ldab    gr_maxthreads       ;Max Size of VM
-                ldx #threadpool_base
-                stx vm_nextslot
+                ldx     #threadpool_base
+                stx     vm_nextslot
                 begin
-                    stx temp2
+                    stx     temp2
                     ldaa    temp2+1
                     adda    #$12
                     staa    $01,X
@@ -2827,15 +2836,15 @@ setup_vm_stack  ldab    gr_maxthreads       ;Max Size of VM
                     adca    temp2
                     staa    $00,X
                     decb    
-                    beq stack_done
-                    ldx $00,X
+                    beq     stack_done
+                    ldx     $00,X
                 loopend
 stack_done      stab    $00,X
                 stab    $01,X
                 stab    vm_base
                 stab    vm_base+1
-                ldx #vm_base
-                stx vm_tail_thread
+                ldx     #vm_base
+                stx     vm_tail_thread
                 rts
 
 ;**************************************************
@@ -2843,7 +2852,7 @@ stack_done      stab    $00,X
 ;**************************************************             
 xplusb          psha    
                 tba 
-                bsr xplusa      ;X = X + A
+                bsr     xplusa      ;X = X + A
                 pula    
                 rts 
 

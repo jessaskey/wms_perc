@@ -223,38 +223,7 @@ speech_data_tbl2
                 reg_speech(ut_protection, ut_protection_beg, ut_protection_end)
                 reg_speech(ut_power, ut_power_beg, ut_power_end)
 
-                ; reg_speech(ut2_chrp1,ut2_chrp1_beg,ut2_chrp1_end)      	      	
-				; reg_speech(ut2_shriek,ut2_shriek_beg,ut2_shriek_end)      
-				; reg_speech(ut2_tgrowl,ut2_tgrowl_beg,ut2_tgrowl_end)          			
-				; reg_speech(ut2_tiger1,ut2_tiger1_beg,ut2_tiger1_end)      
-				; reg_speech(ut2_tiger2,ut2_tiger2_beg,ut2_tiger2_end)        
-				; reg_speech(ut_jungle,ut_jungle_beg,ut_jungle_end)    
-		            ; reg_speech(ut_lord,ut_lord_beg,ut_lord_end)    
-		            ; reg_speech(ut_fight,ut_fight_beg,ut_fight_end)    
-		            ; reg_speech(ut_tiger,ut_tiger_beg,ut_tiger_end)    
-		            ; reg_speech(ut_stampede,ut_stampede_beg,ut_stampede_end)    
-		            ; reg_speech(ut_ouble,ut_ouble_beg,ut_ouble_end)    
-		            ; reg_speech(ut_trou,ut_trou_beg,ut_trou_end)    
-		            ; reg_speech(ut_ble,ut_ble_beg,ut_ble_end)    
-		            ; reg_speech(ut_you,ut_you_beg,ut_you_end)    
-		            ; reg_speech(ut_win,ut_win_beg,ut_win_end)    
-		            ; reg_speech(ut_again,ut_again_beg,ut_again_end)       
-		            ; reg_speech(ut_in,ut_in_beg,ut_in_end)    
-		            ; reg_speech(ut_m,ut_m_beg,ut_m_end)    
-		            ; reg_speech(ut_ee,ut_ee_beg,ut_ee_end)    
-		            ; reg_speech(ut_trumpet,ut_trumpet_beg,ut_trumpet_end)    
-		            ; reg_speech(ut_beat,ut_beat_beg,ut_beat_end)    
-		            ; reg_speech(ut_an,ut_an_beg,ut_an_end)    
-		            ; reg_speech(ut_be,ut_be_beg,ut_be_end)       
-		            ; reg_speech(ut_d,ut_d_beg,ut_d_end)    
-		            ; reg_speech(ut_me,ut_me_beg,ut_me_end)    
-		            ; reg_speech(ut_ca,ut_ca_beg,ut_ca_end)  
-		            ; reg_speech(ut_laugh1,ut_laugh1_beg,ut_laugh1_end)  
-		            ; reg_speech(ut_laugh2,ut_laugh2_beg,ut_laugh2_end) 
-		            ; reg_speech(ut_laugh3,ut_laugh3_beg,ut_laugh3_end) 
-		            ; reg_speech(ut_laugh4,ut_laugh4_beg,ut_laugh4_end) 
-		            ; reg_speech(ut_laugh5,ut_laugh5_beg,ut_laugh5_end) 
-
+  
 ___phnum = 0
 
 #define 	reg_phrase(phrasedef)  \ .dw phrasedef
@@ -275,47 +244,6 @@ speech_phrases
                 reg_phrase(spellprotect)
                 reg_phrase(spellpower)
   
-
-                ; .dw   tiger_norm		;00
-				; .dw	tiger_slow		;01
-				; .dw	tiger_slowest	;02
-				; .dw	tiger_double	;03
-				; .dw	tiger_bark		;04
-				; .dw	tiger_growl		;05
-				; .dw	tiger_growl		;06
-				; .dw	tiger_growl		;07
-				; .dw	ph_uwujl		;08
-				; .dw	ph_jlt		;09
-				; .dw	ph_jlidt		;0a
-				; .dw	ph_yidt		;0b
-				; .dw	ph_fta		;0c
-				; .dw	ph_st			;0d
-				; .dw	ph_yjl		;0e
-				; .dw	ph_mjl		;0f
-				; .dw	ph_ywfija		;10
-				; .dw	ph_fjtaw		;11
-				; .dw	ph_cybjl		;12
-				; .dw	ph_btabjl		;13
-				; .dw	ph_cyfij		;14
-				; .dw	ph_t			;15
-				; .dw	simple_chirp	;16
-				; .dw	shriek1		;17
-				; .dw	shriek2		;18
-				; .dw	shriek3		;19
-				; .dw	shriek4		;1A
-				; .dw	shriek5		;1B
-				; .dw	monkeytune		;1C
-				; .dw	monkey_oohooh	;1D
-				; .dw	monkey_oohooh2	;1E
-				; .dw	monkey_oohooh3	;1F
-				; .dw	monkey_oohooh4	;20
-				; .dw	monkey_oohooh5	;21
-				; .dw	monkey_oohooh6	;22
-				; .dw	bk_laugh		;23
-				; .dw	ph_t2			;24
-				; .dw	ph_fjl		;25
-				; .dw	ph_fa			;26
-
 ;*******************************************************************		
 ;* Phrase Structure     
 ;*		            
@@ -332,91 +260,89 @@ speech_phrases
 ;You are the spellbinder
 ;Welcome spellbinder
 youaresb
-        addut(ut_you,$3F)
+        addut(ut_you,$30)
+        addut(ut_are,$30)
+        addut(ut_the,$30)
+        addut(ut_spellbinder,$30)
         l7delay($20)
-        addut(ut_are,$3F)
-        l7delay($20)
-        addut(ut_the,$3F)
-        l7delay($20)
-        addut(ut_spellbinder,$3F)
         phrase_end
 
 wspellbinder
-        addut(ut_welcome)
+        addut(ut_welcome,$3F)
         l7delay($20)
-        addut(ut_spellbinder)
+        addut(ut_spellbinder,$3F)
         phrase_end
         
 diedhorribly
-        addut(ut_you)
+        addut(ut_you,$3F)
         l7delay($20)
-        addut(ut_died)
+        addut(ut_died,$3F)
         l7delay($20)
-        addut(ut_horribly)
+        addut(ut_horribly,$3F)
         phrase_end
         
 diedgraceful
-        addut(ut_you)
+        addut(ut_you,$3F)
         l7delay($20)
-        addut(ut_died)
+        addut(ut_died,$3F)
         l7delay($20)
-        addut(ut_gracefully)
+        addut(ut_gracefully,$3F)
         phrase_end
         
 youdied
-        addut(ut_you)
+        addut(ut_you,$3F)
         l7delay($20)
-        addut(ut_died)
+        addut(ut_died,$3F)
         phrase_end
         
 enemydefeat
-        addut(ut_enemy)
+        addut(ut_enemy,$3F)
         l7delay($20)
-        addut(ut_defeated)
+        addut(ut_defeated,$3F)
         phrase_end
         
 enemyfrenzy
-        addut(ut_enemy)
+        addut(ut_enemy,$3F)
         l7delay($20)
-        addut(ut_frenzy)
+        addut(ut_frenzy,$3F)
         phrase_end
         
 defdragon
-        addut(ut_you)
+        addut(ut_you,$3F)
         l7delay($20)
-        addut(ut_defeated)
+        addut(ut_defeated,$3F)
         l7delay($20)
-        addut(ut_the)
+        addut(ut_the,$3F)
         l7delay($20)
-        addut(ut_dragon)
+        addut(ut_dragon,$3F)
         phrase_end
         
 slaydragon
-        addut(ut_you)
+        addut(ut_you,$3F)
         l7delay($20)
-        addut(ut_slayed)
+        addut(ut_slayed,$3F)
         l7delay($20)
-        addut(ut_the)
+        addut(ut_the,$3F)
         l7delay($20)
-        addut(ut_dragon)
+        addut(ut_dragon,$3F)
         phrase_end
         
 bonuswiz
-        addut(ut_bonus)
+        addut(ut_bonus,$3F)
         l7delay($20)
-        addut(ut_wizard)
+        addut(ut_wizard,$3F)
         phrase_end
         
 spellprotect
-        addut(ut_spellof)
+        addut(ut_spellof,$3F)
         l7delay($20)
-        addut(ut_protection)
+        addut(ut_protection,$3F)
         phrase_end
         
 spellpower
-        addut(ut_spellof)
+        addut(ut_spellof,$3F)
         l7delay($20)
-        addut(ut_power)
+        addut(ut_power,$3F)
         phrase_end
         
 ;You died horribly
@@ -429,262 +355,6 @@ spellpower
 ;Bonus Wizard
 ;Spell of Protection
 ;Spell of Power					
-
-; ;Tigers
-; tiger_norm		addut(ut2_tiger1,$04)
-			; addut(ut2_tiger2,$04)
-			; phrase_end	
-			
-; tiger_slow		addut(ut2_tiger1,$18)
-			; addut(ut2_tiger2,$18)
-			; phrase_end	
-
-; tiger_slowest	addut(ut2_tiger1,$3F)  
-			; addut(ut2_tiger2,$3F)
-			; phrase_end
-			
-; tiger_double	addut(ut2_tiger1,$08)
-			; addut(ut2_tiger1,$08)
-			; addut(ut2_tiger2,$08)
-			; phrase_end	
-			
-; tiger_growl		addut(ut2_tgrowl,$04)
-			; phrase_end										
-
-; tiger_bark		addut(ut2_tiger2,$04)
-			; phrase_end	
-			
-; ;Monkeys				      
-; simple_chirp	addut(ut2_chrp1,$04)
-			; phrase_end									
-			
-; shriek1		addut(ut2_shriek,$01)
-			; phrase_end
-
-; shriek2		addut(ut2_shriek,$0F)
-			; phrase_end
-			
-; shriek3		addut(ut2_shriek,$1F)
-			; phrase_end
-			
-; shriek4		addut(ut2_shriek,$2F)
-			; phrase_end
-			
-; shriek5		addut(ut2_shriek,$3F)
-			; phrase_end
-
-; monkeytune		addut(ut2_chrp1,$01)	
-			; addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$28)
-			; addut(ut2_shriek,$01)
-			; phrase_end			
-
-; monkey_oohooh	addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$01)
-			; phrase_end
-			
-; monkey_oohooh2	addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$08)
-			; phrase_end
-			
-; monkey_oohooh3	addut(ut2_chrp1,$08)
-			; addut(ut2_chrp1,$08)
-			; addut(ut2_chrp1,$08)
-			; addut(ut2_chrp1,$01)
-			; phrase_end		
-		
-; monkey_oohooh4	addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$1F)
-			; addut(ut2_chrp1,$2F)
-			; addut(ut2_chrp1,$3F)
-			; phrase_end
-			
-; monkey_oohooh5	addut(ut2_chrp1,$3F)
-			; addut(ut2_chrp1,$2F)
-			; addut(ut2_chrp1,$1F)
-			; addut(ut2_chrp1,$01)
-			; phrase_end
-			
-; monkey_oohooh6	addut(ut2_chrp1,$3F)
-			; addut(ut2_chrp1,$01)
-			; addut(ut2_chrp1,$01)
-			; addut(ut2_shriek,$01)
-			; phrase_end
-			
-; bk_laugh		addut(ut_laugh1)
-			; addut(ut_laugh2)	
-			; addut(ut_laugh2)
-			; addut(ut_laugh3)
-			; addut(ut_laugh3)
-			; addut(ut_laugh3)		
-			; addut(ut_laugh4)
-			; addut(ut_laugh5)
-			; phrase_end	
-			
-; ;****************************************************************************			
-; ;Original Jungle Lord Speech Here but converted to use the new speech engine
-; ;****************************************************************************		
-; ph_uwujl		;"You Win! You Jungle Lord"
-			; addut(ut_you)
-			; addut(ut_win)
-			; l7delay($70)
-			; addut(ut_you)
-			; l7delay($28)
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; phrase_end
-
-; ph_jlt		;"Jungle Lord, (Trumpet)" 
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; l7delay($60)
-			; addut(ut_trumpet)
-			; phrase_end
-			
-; ph_jlidt		;"Jungle Lord in Double Trouble"
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; l7delay($28)
-			; addut(ut_in)
-			; l7delay($20)
-			; addut(ut_d)
-			; addut(ut_ouble)
-			; addut(ut_trou)
-			; addut(ut_ble)
-			; phrase_end
-			
-; ph_yidt		;"You in Double Trouble"
-			; addut(ut_you)
-			; l7delay($30)
-			; addut(ut_in)
-			; l7delay($20)
-			; addut(ut_d)
-			; addut(ut_ouble)
-			; addut(ut_trou)
-			; addut(ut_ble)
-			; phrase_end
-			
-; ph_fta		;"Fight Tiger Again"
-			; addut(ut_fight)
-			; l7delay($20)
-			; addut(ut_tiger)
-			; addut(ut_again)
-			; phrase_end
-			
-; ph_st			;"Stampede, (trumpet)"
-			; addut(ut_stampede)
-			; l7delay($20)
-			; addut(ut_trumpet)
-			; addut(ut_trumpet)
-			; addut(ut_trumpet)
-			; phrase_end
-			
-; ph_yjl		;"You Jungle Lord"
-			; addut(ut_you)
-			; l7delay($40)
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; phrase_end
-			
-; ph_mjl		;"Me Jungle Lord"
-			; addut(ut_m)
-			; addut(ut_me)
-			; l7delay($30)
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; phrase_end
-			
-; ph_ywfija		;"You Win! Fight in Jungle Again"
-			; addut(ut_you)
-			; addut(ut_win)
-			; l7delay($A0)
-			; addut(ut_fight)
-			; l7delay($20)
-			; addut(ut_in)
-			; l7delay($28)
-			; addut(ut_jungle)
-			; addut(ut_again)
-			; phrase_end
-			
-; ph_fjtaw		;"Fight Jungle Tiger and Win!"
-			; addut(ut_fight)
-			; l7delay($20)
-			; addut(ut_jungle)
-			; l7delay($20)
-			; addut(ut_tiger)
-			; l7delay($20)
-			; addut(ut_an)
-			; addut(ut_d)
-			; l7delay($1D)
-			; addut(ut_win)
-			; phrase_end
-	
-; ph_cybjl		;"Can you be Jungle Lord?"
-			; addut(ut_ca)
-			; addut(ut_an)
-			; l7delay($50)
-			; addut(ut_you)
-			; l7delay($28)
-			; addut(ut_be)
-			; addut(ut_ee)
-			; l7delay($20)
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; phrase_end
-
-; ph_btabjl		;"Beat Tiger and be Jungle Lord"
-			; addut(ut_beat)
-			; l7delay($30)
-			; addut(ut_tiger)
-			; l7delay($20)
-			; addut(ut_an)
-			; addut(ut_d)
-			; l7delay($20)
-			; addut(ut_be)
-			; addut(ut_ee)
-			; l7delay($20)
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; phrase_end
-
-; ph_cyfij		;"Can you fight in Jungle?"
-			; addut(ut_ca)
-			; addut(ut_an)
-			; l7delay($40)
-			; addut(ut_you)
-			; l7delay($30)
-			; addut(ut_fight)
-			; l7delay($20)
-			; addut(ut_in)
-			; l7delay($28)
-			; addut(ut_jungle)
-			; phrase_end
-			
-; ph_t			;(trumpet)
-			; addut(ut_trumpet)
-			; l7delay($19)
-			; phrase_end
-			
-; ph_t2			;(trumpet_slower)
-			; addut(ut_trumpet,$3f)
-			; phrase_end
-			
-; ph_fjl		;"Fight Jungle Lord"
-			; addut(ut_fight)
-			; l7delay($20)
-			; addut(ut_jungle)
-			; addut(ut_lord)
-			; phrase_end
-			
-; ph_fa			;"Fight Again"
-			; addut(ut_fight)
-			; l7delay($20)
-			; addut(ut_again)
-			; phrase_end
 									
 ;*************************************************************************
 ;* SPEECH ROUTINES START HERE!!
@@ -985,460 +655,6 @@ play_all_speech
 		stx	sp_end_ptr
 		jmp	utter_start
 		
-;***************************		
-;* More Speech Data		
-;***************************
-ut_laugh1_beg
-	.db	$AA,$F6,$4A,$15
-	.db	$B5,$6A,$C8,$B5
-	.db	$CE,$94,$52,$95
-	.db	$8F,$BA,$2A,$45
-	.db	$2E,$7A,$E8,$52
-	.db	$0B,$1F,$74,$F4
-	.db	$A1,$AD,$65,$43
-	.db	$1F,$3C,$FC,$D0
-	.db	$D1,$45,$93,$15
-	.db	$9D,$AA,$E8,$95
-	.db	$2E,$2D,$6C,$B9
-	.db	$78,$85,$A5,$47
-	.db	$0B,$7D,$F0,$16
-	.db	$29,$FA,$D0,$07
-	.db	$7C,$7C,$C1,$0B
-	.db	$BD,$AA,$03,$1F
-	.db	$7A,$A4,$D6,$1A
-	.db	$B6,$D0,$07,$0F
-	.db	$BE,$60,$17,$BD
-	.db	$B8,$A0,$57,$0F
-	.db	$86,$DE,$5C,$D1
-	.db	$A3,$3B,$E0,$0F
-	.db	$F8,$42,$3B,$E0
-	.db	$0F,$3C,$B1,$F8
-	.db	$03,$3F,$F8,$D2
-	.db	$1F,$69,$C8,$A2
-	.db	$0B,$14,$AA,$4A
-	.db	$17,$F0,$C7,$FF
-	.db	$7F,$01,$16,$EE
-	.db	$80,$26,$A0,$40
-	.db	$5D,$E0,$FF,$3F
-	.db	$80,$FF,$1D,$80
-	.db	$81,$0F,$10,$F0
-	.db	$FF,$0F,$E0,$7F
-	.db	$03,$E0,$F8,$00
-	.db	$80,$FF,$3B,$80
-	.db	$FF,$09,$C0,$07
-	.db	$01,$F0,$FF,$07
-	.db	$F0,$BF,$01,$3C
-	.db	$54,$80,$FF,$3F
-	.db	$C0,$FF,$0D,$C0
-	.db	$53,$00,$FE,$7F
-	.db	$00,$BF,$3F,$00
-	.db	$C6,$80,$FF,$7E
-	.db	$80,$DF,$1F,$80
-	.db	$43,$80,$FF,$3F
-	.db	$80,$FF,$0B,$C0
-	.db	$03,$E0,$FF,$1F
-	.db	$E0,$FB,$03,$E0
-	.db	$00,$FC,$FF,$03
-	.db	$FC,$FC,$00,$39
-	.db	$00,$FF,$7F,$80
-	.db	$9F,$33,$60,$07
-	.db	$E0,$DF,$0F,$F8
-	.db	$73,$03,$76,$00
-	.db	$FE,$FD,$00,$BF
-	.db	$37,$00,$0F,$F0
-	.db	$E7,$07,$F8,$BD
-	.db	$03,$38,$C0,$3F
-	.db	$3F,$E0,$EF,$0E
-	.db	$C0,$01,$FF,$EC
-	.db	$80,$3F,$79,$41
-	.db	$07,$FC,$F1,$01
-	.db	$FE,$E6,$80,$0D
-	.db	$F8,$E7,$07,$FC
-	.db	$CC,$03,$1F,$F0
-	.db	$C7,$07,$F8,$8F
-	.db	$03,$3B,$F0,$C7
-	.db	$07,$F8,$8D,$03
-	.db	$3F,$F0,$07,$07
-	.db	$F8,$8F,$01,$3C
-	.db	$FC,$83,$03,$FE
-	.db	$C3,$C0,$0C,$FE
-	.db	$E9,$00,$FF,$61
-	.db	$30,$82,$7F,$78
-	.db	$C0,$7F,$38,$08
-	.db	$E1,$3F,$0C,$F8
-	.db	$17,$1E,$42,$F8
-	.db	$1F,$03,$FC,$87
-	.db	$83,$00,$FE,$C7
-	.db	$01,$7F,$E1,$31
-	.db	$00,$FF,$3B,$C0
-	.db	$3F,$30,$0E,$E0
-	.db	$5F,$0E,$F8,$17
-	.db	$16,$07,$F8,$37
-	.db	$03,$FC,$87,$C5
-	.db	$00,$FF,$FC,$80
-	.db	$3F,$31,$1E,$C0
-	.db	$3F,$1D,$F0,$27
-	.db	$DC,$05,$F8,$B3
-	.db	$03,$FE,$C4,$58
-	.db	$00,$7F,$76,$C0
-	.db	$9F,$30,$1C,$F0
-	.db	$27,$07,$FC,$81
-	.db	$BD,$00,$FF,$7C
-	.db	$C0,$1F,$30,$72
-	.db	$F0
-ut_laugh1_end
-ut_laugh2_beg
-	.db	$AA,$F8,$45,$41
-	.db	$BF,$D0,$95,$0F
-	.db	$F8,$99,$1A,$7A
-	.db	$72,$43,$CC,$FA
-	.db	$03,$7E,$E4,$85
-	.db	$3D,$E0,$A7,$2E
-	.db	$3A,$E8,$57,$41
-	.db	$F0,$0F,$BC,$F4
-	.db	$82,$3E,$D4,$51
-	.db	$17,$7E,$A2,$94
-	.db	$1F,$F8,$21,$0B
-	.db	$FF,$C0,$45,$1D
-	.db	$7D,$E1,$80,$7F
-	.db	$38,$61,$4F,$AC
-	.db	$B9,$50,$15,$7F
-	.db	$E1,$90,$9F,$25
-	.db	$F8,$05,$17,$FD
-	.db	$40,$CD,$9D,$09
-	.db	$F9,$53,$03,$FE
-	.db	$D0,$C1,$1F,$58
-	.db	$D7,$09,$BC,$D5
-	.db	$30,$EA,$27,$19
-	.db	$F4,$07,$BA,$DC
-	.db	$81,$AF,$E8,$4A
-	.db	$0F,$E8,$D5,$1A
-	.db	$A9,$74,$AD,$D8
-	.db	$0B,$D1,$7F,$08
-	.db	$FA,$0B,$52,$AB
-	.db	$51,$FE,$91,$51
-	.db	$3B,$27,$C2,$C7
-	.db	$28,$08,$FF,$93
-	.db	$01,$7F,$25,$E0
-	.db	$1F,$8A,$A0,$E1
-	.db	$BF,$19,$F0,$67
-	.db	$06,$FC,$81,$09
-	.db	$0D,$FF,$F0,$C0
-	.db	$1F,$31,$F8,$0F
-	.db	$22,$24,$FE,$CB
-	.db	$81,$3F,$63,$E0
-	.db	$9F,$08,$00,$FF
-	.db	$CD,$80,$BF,$21
-	.db	$F0,$2F,$40,$C8
-	.db	$7F,$32,$E0,$5F
-	.db	$80,$FC,$0F,$40
-	.db	$F8,$1F,$02,$FE
-	.db	$07,$81,$FF,$01
-	.db	$C0,$FF,$21,$F0
-	.db	$3F,$40,$FE,$07
-	.db	$80,$FF,$07,$C0
-	.db	$FF,$01,$3C,$3F
-	.db	$00,$FF,$47,$C0
-	.db	$DF,$01,$F8,$2F
-	.db	$00,$FF,$27,$C0
-	.db	$BF,$09,$F0,$0F
-	.db	$80,$FF,$13,$E0
-	.db	$7F,$01,$FC,$07
-	.db	$C0,$FF,$13,$E0
-	.db	$7F,$00,$FE,$03
-	.db	$F0,$FF,$02,$FC
-	.db	$1D,$00,$FF,$00
-	.db	$FC,$5F,$01,$FE
-	.db	$06,$E4,$3F,$00
-	.db	$FF,$0F,$C0,$BF
-	.db	$03,$F8,$07,$C0
-	.db	$FF,$11,$F0,$6F
-	.db	$00,$FE,$03,$E0
-	.db	$FF,$00,$F9,$73
-	.db	$00,$FF,$01,$F0
-	.db	$5F,$80,$F9,$17
-	.db	$E0,$FF,$00,$F8
-	.db	$1F,$80,$FD,$13
-	.db	$B0,$FF,$00,$F8
-	.db	$1F,$80,$FB,$03
-	.db	$E4,$FF,$00,$F8
-	.db	$1F,$01,$FB,$07
-	.db	$C8,$FF,$01,$F0
-	.db	$3F,$00,$FF,$03
-	.db	$2C,$FF,$00,$E3
-	.db	$3F,$80,$FE,$07
-	.db	$30,$FF,$03,$E0
-	.db	$FF,$00,$FC,$0F
-	.db	$A0,$FE,$07,$80
-	.db	$FF,$01,$F0,$3F
-	.db	$80,$F9,$1F,$00
-	.db	$FE,$07,$A0,$FF
-	.db	$00,$F3,$3F,$00
-	.db	$F9,$0F,$C0,$FF
-	.db	$01,$CC,$FF,$00
-	.db	$F8,$3F,$00,$FF
-	.db	$07,$70,$FF,$01
-	.db	$F0,$7F,$00,$FD
-	.db	$1F,$80,$FF,$03
-	.db	$50,$FF,$01,$AA
-	.db	$7F,$80,$DE,$1F
-	.db	$00,$FF,$0F,$C0
-	.db	$FE,$03,$E8,$7F
-	.db	$00,$EA,$FE,$00
-	.db	$F3,$3F,$80,$F3
-	.db	$0F,$C0,$ED,$07
-	.db	$38,$FF,$03,$F8
-	.db	$7E,$00,$FA,$F8
-	.db	$00,$8F,$7F,$C0
-	.db	$8E,$0F,$70,$0F
-	.db	$3E,$C3,$83,$3F
-	.db	$E8,$E1,$0F,$D8
-	.db	$01,$9F,$E3,$C1
-	.db	$1F,$98,$F3,$03
-	.db	$CC,$1F,$78,$E7
-	.db	$03,$7E,$06,$EA
-	.db	$03,$34,$7F,$80
-	.db	$7F,$78,$E0,$0F
-	.db	$78,$79,$00,$EF
-	.db	$15,$F0,$7F,$81
-	.db	$F2,$1F,$80,$7F
-	.db	$04,$DC,$13,$A8
-	.db	$F7,$1F,$68,$CA
-	.db	$1F
-ut_laugh2_end
-ut_laugh3_beg
-	.db	$AA,$40,$7F,$47
-	.db	$C0,$FE,$11,$94
-	.db	$BF,$90,$3E,$A8
-	.db	$EE,$05,$D4,$AF
-	.db	$01,$75,$D7,$44
-	.db	$89,$7B,$0F,$E1
-	.db	$F8,$2A,$32,$F3
-	.db	$42,$5F,$E0,$F1
-	.db	$0B,$98,$FB,$41
-	.db	$54,$BF,$D0,$0A
-	.db	$BD,$F0,$11,$8F
-	.db	$F4,$C8,$0E,$BF
-	.db	$50,$85,$BE,$78
-	.db	$C0,$C7,$5E,$D0
-	.db	$8B,$5E,$F8,$02
-	.db	$3D,$F8,$81,$0F
-	.db	$FB,$40,$A7,$AF
-	.db	$E0,$86,$AD,$E0
-	.db	$0F,$3C,$F8,$C3
-	.db	$14,$FC,$A3,$52
-	.db	$F4,$86,$F8,$1C
-	.db	$07,$F1,$3C,$86
-	.db	$E7,$39,$04,$F7
-	.db	$09,$78,$9E,$07
-	.db	$F8,$1C,$87,$7B
-	.db	$3C,$C0,$F7,$0C
-	.db	$E0,$7F,$0E,$F8
-	.db	$3B,$00,$DE,$75
-	.db	$90,$8F,$33,$F0
-	.db	$C2,$3F,$78,$E0
-	.db	$0F,$7C,$B0,$A0
-	.db	$7B,$54,$C5,$5F
-	.db	$98,$BA,$A5,$EA
-	.db	$0E,$C1,$F2,$0A
-	.db	$AA,$F2,$14,$8B
-	.db	$F7,$08,$EB,$A7
-	.db	$51,$B8,$17,$35
-	.db	$F8,$21,$4D,$B7
-	.db	$A0,$FD,$02,$D5
-	.db	$5E,$48,$EB,$5A
-	.db	$28,$DD,$D3,$10
-	.db	$FC,$A3,$21,$BE
-	.db	$46,$E1,$9A,$9A
-	.db	$70,$87,$2D,$F4
-	.db	$0B,$2B,$FC,$82
-	.db	$C6,$7A,$09,$D7
-	.db	$A5,$14,$EF,$41
-	.db	$17,$3D,$61,$B7
-	.db	$48,$B5,$A7,$48
-	.db	$BE,$D6,$02,$3E
-	.db	$BA,$C0,$AF,$2D
-	.db	$A0,$AF,$85,$78
-	.db	$97,$42,$FA,$56
-	.db	$81,$BE,$A6,$A0
-	.db	$77,$09,$DA,$AF
-	.db	$40,$FA,$2E,$A8
-	.db	$AE,$85,$AC,$6F
-	.db	$40,$F5,$2A,$69
-	.db	$57,$41,$BD,$B2
-	.db	$82,$BE,$B2,$A0
-	.db	$1F,$B1,$E8,$17
-	.db	$52,$6D,$8D,$DC
-	.db	$15,$52,$F6,$07
-	.db	$AC,$FE,$01,$3A
-	.db	$6F,$21,$B5,$6E
-	.db	$91,$B8,$AE,$A1
-	.db	$3A,$1E,$69,$69
-	.db	$15,$CB,$7C,$14
-	.db	$57,$57,$50,$DD
-	.db	$43,$F4,$56,$85
-	.db	$BA,$54,$8A,$AF
-	.db	$A5,$28,$FD,$A2
-	.db	$54,$B5,$0A,$ED
-	.db	$E9,$88,$BE,$A1
-	.db	$B0,$5E,$C3,$52
-	.db	$2D,$A8,$B6,$27
-	.db	$F8,$EE,$0A,$D8
-	.db	$5B,$01,$EB,$25
-	.db	$25,$BE,$D1,$84
-	.db	$3F,$51,$45,$5F
-	.db	$B0,$C2,$3F,$72
-	.db	$E0,$27,$2E,$E4
-	.db	$A3,$1A,$EA,$EA
-	.db	$0A,$55,$F5,$50
-	.db	$AA,$FE,$E8,$90
-	.db	$3B,$33,$22,$EF
-	.db	$60,$54,$9F,$A4
-	.db	$D0,$8D,$F2,$8D
-	.db	$17,$F4,$63,$06
-	.db	$F7,$44,$8A,$BB
-	.db	$11,$89,$77,$E2
-	.db	$0D,$1F,$F4,$C4
-	.db	$07,$F5,$B4,$02
-	.db	$F7,$B2,$40,$AB
-	.db	$7E,$C1,$89,$1F
-	.db	$B1,$A3,$36,$EC
-	.db	$C2
-ut_laugh3_end
-ut_laugh4_beg
-	.db	$AA,$9D,$74,$07
-	.db	$2D,$F8,$83,$16
-	.db	$FA,$C1,$16,$BD
-	.db	$A1,$2B,$AB,$E0
-	.db	$0B,$3F,$F0,$85
-	.db	$1E,$F4,$A2,$17
-	.db	$DC,$D2,$15,$F4
-	.db	$A2,$1F,$E8,$B0
-	.db	$0F,$74,$EA,$0B
-	.db	$DA,$F4,$81,$3A
-	.db	$F2,$07,$2E,$F4
-	.db	$83,$5A,$FA,$42
-	.db	$1D,$BD,$41,$1D
-	.db	$FC,$83,$2E,$7C
-	.db	$41,$97,$7A,$C1
-	.db	$2B,$AF,$A0,$15
-	.db	$FA,$41,$0F,$FE
-	.db	$40,$1B,$BF,$A0
-	.db	$55,$AF,$A0,$4E
-	.db	$F5,$81,$1E,$DE
-	.db	$C0,$1E,$5F,$E0
-	.db	$96,$5E,$E0,$4A
-	.db	$FB,$A0,$15,$7E
-	.db	$41,$0B,$7F,$D0
-	.db	$45,$1F,$D4,$C9
-	.db	$F1,$C1,$2C,$DE
-	.db	$41,$35,$5F,$E1
-	.db	$54,$3E,$A1,$A9
-	.db	$C5,$87,$74,$B8
-	.db	$07,$B5,$FC,$82
-	.db	$53,$7A,$42,$47
-	.db	$0D,$3F,$E4,$C1
-	.db	$3D,$A8,$E1,$0F
-	.db	$D6,$F8,$81,$9E
-	.db	$72,$F0,$23,$0F
-	.db	$EC,$91,$0E,$7F
-	.db	$61,$46,$1F,$E8
-	.db	$C9,$07,$7C,$E4
-	.db	$03,$7D,$B4,$43
-	.db	$1F,$CE,$E0,$99
-	.db	$8E,$A9,$00,$7F
-	.db	$E5,$C1,$3E,$56
-	.db	$C0,$1F,$3C,$F0
-	.db	$07,$0E,$F9,$81
-	.db	$3F,$78,$C0,$3F
-	.db	$68,$A4,$17,$74
-	.db	$FA,$85,$6E,$72
-	.db	$41,$2F,$E5,$F8
-	.db	$07,$15,$F4,$03
-	.db	$A7,$F8,$84,$47
-	.db	$7D,$A8,$CB,$2B
-	.db	$F8,$42,$07,$7D
-	.db	$A4,$8B,$1E,$74
-	.db	$17,$A5,$F4,$2C
-	.db	$CA,$5D,$94,$F4
-	.db	$15,$95,$EA,$65
-	.db	$8E,$6E,$81,$AE
-	.db	$AE,$40,$97,$17
-	.db	$71,$AE,$52,$F4
-	.db	$4A,$4F,$71,$88
-	.db	$9F,$74,$A4,$87
-	.db	$5A,$A9,$95,$5E
-	.db	$A8,$A3,$1B,$DA
-	.db	$CA,$42,$BB,$A8
-	.db	$43,$6F,$51,$8A
-	.db	$EE,$B8,$A4,$8B
-	.db	$3C,$EA,$83,$36
-	.db	$F4,$C2,$1B,$F4
-	.db	$A1,$1E,$F4,$A2
-	.db	$2D,$BA,$41,$2B
-	.db	$BB,$42,$57,$6D
-	.db	$A8,$D6,$2A,$A8
-	.db	$AB,$7A,$70,$A3
-	.db	$2E,$F4,$48,$8F
-	.db	$F4,$D8,$85,$AA
-	.db	$EA,$21,$5D,$AA
-	.db	$51,$BB,$14,$D5
-	.db	$EA,$2A,$AA,$E9
-	.db	$15,$5A,$D1,$0A
-	.db	$7F,$A1,$2A,$BB
-	.db	$E2
-ut_laugh4_end
-ut_laugh5_beg
-	.db	$AA,$2E,$E8,$A3
-	.db	$0A,$F5,$45,$2E
-	.db	$DA,$C3,$34,$67
-	.db	$A2,$5C,$75,$91
-	.db	$57,$51,$49,$AF
-	.db	$1A,$F4,$92,$87
-	.db	$3C,$D5,$85,$AA
-	.db	$7A,$55,$A2,$7A
-	.db	$45,$51,$3F,$B2
-	.db	$52,$4B,$5A,$A7
-	.db	$8A,$76,$A9,$94
-	.db	$BB,$2A,$85,$D5
-	.db	$2C,$74,$A9,$87
-	.db	$AA,$DC,$85,$2E
-	.db	$75,$29,$95,$7A
-	.db	$29,$55,$BE,$F0
-	.db	$42,$2B,$7A,$85
-	.db	$A5,$3E,$61,$A7
-	.db	$AA,$D2,$0B,$35
-	.db	$79,$C5,$0B,$BA
-	.db	$D2,$45,$56,$B5
-	.db	$A4,$56,$57,$29
-	.db	$55,$AD,$CA,$14
-	.db	$5F,$B0,$4A,$57
-	.db	$B4,$8A,$BB,$68
-	.db	$93,$74,$55,$05
-	.db	$7D,$55,$A2,$57
-	.db	$54,$95,$AE,$70
-	.db	$C9,$2B,$A9,$B4
-	.db	$57,$5A,$E8,$A5
-	.db	$2A,$EC,$A9,$14
-	.db	$F9,$A6,$22,$75
-	.db	$AA,$C5,$AA,$3E
-	.db	$A5,$A2,$2E,$55
-	.db	$AD,$52,$8A,$AB
-	.db	$AA,$A2,$AA,$2F
-	.db	$2C,$D5,$AB,$2A
-	.db	$AA,$45,$55,$2F
-	.db	$A9,$74,$99,$A3
-	.db	$2A,$B5,$51,$4D
-	.db	$7D,$5A,$50,$AF
-	.db	$52,$F8,$42,$4B
-	.db	$F5,$48,$4D,$BD
-	.db	$A8,$52,$9F,$6A
-	.db	$A1,$AE,$AA,$C0
-	.db	$1F,$B9,$E0,$27
-	.db	$36,$D2,$8D,$2E
-	.db	$E9,$AA,$16,$B5
-	.db	$AA
-ut_laugh5_end
 
 .org $f800
 	

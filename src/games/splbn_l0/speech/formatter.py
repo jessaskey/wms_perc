@@ -61,7 +61,7 @@ def dump_hex_db(input_file, output_file):
         header = build_header(input_file)
         footer = build_footer(input_file)
         
-        with open(output_file, "a") as out:    
+        with open(output_file, "w") as out:    
             out.write(header + "\n")  
             
             for i in range(0, len(data), bytes_per_line):

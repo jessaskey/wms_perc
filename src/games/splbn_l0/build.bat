@@ -3,7 +3,7 @@ echo off
 
 echo Compiling Spellbinder...
 
-tasmx.exe -68 -b -wtext.tab -y -s splbn_l0.asm  > splbn_l0.err
+tasmx.exe -68 -b -e -wtext.tab -y -s splbn_l0.asm  > splbn_l0.err
 tasmx.exe -68 -b -y -s splbnsnd.asm  > splbnsnd.err 2>&1
 
 echo ...splitting files
