@@ -658,7 +658,57 @@ SOLENOID_OFF               .equ  $00
 #define GAME_       $F1   
 #define TILT_       $F0
 
-#define RAM_        $E0
+#define RAM0        $E0
+#define RAM1        $E1
+#define RAM2        $E2
+#define RAM3        $E3
+#define RAM4        $E4
+#define RAM5        $E5
+#define RAM6        $E6
+#define RAM7        $E7
+#define RAM8        $E8
+#define RAM9        $E9
+#define RAMA        $EA
+#define RAMB        $EB
+#define RAMC        $EC
+#define RAMD        $ED
+#define RAME        $EE
+#define RAMF        $EF
+
+#define ADJ0        $D0
+#define ADJ1        $D1
+#define ADJ2        $D2
+#define ADJ3        $D3
+#define ADJ4        $D4
+#define ADJ5        $D5
+#define ADJ6        $D6
+#define ADJ7        $D7
+#define ADJ8        $D8
+#define ADJ9        $D9
+#define ADJA        $DA
+#define ADJB        $DB
+#define ADJC        $DC
+#define ADJD        $DD
+#define ADJE        $DE
+#define ADJF        $DF
+
+#define BIT0        $C0
+#define BIT1        $C1
+#define BIT2        $C2
+#define BIT3        $C3
+#define BIT4        $C4
+#define BIT5        $C5
+#define BIT6        $C6
+#define BIT7        $C7
+#define BIT8        $C8
+#define BIT9        $C9
+#define BITA        $CA
+#define BITB        $CB
+#define BITC        $CC
+#define BITD        $CD
+#define BITE        $CE
+#define BITF        $CF
+
 
 
 

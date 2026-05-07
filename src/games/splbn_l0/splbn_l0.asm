@@ -259,16 +259,19 @@ gr_switchtypetable      .db $00,$02
                         .db $08,$05
                         .db $00,$00
                         .db $00,$00
+                        
+gr_playerstartdata 
+playerdata_start 
+                    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+                    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+                    ;.db $00,$00,$00,$00,$00,$00
+playerdata_end
+playerdata_len .equ playerdata_end - playerdata_start
 
-gr_playerstartdata  .db $00,$00,$00,$00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00,$00
-
-gr_playerresetdata  .db $00,$00,$00,$00,$00,$00,$00,$00
-                    .db $00,$00,$FF,$03,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00,$00,$00,$00
-                    .db $00,$00,$00,$00,$00,$00
+gr_playerresetdata  
+                    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+                    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+                    ;.db $00,$00,$00,$00,$00,$00
 
 
 
@@ -367,7 +370,7 @@ get_pwizards    ldab    player_up
                 rts
             
 killthreads_ff  ldab    #$FF
-                jmp kill_threads
+                jmp     kill_threads
 
 showplayerx     jsr     clr_alpha_set_b0
                 ldx     #msg_prepare
@@ -398,7 +401,7 @@ hook_playerinit inc     flag_tilt           ;turn off the shooters
                 SOL_(GI_RELAY_PF_OFF)       ;Sol#6:gi_relay_pf
                 SND_($07)                   ;Sound #07
                 EXE_
-                    jsr get_pwizards
+                    jsr     get_pwizards
                     staa    game_ram_2
                 EXEEND_
                 ;A and game_ram_2 contains the current number of wizards for the user...
@@ -408,7 +411,7 @@ hook_playerinit inc     flag_tilt           ;turn off the shooters
                         RSET1R0_(grp_wizard)
                         SLEEP_(2)
                         ADDRAM_($02,$ff)            ;RAM$02-=1
-                    EQEND_(EQUAL_,$E2,$00)
+                    EQEND_(EQUAL_,RAM2,$00)
                 ENDIF_
                 SLEEP_(10)
                 SOL_(BALL_LIFT_ON)          ; Sol#9:ball_lift
@@ -462,23 +465,23 @@ newthreadp      staa    thread_priority
 sw_1p_start     clra    
 sw_2p_start     inca        
                 tab
-                ldx #adj_max_credits        ;free play?
-                bsr jmp_cmosa
+                ldx     #adj_max_credits        ;free play?
+                bsr     jmp_cmosa
                 ifne                    ;no, check for actual credits
-                    ldx #aud_currentcredits
-                    bsr jmp_cmosa
+                    ldx     #aud_currentcredits
+                    bsr     jmp_cmosa
                     cba 
-                    bcs to_kill     ;not enough, kill
+                    bcs     to_kill     ;not enough, kill
                 endif
                 begin
                     ldaa    #$08
-                    ldx #credit_button
-                    jsr newthreadp
+                    ldx     #credit_button
+                    jsr     newthreadp
                     decb    
                 eqend
-                bra to_kill
+                bra     to_kill
 
-jmp_cmosa       jmp cmos_a
+jmp_cmosa       jmp     cmos_a
 
 
 ;*****************************************************
@@ -679,6 +682,7 @@ gj_0D           jsr update_commas
 clr_alpha_set_b0    
                 clrb    
                 bra clr_alpha_set_bx
+                
 clr_alpha_set_b1    
                 ldab    #$7F
 clr_alpha_set_bx    
@@ -859,7 +863,7 @@ go_attract      swi
                     SOL_(PF_CENTER_FLASH_ON4)
                     SLEEP_(8)
                     ADDRAM_(rega,1)
-                EQEND_(EQUAL_,RAM_+rega,5)
+                EQEND_(EQUAL_,RAM0,5)
                 SOL_(GI_RELAY_PF_OFF,GI_RELAY_BB_OFF)
                 JMPR_(go_loop)
             
@@ -896,7 +900,7 @@ attract_dragon  swi
                 BEGIN_
                     BEGIN_
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-atd_loop                BEQR_(EQUAL_,AND_,RAM_+rega,$01,$00,atd_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
+atd_loop                BEQR_(EQUAL_,AND_,RAM0,$01,$00,atd_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
                     NEEND_(lamp_gargtl)         ;BEQR_BIT#26
                     RROL0_(grp_dragons)         
                     JMPR_(atd_2)            
@@ -917,7 +921,7 @@ attract_bonus   swi
                 BEGIN_
                     BEGIN_
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-atb_loop                BEQR_(EQUAL_,AND_,RAM_+rega,$01,$00,atb_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
+atb_loop                BEQR_(EQUAL_,AND_,RAM0,$01,$00,atb_1)    ;BEQR_(LAMP#01(bip) & RAM$00)==#0 to at2_1
                     NEEND_(lamp_500)            ;BEQR_BIT#26
                     RROL0_(grp_bonmult)     ;Effect: Range #06 Range #05
                     JMPR_(atb_2)            
@@ -994,7 +998,7 @@ attract_wiz     swi
                         RROR0_(grp_wizard)              ;Rotate Right Lamp Group
                         SLEEP_(4)
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-                    EQEND_(EQUAL_,RAM_+rega,24)
+                    EQEND_(EQUAL_,RAM0,24)
                     RCLR0_(grp_wizard)
                     SLEEP_(4)
                     SETRAM_(rega,$00)
@@ -1002,7 +1006,7 @@ attract_wiz     swi
                         RINV0_(grp_wizard)
                         SLEEP_(4)
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-                    EQEND_(EQUAL_,RAM_+rega,10)
+                    EQEND_(EQUAL_,RAM0,10)
                 LOOP_
             
 ;**********************************************************
@@ -1018,7 +1022,7 @@ attract_arrows  swi
                         RINV0_(grp_seriesa)
                         SLEEP_(2)
                         ADDRAM_(rega,$01)           ;RAM$00+=$01
-                    EQEND_(EQUAL_,RAM_+rega,$10)
+                    EQEND_(EQUAL_,RAM0,$10)
                 LOOP_           
     
 ;**********************************************************
@@ -1081,7 +1085,7 @@ disp_hy_score   ldx     #msg_top_wizard
                 jmp     set_dis_masks12 
 
                 ;1083   D5E7 5AFEF2FFC0DD
-sw_plumbtilt    IFNER_(PRIORITY_,IMM_,$FF,$C0)    ;BEQR_(PRIORITY_,IMM_,$FF,$C0,$10)  ;BEQ_(BIT#80 P #FF) to tilt_kill
+sw_plumbtilt    IFNER_(PRIORITY_,IMM_,$FF,BIT0)    ;BEQR_(PRIORITY_,IMM_,$FF,$C0,$10)  ;BEQ_(BIT#80 P #FF) to tilt_kill
                     EXE_($06)               ;CPU Execute Next 6 Bytes
                     ldx #tilt_sleeper
                     jsr newthread_06
@@ -1122,16 +1126,18 @@ end_player      SOL_(GI_RELAY_PF_OFF,PF_CENTER_FLASH_OFF,BB_LEFT_FLASH_OFF,BB_RI
                 JSRDR_(save_playerdata)     
                 JSRD_(update_commas)        
                 JMPD_(outhole_main)
-            
+
+;*******************************************************************
+; Initialization for Player Startup
+;*******************************************************************            
 start_play      ;do stuff here for gameplay
                 swi
-                RCLR0_(grp_reds)        ;Turn on all reds
+                RCLR0_(grp_axe)        ;Reset Axe
                 SLEEP_(90)
                 BEGIN_
-                    RSET1R0_(grp_reds)
+                    RSET1R0_(grp_axe)
                     SLEEP_(30)
-                EQEND_(RANGEON_,grp_reds)        
-                ;when the player is out of reds, end the round
+                EQEND_(RANGEON_,grp_axe)        
                 JMPR_(end_player)
 
 save_playerdata rts
@@ -1187,7 +1193,7 @@ lampsweep       .db lamp_2xl+$80
                 .db lamp_5xl+$80
                 .db lamp_troll1,lamp_demon6+$80
                 .db lamp_red1,lamp_red2,lamp_red3,lamp_red4,lamp_red5,lamp_red6,lamp_red7,lamp_red8,lamp_red9,lamp_gargll,lamp_gargbr+$80
-                .db lamp_hand1,lamp_axe1,lamp_axe2,lamp_axe3,lamp_axe4,lamp_axe5,lamp_axe6,lamp_axe7,lamp_axe8,lamp_axe9,lamp_hand2+$80
+                .db lamp_hand1,lamp_axe1,lamp_axe2,lamp_axe3,lamp_axe4,lamp_axe5,lamp_axe6,lamp_axe7,lamp_axe8,lamp_axe9,lamp_hand1,lamp_hand2+$80
                 .db lamp_warlokl,lamp_ekr+$80
                 .db lamp_bkl,lamp_bkr,lamp_wiz1,lamp_wiz2,lamp_wiz3,lamp_wiz4,lamp_wiz5+$80
                 .db lamp_ekl,lamp_warlokr+$80
@@ -1254,7 +1260,6 @@ lamptable       LAMPGROUP(grp_alllamps,lamp_wiz1,lamp_hand2)        ;(00) all la
                 LAMPGROUP(grp_reds,lamp_red1,lamp_red9)             ;(10) red power lamps
                 LAMPGROUP(grp_axe,lamp_axe1,lamp_axe9)              ;(11) axe lamps
                 LAMPGROUP(grp_shield,lamp_hand1,lamp_hand2)         ;(12) hands
-                LAMPGROUP(grp_axehands,lamp_axe1,lamp_hand2)        ;(13) axe + hands
 
 
 soundtable      .db $22, $30,   $3C     ;(00) 
@@ -1486,7 +1491,7 @@ nxt_pia             ldx temp1           ;Get next PIA address base
                         inx 
                         inx 
                         decb    
-                        beq init_done
+                        beq     init_done
                         bitb    #$01
                     eqend
                     ldaa    temp1           ;Get current PIA address MSB
@@ -1912,16 +1917,16 @@ newthread_sp
                 ldaa    $00,X               ;\
                 staa    temp3               ;|
                 ldaa    $01,X               ;|---- Store the running threads next pointer in temp3
-                staa    temp3+1         ;/
+                staa    temp3+1             ;/
                 ldaa    temp2               ;\
                 staa    $00,X               ;|
-                ldaa    temp2+1         ;|---- Put the new thread into the running threads next pointer
+                ldaa    temp2+1             ;|---- Put the new thread into the running threads next pointer
                 staa    $01,X               ;/
                 ldx     $00,X
                 stx     vm_tail_thread      ;Make the new thread the last thread
                 ldaa    temp3               ;\
                 staa    $00,X               ;|
-                ldaa    temp3+1         ;|---- Set the Next pointer of the new thread to the 
+                ldaa    temp3+1             ;|---- Set the Next pointer of the new thread to the 
                 staa    $01,X               ;/     previous threads next pointer.
                 ldaa    temp1
                 staa    $0B,X
@@ -2925,34 +2930,34 @@ clr_ram         begin
 ;* the backup high score.
 ;**************************************************         
 factory_zeroaudits  
-                bsr clr_ram_100             ;Clear RAM 0100-01FF
-                ldx #adj_base
-                stx temp1
-                ldx #gr_cmoscsum            ;Begining of Default Audit Data
+                bsr     clr_ram_100             ;Clear RAM 0100-01FF
+                ldx     #adj_base
+                stx     temp1
+                ldx     #gr_cmoscsum            ;Begining of Default Audit Data
                 ldab    #$18
-                bsr copyblock2              ;Transfer Audit Data
+                bsr     copyblock2              ;Transfer Audit Data
                 ldab    #$01
                 ldaa    pia_sound_data          ;Read W29 Jumper Setting
                 ifmi
                     incb
                 endif
-                bsr loadpricing             ;Load Pricing Data
-                bsr restore_hstd            ;Restore Backup High Score
-                ldx #to_audadj
-                jmp newthread_06            ;Push VM: Data in A,B,X,$A6,$A7,$AA=#06
+                bsr     loadpricing             ;Load Pricing Data
+                bsr     restore_hstd            ;Restore Backup High Score
+                ldx     #to_audadj
+                jmp     newthread_06            ;Push VM: Data in A,B,X,$A6,$A7,$AA=#06
 
 ;**************************************************
 ;* Clears the CMOS High Score RAM then copies
 ;* the backup high score.
 ;**************************************************         
 restore_hstd    clra    
-                jsr fill_hstd_digits            ;Fill HSTD Digits with A
-                ldx #adj_backuphstd
-                bsr cmosinc_a               ;CMOS,X++ -> A
+                jsr     fill_hstd_digits            ;Fill HSTD Digits with A
+                ldx     #adj_backuphstd
+                bsr     cmosinc_a               ;CMOS,X++ -> A
                 tab 
-                jsr split_ab                ;Shift A<<4 B>>4
-                ldx #aud_currenthstd            ;CMOS: Current HSTD
-                bsr b_cmosinc               ;B -> CMOS,X++
+                jsr     split_ab                ;Shift A<<4 B>>4
+                ldx     #aud_currenthstd            ;CMOS: Current HSTD
+                bsr     b_cmosinc               ;B -> CMOS,X++
 
             
 ;**************************************************
@@ -2989,12 +2994,12 @@ copyblock       psha
                 begin
                     ldaa    $00,X
                     inx 
-                    stx temp2
-                    ldx temp1
+                    stx     temp2
+                    ldx     temp1
                     staa    $00,X
                     inx 
-                    stx temp1
-                    ldx temp2
+                    stx     temp1
+                    ldx     temp2
                     decb    
                 eqend
                 pula    
@@ -3009,24 +3014,24 @@ copyblock       psha
 ;* Requires: B
 ;************************************************               
 loadpricing     stab    adj_pricecontrol+1      ;Get the LSB of the pricing index
-                ldx #cmos_pricingbase   
-                stx temp1
+                ldx     #cmos_pricingbase   
+                stx     temp1
                 aslb                        
                 tba 
                 asla    
                 aba 
-                ldx #gr_gameadjust7         ;*** Table Pointer ***
-                jsr xplusa              ;X = X + A
+                ldx     #gr_gameadjust7         ;*** Table Pointer ***
+                jsr     xplusa              ;X = X + A
                 ldab    #$06
 copyblock2      psha
                 begin   
                     ldaa    $00,X
                     inx 
-                    stx temp2
-                    ldx temp1
-                    bsr a_cmosinc               ;A -> CMOS,X++
-                    stx temp1
-                    ldx temp2
+                    stx     temp2
+                    ldx     temp1
+                    bsr     a_cmosinc               ;A -> CMOS,X++
+                    stx     temp1
+                    ldx     temp2
                     decb    
                 eqend
                 pula    
@@ -3218,7 +3223,7 @@ disp_save       aba
                 ldab    irq_counter
                 rorb    
                 ifcc                        ;Do Lamps every other IRQ
-                    ldx #pia_lamp_row_data          ;Lamp PIA Offset
+                    ldx     #pia_lamp_row_data          ;Lamp PIA Offset
                     staa    $00,X                   ;Blank Lamp Rows with an $FF
                     staa    pia_sol_low_data
                     ldab    $03,X
@@ -3229,7 +3234,7 @@ disp_save       aba
                     staa    $02,X                   ;Put the strobe out there
                     cmpa    $02,X                   ;Did it take?
                     ifeq
-                        ldx lamp_index_word         ;This will always be $0001-$0080, it is
+                        ldx     lamp_index_word         ;This will always be $0001-$0080, it is
                                                 ;used to index the lamp buffer bit positions.           
                         ldaa    lampbufferselect,X      ;0=buffer_0 1=buffer_1
                         tab 
@@ -3302,7 +3307,7 @@ disp_save       aba
                 andb    switch_pending
                 orab    switch_aux
                 stab    switch_aux
-                asl pia_switch_strobe_data      ;Shift to Next Column Drive
+                asl     pia_switch_strobe_data      ;Shift to Next Column Drive
                 ldaa    switch_debounced+1
                 eora    pia_switch_return_data      ;Switch Row Return Data
                 tab 
@@ -3314,7 +3319,7 @@ disp_save       aba
                 andb    switch_pending+1
                 orab    switch_aux+1
                 stab    switch_aux+1
-                asl pia_switch_strobe_data      ;Shift to Next Column Drive
+                asl     pia_switch_strobe_data      ;Shift to Next Column Drive
                 ldaa    switch_debounced+2
                 eora    pia_switch_return_data      ;Switch Row Return Data
                 tab 
@@ -3326,7 +3331,7 @@ disp_save       aba
                 andb    switch_pending+2
                 orab    switch_aux+2
                 stab    switch_aux+2
-                asl pia_switch_strobe_data      ;Shift to Next Column Drive
+                asl     pia_switch_strobe_data      ;Shift to Next Column Drive
                 ldaa    switch_debounced+3
                 eora    pia_switch_return_data      ;Switch Row Return Data
                 tab 
@@ -3338,7 +3343,7 @@ disp_save       aba
                 andb    switch_pending+3
                 orab    switch_aux+3
                 stab    switch_aux+3
-                asl pia_switch_strobe_data      ;Shift to Next Column Drive
+                asl     pia_switch_strobe_data      ;Shift to Next Column Drive
                 ldaa    switch_debounced+4
                 eora    pia_switch_return_data      ;Switch Row Return Data
                 tab 
@@ -3350,7 +3355,7 @@ disp_save       aba
                 andb    switch_pending+4
                 orab    switch_aux+4
                 stab    switch_aux+4
-                asl pia_switch_strobe_data      ;Shift to Next Column Drive
+                asl     pia_switch_strobe_data      ;Shift to Next Column Drive
                 ldaa    switch_debounced+5
                 eora    pia_switch_return_data      ;Switch Row Return Data
                 tab 
@@ -3386,15 +3391,15 @@ disp_save       aba
                 andb    switch_pending+7
                 orab    switch_aux+7
                 stab    switch_aux+7
-                asl pia_switch_strobe_data      ;Shift to Next Column Drive
+                asl     pia_switch_strobe_data      ;Shift to Next Column Drive
                 ;***********************************
                 ;* Now do solenoids
                 ;***********************************
 irq_sol         ldaa    solenoid_counter            ;Solenoid Counter
                 ifne
-                    dec solenoid_counter            ;Solenoid Counter
+                    dec     solenoid_counter            ;Solenoid Counter
                     ifeq
-                        ldx solenoid_address
+                        ldx     solenoid_address
                         ldaa    $00,X
                         eora    solenoid_bitpos
                         staa    $00,X
@@ -3434,91 +3439,91 @@ lampbuffers     .dw lampbuffer0     ;Lower Buffer for 1X Commands, $40 Flag Clea
 ;* Turn On Lamp: Lamp number is in A (packed format). This can also be 
 ;*               used to set a bitflag.
 ;*************************************************************************
-lamp_on         stx temp3
-lamp_onx        ldx #lampbuffer0            ;Set up correct index to lampbuffer
+lamp_on         stx     temp3
+lamp_onx        ldx     #lampbuffer0            ;Set up correct index to lampbuffer
 lamp_or         pshb    
-                bsr unpack_byte             
+                bsr     unpack_byte             
                 pshb                        ;B now contains the bitpos
                 orab    $00,X
 lamp_commit     stab    $00,X                   ;turn it on
-                stx temp2
+                stx     temp2
                 ldab    temp2+1             ;was item worked on within lampbuffer0
                 cmpb    #(bitflags)&$FF         ;compare index against start of bitflags
                 pulb    
-                bcc lamp_done
+                bcc     lamp_done
                 comb                        ;If we are here, then we must switch buffers.
                 andb    lampbufferselect+8,X     ;We are now on buffer 0
                 stab    lampbufferselect+8,X
 lamp_done       pulb    
-                ldx temp3
+                ldx     temp3
                 rts
 
 ;*************************************************************************
 ;* Turn Off Lamp: Lamp number is in A (packed format). This can also be 
 ;*               used to clear a bitflag.
 ;*************************************************************************          
-lamp_off        stx temp3
-lamp_offx       ldx #lampbuffer0
+lamp_off        stx     temp3
+lamp_offx       ldx     #lampbuffer0
 lamp_and        pshb    
-                bsr unpack_byte             ;seperate into X and B
+                bsr     unpack_byte             ;seperate into X and B
                 pshb    
                 comb    
                 andb    $00,X
-                bra lamp_commit
+                bra     lamp_commit
 
 ;*************************************************************************
 ;* Sets a Lamp to 'flashing' state
 ;*************************************************************************          
-lamp_flash      stx temp3
-                ldx #lampflashflag
-                bra lamp_or
+lamp_flash      stx     temp3
+                ldx     #lampflashflag
+                bra     lamp_or
 
 ;*************************************************************************
 ;* Toggle Lamp from existing state. This may be used on bitflags as well.
 ;*************************************************************************          
-lamp_invert     stx temp3
-                ldx #lampbuffer0
+lamp_invert     stx     temp3
+                ldx     #lampbuffer0
 lamp_eor        pshb    
-                bsr unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
+                bsr     unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
                 eorb    $00,X
                 stab    $00,X
-                bra lamp_done               ;Leave now
+                bra     lamp_done               ;Leave now
                 
-bsel_on         stx temp3
-                ldx #lampbufferselect
-                bra lamp_or
+bsel_on         stx     temp3
+                ldx     #lampbufferselect
+                bra     lamp_or
 
-bsel_off        stx temp3
-                ldx #lampbufferselect
-                bra lamp_and
+bsel_off        stx     temp3
+                ldx     #lampbufferselect
+                bra     lamp_and
 
-bsel_invert     stx temp3
-                ldx #lampbufferselect
-                bra lamp_eor
+bsel_invert     stx     temp3
+                ldx     #lampbufferselect
+                bra     lamp_eor
 
-lamp_on_1       stx temp3
-lamp_on_1x      ldx #lampbuffer1
-                bra lamp_or
+lamp_on_1       stx     temp3
+lamp_on_1x      ldx     #lampbuffer1
+                bra     lamp_or
 
-lamp_off_1      stx temp3
-lamp_off_1x     ldx #lampbuffer1
-                bra lamp_and
+lamp_off_1      stx     temp3
+lamp_off_1x     ldx     #lampbuffer1
+                bra     lamp_and
 
-lamp_invert_1   stx temp3
-                ldx #lampbuffer1
-                bra lamp_eor
+lamp_invert_1   stx     temp3
+                ldx     #lampbuffer1
+                bra     lamp_eor
             
-bit_on          stx temp3
-                ldx #bitflags
-                bra lamp_or
+bit_on          stx     temp3
+                ldx     #bitflags
+                bra     lamp_or
 
-bit_off         stx temp3
-                ldx #bitflags
-                bra lamp_and
+bit_off         stx     temp3
+                ldx     #bitflags
+                bra     lamp_and
 
-bit_invert      stx temp3
-                ldx #bitflags
-                bra lamp_eor
+bit_invert      stx     temp3
+                ldx     #bitflags
+                bra     lamp_eor
 
 ;*********************************************************
 ;* Converts Packed Byte data into an Index in X and a
@@ -3535,26 +3540,26 @@ unpack_byte     psha
                 lsra    
                 lsra    
                 lsra    
-                jsr xplusa              ;X = X + A
+                jsr     xplusa              ;X = X + A
                 pula    
-                jmp hex2bitpos              ;Convert Hex (A&07) into bitpos (B)
+                jmp     hex2bitpos              ;Convert Hex (A&07) into bitpos (B)
 
 ;***************************************************************
 ;* Lamp Range Manipulation Code Start Here
 ;***************************************************************
 ;Clears all lamps in specified buffer, sets active buffer to 0      
-lampm_clr0      bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lampm_clr0      bsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
                 begin
                     tba 
                     coma    
                     anda    $00,X
-                    bsr lampm_buf0          ;Set Lamp to Buffer 0
-                    jsr lamp_left           ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    bsr     lampm_buf0          ;Set Lamp to Buffer 0
+                    jsr     lamp_left           ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
                 csend                       ;Loop it!
-                bra abx_ret
+                bra     abx_ret
 
 lampm_buf0      staa    $00,X
-                stx temp2
+                stx     temp2
                 ldaa    temp2+1
                 cmpa    #$1C                    ;If we are not using Buffer $0010 then skip this
                 ifcs
@@ -3566,12 +3571,12 @@ lampm_buf0      staa    $00,X
                 rts  
 
 ;Invert entire range
-lampm_f         bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lampm_f         bsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
                 begin
                     tba 
                     eora    $00,X
                     staa    $00,X
-                    jsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    jsr     lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
                 csend
                 bra abx_ret
 
@@ -3586,31 +3591,30 @@ lampm_f         bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byt
 ;The best example of this routine is for the 10-20-30 lamps on 
 ;Jungle Lord. It will simply incrment the 10-20-30 lamps sequentially
 ;and then stop at 30. If none are on, then it will turn on 10.
-lampm_g             
-                bsr lampr_end               ;A = Last Lamp Level, B = Last Lamp BitPos
-                bne abx_ret
+lampm_g         bsr     lampr_end               ;A = Last Lamp Level, B = Last Lamp BitPos
+                bne     abx_ret
                 begin
-                    jsr lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
-                    bcs b_098
+                    jsr     lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+                    bcs     b_098
                 neend
                 tba 
                 coma    
                 anda    $00,X
                 staa    $00,X
-b_098           bsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+b_098           bsr     lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
 b_09A           orab    $00,X
                 stab    $00,X
-                bra abx_ret
+                bra     abx_ret
 
 ;***************************************************
 ;* Goes through range bits from low to high and
 ;* finds first cleared bit, sets it and exits.  
 ;***************************************************    
-lampm_a         bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lampm_a         bsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
                 begin
-                    beq b_09A
-                    bsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
-                    bcs abx_ret             ;Return if we have reached end lamp
+                    beq     b_09A
+                    bsr     lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    bcs     abx_ret             ;Return if we have reached end lamp
                 loopend
 
 ;***************************************************
@@ -3619,27 +3623,27 @@ lampm_a         bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byt
 ;* all bits in range are already set, then routine 
 ;* clears all bits in range.
 ;***************************************************            
-lampm_b         bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lampm_b         bsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
                 begin
-                    beq b_09A
-                    bsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    beq     b_09A
+                    bsr     lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
                 csend
-                ldx temp3
+                ldx     temp3
                 ldaa    sys_temp1
                 ldab    sys_temp2
-                bra lampm_clr0              ;Turn OFF All lamps in Range
+                bra     lampm_clr0              ;Turn OFF All lamps in Range
 
 ;Sets all lamp bits specified buffer, sets active buffer to 0 if action is on buffer 0          
-lampm_set0      bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lampm_set0      bsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
                 begin
                     tba 
                     oraa    $00,X
-                    bsr lampm_buf0          ;Set Lamp to Buffer 0
-                    bsr lamp_left           ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    bsr     lampm_buf0          ;Set Lamp to Buffer 0
+                    bsr     lamp_left           ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
                 csend
 abx_ret         ldaa    sys_temp1
                 ldab    sys_temp2
-                ldx temp3
+                ldx     temp3
                 rts  
 
 ;************************************************************
@@ -3656,35 +3660,35 @@ abx_ret         ldaa    sys_temp1
 ;* X = Selected Buffer Address
 ;*
 ;************************************           
-lampr_start     jsr lampr_setup             ;Set up Lamp: $A2=start $A3=last B=Bitpos X=Buffer
+lampr_start     jsr     lampr_setup             ;Set up Lamp: $A2=start $A3=last B=Bitpos X=Buffer
                 ldaa    sys_temp3               ;Starting lamp in range
-lr_ret          jsr unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
+lr_ret          jsr     unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
                 tba 
                 anda    $00,X
                 rts  
 
-lampr_end       bsr lampr_setup             ;Set up Lamp: $A2=start $A3=last B=Bitpos X=Buffer
+lampr_end       bsr     lampr_setup             ;Set up Lamp: $A2=start $A3=last B=Bitpos X=Buffer
                 ldaa    sys_temp4               ;End Lamp In range
-                bra lr_ret
+                bra     lr_ret
             
-lampr_setup     stx temp3
+lampr_setup     stx     temp3
                 staa    sys_temp1
                 stab    sys_temp2
-                ldx gr_lamptable_ptr            ;Game ROM: Lamp Range Table
+                ldx     gr_lamptable_ptr            ;Game ROM: Lamp Range Table
                 tab 
                 aslb    
                 andb    #$7F
-                jsr xplusb
-                ldx $00,X                   ;Get the start lamp
-                stx sys_temp3               ;Save Lamp Range
-                ldx #lampbuffers            ;Lamp Buffer Locations, shifts bits 6+7 around into 1+2
+                jsr     xplusb
+                ldx     $00,X                   ;Get the start lamp
+                stx     sys_temp3               ;Save Lamp Range
+                ldx     #lampbuffers            ;Lamp Buffer Locations, shifts bits 6+7 around into 1+2
                 rola    
                 rola    
                 rola    
                 asla    
                 anda    #$07
-                jsr xplusa              ;X = X + A
-                ldx $00,X                   ;Get the Buffer Pointer Specified
+                jsr     xplusa              ;X = X + A
+                ldx     $00,X                   ;Get the Buffer Pointer Specified
                 ldab    sys_temp4
                 subb    sys_temp3
                 stab    temp1                   ;Store how many lamps affected
@@ -3713,59 +3717,59 @@ ls_ret          ldaa    temp1               ;load up the original lamp counter u
 ;* is reset to #$80
 ;*************************************************************          
 lamp_right      lsrb    
-                bcc ls_ret
+                bcc     ls_ret
                 rorb    
                 dex 
-                bra ls_ret
+                bra     ls_ret
 
 ;***************************************************
 ;* Goes through range bits from high to low, routine
 ;* finds first bit in range that is set and clears
 ;* it and then exits.
 ;***************************************************            
-lampm_c         bsr lampr_end               ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+lampm_c         bsr     lampr_end               ;A=Current State,B=Bitpos,X=Lamp Byte Postion
 lm_test         ifeq
-                    bsr lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
-                    bcc lm_test
-                    bra abx_ret
+                    bsr     lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+                    bcc     lm_test
+                    bra     abx_ret
                 endif
                 comb    
                 andb    $00,X
                 stab    $00,X
-                bra abx_ret
+                bra     abx_ret
 
 ;Rotate Up          
-lampm_e         bsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
-                stx temp2
+lampm_e         bsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+                stx     temp2
                 stab    temp1+1
                 begin
                     staa    sys_temp5
-                    bsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
-                    bcs b_0A2                   ;Branch if we are at the end of the range
-                    bsr b_0A3
+                    bsr     lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    bcs     b_0A2                   ;Branch if we are at the end of the range
+                    bsr     b_0A3
                 loopend
             
-b_0A2           ldx temp2                   ;Get the last Byte location
+b_0A2           ldx     temp2                   ;Get the last Byte location
                 ldab    temp1+1             ;Get the last Bitpos
-                bsr b_0A3
-                bra to_abx_ret
+                bsr     b_0A3
+                bra     to_abx_ret
 
 ;Rotate Down            
-lampm_d         bsr lampr_end               ;A = Last Lamp Level, B = Last Lamp BitPos
-                stx temp2
+lampm_d         bsr     lampr_end               ;A = Last Lamp Level, B = Last Lamp BitPos
+                stx     temp2
                 stab    temp1+1
                 begin
                     staa    sys_temp5
-                    bsr lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
-                    bcs b_0A2
-                    bsr b_0A3
+                    bsr     lamp_right              ;Shift Lamp Bit Right, De-increment Lamp Counter, Write it
+                    bcs     b_0A2
+                    bsr     b_0A3
                 loopend
 
 b_0A3           psha                    
                 tba                 ;B has the bitpos
                 coma    
                 anda    $00,X               ;Mask it off
-                tst sys_temp5           ;sys_temp5 has the first bit in range's value or 0s
+                tst     sys_temp5           ;sys_temp5 has the first bit in range's value or 0s
                 ifne                    ;if it was on
                     aba                 ;make it on again
                 endif
@@ -3803,23 +3807,23 @@ lfill_b         jsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp
                     bne lmp_clc
                     jsr lamp_left               ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
                 csend
-                bra to_abx_ret
+                bra     to_abx_ret
 
-bit_switch      ldx #switch_debounced
-                bra bit_main
-bit_lamp_flash  ldx #lampflashflag
-                bra bit_main
-bit_lamp_buf_1  ldx #lampbuffer1
-                bra bit_main
-bit_flags       ldx #bitflags
-                bra bit_main
-bit_lamp_buf_0  ldx #lampbuffer0
-bit_main        jsr unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
+bit_switch      ldx     #switch_debounced
+                bra     bit_main
+bit_lamp_flash  ldx     #lampflashflag
+                bra     bit_main
+bit_lamp_buf_1  ldx     #lampbuffer1
+                bra     bit_main
+bit_flags       ldx     #bitflags
+                bra     bit_main
+bit_lamp_buf_0  ldx     #lampbuffer0
+bit_main        jsr     unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
                 bitb    $00,X
                 rts 
 
 lampm_x         anda    #$3F
-                jsr lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
+                jsr     lampr_start             ;A=Current State,B=Bitpos,X=Lamp Byte Postion
                 begin
                     staa    thread_priority         ;This is probably just a temp location?
                     tba 
@@ -3827,9 +3831,9 @@ lampm_x         anda    #$3F
                     anda    bitflags+8,X
                     oraa    thread_priority         ;Recall temp
                     staa    bitflags+8,X
-                    jsr lamp_left                   ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
+                    jsr     lamp_left                   ;Shift Lamp Bit Left, De-increment Lamp Counter, Write it
                 csend
-                bra to_abx_ret
+                bra     to_abx_ret
             
 ;***************************************************
 ;* System Checksum #2: Set to make ROM csum from
@@ -3959,88 +3963,88 @@ macro_go
                 lsrb    
                 lsrb    
                 andb    #$1E
-                ldx #master_vm_lookup
-                jsr xplusb
-                ldx $00,X
-                jmp $00,X                           ;do it
+                ldx     #master_vm_lookup
+                jsr     xplusb
+                ldx     $00,X
+                jmp     $00,X                           ;do it
 
-macro_next      stx vm_pc
+macro_next      stx     vm_pc
 abreg_sto       staa    vm_reg_a
 breg_sto        stab    vm_reg_b
-                bra macro_go
+                bra     macro_go
             
 
-vm_control_0x   ldx #vm_lookup_0x
-                jsr gettabledata_b          ;X = data at (X + (A*2))
-                jmp $00,X
+vm_control_0x   ldx     #vm_lookup_0x
+                jsr     gettabledata_b          ;X = data at (X + (A*2))
+                jmp     $00,X
             
 macro_pcminus100    
-                ldx vm_pc
+                ldx     vm_pc
                 dex 
-                stx vm_pc
-                bra macro_go
+                stx     vm_pc
+                bra     macro_go
 
 macro_code_start    
-                ldx vm_pc
+                ldx     vm_pc
                 ldaa    ram_base
                 ldab    ram_base+1
-                jmp $00,X
+                jmp     $00,X
 
-macro_special   jsr award_replay            ;Award Special
-                bra macro_go
+macro_special   jsr     award_replay            ;Award Special
+                bra     macro_go
 
-macro_extraball jsr award_extraball         ;Award Extra Ball
-                bra macro_go
+macro_extraball jsr     award_extraball         ;Award Extra Ball
+                bra     macro_go
             
 vm_control_1x   tab 
                 andb    #$0F
                 subb    #$08
-                bcs macro_17                ;Branch for Macros 10-17
+                bcs     macro_17                ;Branch for Macros 10-17
 macro_x8f       aslb    
-                ldx #vm_lookup_1x_a
-                jsr xplusb              ;X = X + B)
-                ldx $00,X
+                ldx     #vm_lookup_1x_a
+                jsr     xplusb              ;X = X + B)
+                ldx     $00,X
                 tab                     ;Original Command #
                 aslb    
                 aslb    
                 andb    #$80
 b_0AF           begin
-                    jsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                    jsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
                     psha    
                     anda    #$7F
                     aba 
-                    jsr $00,X
+                    jsr     $00,X
                     pula    
                     tsta    
                 plend
-                bra macro_go
+                bra     macro_go
                 
-macro_17        ldx #vm_lookup_1x_b
+macro_17        ldx     #vm_lookup_1x_b
 macro_x17       tab                     ;A = still instruction #
                 anda    #$03
-                jsr gettabledata_b          ;X = data at (X + (A*2))
+                jsr     gettabledata_b          ;X = data at (X + (A*2))
                 bitb    #$04
                 ifeq                    ;Branch on 14-17
                     clrb    
-                    bra b_0AF
+                    bra     b_0AF
                 endif
                 begin
-                    bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                    bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
                     tab 
-                    stx temp3
-                    jsr macro_b_ram             ;$00,LSD(A)->A
-                    jsr $00,X
-                    ldx temp3
+                    stx     temp3
+                    jsr     macro_b_ram             ;$00,LSD(A)->A
+                    jsr     $00,X
+                    ldx     temp3
                     tstb    
                 plend
-to_macro_go1    jmp macro_go
+to_macro_go1    jmp     macro_go
 
 vm_control_2x   tab                     ;A= macro
                 andb    #$0F
                 subb    #$08
-                bcc macro_x8f               ;Branch for Macros 28-2F
-                ldx #vm_lookup_2x
-                bra macro_x17
+                bcc     macro_x8f               ;Branch for Macros 28-2F
+                ldx     #vm_lookup_2x
+                bra     macro_x17
             
 vm_control_dx   ldx   #vm_lookup_dx_l
                 tab   
@@ -4053,31 +4057,31 @@ vm_control_dx   ldx   #vm_lookup_dx_l
 vm_control_3x   tab 
                 andb    #$0F                    ;16 Solenoids Max 
                 begin
-                    bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
-                    jsr solbuf              ;Turn On/Off Solenoid
+                    bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                    jsr     solbuf              ;Turn On/Off Solenoid
                     decb    
                 eqend
-                bra to_macro_go1
+                bra     to_macro_go1
 
 vm_control_4x   anda    #$0F
                 ifeq
-                    jsr macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
-                    jsr isnd_pts                ;Play Sound Index(B)Once, Add Points(A)
-                    bra to_macro_go1
+                    jsr     macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
+                    jsr     isnd_pts                ;Play Sound Index(B)Once, Add Points(A)
+                    bra     to_macro_go1
                 endif
                 cmpa    #$04
-                bcc macro_exec              ;Branch for Macros 44-4F (execute cpu)
-                ldx #vm_lookup_4x-2
-                jsr gettabledata_b          ;X = data at (X + (A*2))
-                bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
-                jsr $00,X
-                bra to_macro_go1            ;Continue Executing Macros
+                bcc     macro_exec              ;Branch for Macros 44-4F (execute cpu)
+                ldx     #vm_lookup_4x-2
+                jsr     gettabledata_b          ;X = data at (X + (A*2))
+                bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                jsr     $00,X
+                bra     to_macro_go1            ;Continue Executing Macros
 
 macro_exec      tab 
                 subb    #$02
-                ldx #exe_buffer
+                ldx     #exe_buffer
                 begin
-                    bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                    bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
                     staa    $00,X
                     inx 
                     decb    
@@ -4090,12 +4094,12 @@ macro_exec      tab
                 staa    $02,X
                 ldaa    vm_reg_a
                 ldab    vm_reg_b
-                jmp exe_buffer              ;Go there Now, put return A and B into RAM $00 and $01 
+                jmp     exe_buffer              ;Go there Now, put return A and B into RAM $00 and $01 
 
 gettabledata_w  anda    #$0F
 gettabledata_b  asla    
-                jsr xplusa
-                ldx $00,X
+                jsr     xplusa
+                ldx     $00,X
                 rts
 
 ;******************************************************
@@ -4110,82 +4114,82 @@ macro_getnextbyte
 getx_rts        ldx     temp1
                 rts 
 
-vm_control_5x   ldx #vm_lookup_5x
+vm_control_5x   ldx     #vm_lookup_5x
                 tab                     ;Move our Data into B
-                jsr gettabledata_w          ;X = data at (X + LSD(A)*2)
-                jmp $00,X
+                jsr     gettabledata_w          ;X = data at (X + LSD(A)*2)
+                jmp     $00,X
 
-macro_ramadd    bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+macro_ramadd    bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
                 tab 
-                bsr macro_b_ram             ;$00,LSD(A)->A
+                bsr     macro_b_ram             ;$00,LSD(A)->A
                 staa    temp3
                 lsrb    
                 lsrb    
                 lsrb    
                 lsrb    
                 tba 
-                bsr macro_b_ram             ;$00,LSD(A)->A
+                bsr     macro_b_ram             ;$00,LSD(A)->A
                 adda    temp3
-ram_sto2        bsr macro_a_ram             ;A->$00,LSD(B)
-to_macro_go2    jmp macro_go
+ram_sto2        bsr     macro_a_ram             ;A->$00,LSD(B)
+to_macro_go2    jmp     macro_go
 
-macro_ramcopy   bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+macro_ramcopy   bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
                 tab 
-                bsr macro_b_ram             ;$00,LSD(A)->A
+                bsr     macro_b_ram             ;$00,LSD(A)->A
                 lsrb    
                 lsrb    
                 lsrb    
                 lsrb    
-                bra ram_sto2                ;A->$00,LSD(B),jmp $F3B5
+                bra     ram_sto2                ;A->$00,LSD(B),jmp $F3B5
 
-macro_set_pri   bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
-                ldx current_thread          ;Current VM Routine being run
+macro_set_pri   bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                ldx     current_thread          ;Current VM Routine being run
                 staa    threadobj_id,X
-                bra to_macro_go2            ;Continue Executing Macros
+                bra     to_macro_go2            ;Continue Executing Macros
 
 macro_delay_imm_b   
-                bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
 dly_sto         staa    thread_timer_byte
-                ldx vm_pc
+                ldx     vm_pc
                 ldaa    vm_reg_a
                 ldab    vm_reg_b
-                jsr delaythread             ;Push Next Address onto VM, Timer at thread_timer_byte
-                jmp macro_next
+                jsr     delaythread             ;Push Next Address onto VM, Timer at thread_timer_byte
+                jmp     macro_next
 
 macro_getnextword       
-                bsr macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
+                bsr     macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
                 stab    temp1
                 staa    temp1+1
-                bra getx_rts
+                bra     getx_rts
             
-macro_get2bytes bsr macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+macro_get2bytes bsr     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
                 tab 
-                bra macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                bra     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
             
-macro_rem_th_s  bsr macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
-                jsr kill_thread
-                bra to_macro_go2            ;Continue Executing Macros
+macro_rem_th_s  bsr     macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
+                jsr     kill_thread
+                bra     to_macro_go2            ;Continue Executing Macros
             
-macro_rem_th_m  bsr macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
-                jsr kill_threads
-                bra to_macro_go2            ;Continue Executing Macros
+macro_rem_th_m  bsr     macro_get2bytes         ;Macro Data: Next Two Bytes into B & A:
+                jsr     kill_threads
+                bra     to_macro_go2            ;Continue Executing Macros
 
 macro_jsr_noreturn  
-                bsr macro_getnextword           ;Macro Data: Load X with Next Two Bytes
+                bsr     macro_getnextword           ;Macro Data: Load X with Next Two Bytes
                 ldaa    vm_pc+1
                 psha    
                 ldaa    vm_pc
                 psha    
-pc_sto2         stx vm_pc
-                bra to_macro_go2            ;jContinue Executing Macros
+pc_sto2         stx     vm_pc
+                bra     to_macro_go2            ;jContinue Executing Macros
             
-macro_a_ram     stx temp1
+macro_a_ram     stx     temp1
                 andb    #$0F
                 stab    temp2+1
-                clr temp2
-                ldx temp2
+                clr     temp2
+                ldx     temp2
                 staa    $00,X
-to_getx_rts     bra getx_rts
+to_getx_rts     bra     getx_rts
 
 macro_b_ram     stx     temp1
                 anda    #$0F
@@ -4193,50 +4197,51 @@ macro_b_ram     stx     temp1
                 clr     temp2
                 ldx     temp2
                 ldaa    $00,X
-                bra to_getx_rts             ;ldx temp1, rts.
+                bra     to_getx_rts             ;ldx temp1, rts.
 
-macro_jsr_return    bsr macro_getnextword           ;Macro Data: Load X with Next Two Bytes
+macro_jsr_return    
+                bsr     macro_getnextword           ;Macro Data: Load X with Next Two Bytes
 ret_sto         ldaa    vm_pc+1
                 psha    
                 ldaa    vm_pc
                 psha                        ;Push Macro PC
                 ldaa    ram_base
                 ldab    ram_base+1
-                jsr $00,X
+                jsr     $00,X
                 staa    ram_base
                 pula    
                 staa    vm_pc                   ;Pull Macro PC
                 pula    
                 staa    vm_pc+1
-                jmp breg_sto
+                jmp     breg_sto
 
-vm_control_6x   bsr macro_b_ram             ;Load RAM Data
-                bra dly_sto             ;Delay it
+vm_control_6x   bsr     macro_b_ram             ;Load RAM Data
+                bra     dly_sto             ;Delay it
             
 vm_control_7x   anda    #$0F
-                bra dly_sto             ;Delay it
+                bra     dly_sto             ;Delay it
             
-vm_control_8x   bsr macro_pcadd             ;Add LSD(A)+NextByte to $D1,$D2 -> X
-pc_sto          stx vm_pc                   ;Store X into VMPC
-to_macro_go4    jmp macro_go
+vm_control_8x   bsr     macro_pcadd             ;Add LSD(A)+NextByte to $D1,$D2 -> X
+pc_sto          stx     vm_pc                   ;Store X into VMPC
+to_macro_go4    jmp     macro_go
 
-macro_jmp_cpu   jsr macro_getnextword           ;Macro Data: Load X with Next Two Bytes
+macro_jmp_cpu   jsr     macro_getnextword           ;Macro Data: Load X with Next Two Bytes
                 ldaa    vm_reg_a
                 ldab    vm_reg_b
-                jmp $00,X
+                jmp     $00,X
             
-vm_control_9x   bsr macro_pcadd             ;Add LSD(A)+NextByte to $D1,$D2 -> X
+vm_control_9x   bsr     macro_pcadd             ;Add LSD(A)+NextByte to $D1,$D2 -> X
                 ldab    vm_pc+1
                 pshb    
                 ldab    vm_pc
                 pshb    
-                bra pc_sto              ;Store X into VMPC, continue
+                bra     pc_sto              ;Store X into VMPC, continue
 
-vm_control_ax   bsr macro_pcadd             ;Add LSD(A)+NextByte to $D1,$D2 -> X
-                bra ret_sto
+vm_control_ax   bsr     macro_pcadd             ;Add LSD(A)+NextByte to $D1,$D2 -> X
+                bra     ret_sto
             
-macro_jmp_abs   jsr macro_getnextword           ;Macro Data: Load X with Next Two Bytes
-                bra pc_sto
+macro_jmp_abs   jsr     macro_getnextword           ;Macro Data: Load X with Next Two Bytes
+                bra     pc_sto
             
 vm_control_bx   tab 
                 bsr     macro_b_ram             ;RAM Data (A&0f)->A
@@ -4247,19 +4252,19 @@ ram_sto         bsr     macro_a_ram             ;A->RAM(B&0f)
                 bra     to_macro_go4
 
 vm_control_cx   tab 
-                bsr to_macro_getnextbyte
-                bra ram_sto             ;Save to RAM and continue
+                bsr     to_macro_getnextbyte
+                bra     ram_sto             ;Save to RAM and continue
             
 vm_control_nu   anda    #$0F
                 tab 
-                bsr to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
-                jsr sound_sub
-                bra to_macro_go4            ;jmp  $F3B5 
+                bsr     to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
+                jsr     sound_sub
+                bra     to_macro_go4            ;jmp  $F3B5 
 
 vm_control_ex
 vm_control_fx   anda    #$1F
-                jsr isnd_once               ;Play Sound Index(A) Once
-                bra to_macro_go4
+                jsr     isnd_once               ;Play Sound Index(A) Once
+                bra     to_macro_go4
             
 macro_pcadd     anda    #$0F
                 bita    #$08
@@ -4267,53 +4272,53 @@ macro_pcadd     anda    #$0F
                     oraa    #$F0
                 endif
                 tab 
-                bsr to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
+                bsr     to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
                 adda    vm_pc+1
                 staa    temp1+1
                 adcb    vm_pc
                 stab    temp1
-                ldx temp1
+                ldx     temp1
                 rts 
 
-macro_setswitch bsr load_sw_no              ;Get switch number from the data
+macro_setswitch bsr     load_sw_no              ;Get switch number from the data
                 orab    $00,X
                 stab    $00,X
                 ldaa    sys_temp_w3
-                bmi macro_setswitch
-                bra to_macro_go3            ;jmp  $F3B5
+                bmi     macro_setswitch
+                bra     to_macro_go3            ;jmp  $F3B5
             
-load_sw_no      bsr to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
+load_sw_no      bsr     to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
                 staa    sys_temp_w3
                 anda    #$3F
-                ldx #switch_debounced
-                jmp unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
+                ldx     #switch_debounced
+                jmp     unpack_byte             ;(X = X + A>>3), B = (bitpos(A&07))
 
 macro_clearswitch   
-                bsr load_sw_no              ;Get switch number from the data
+                bsr     load_sw_no              ;Get switch number from the data
                 comb    
                 andb    $00,X
                 stab    $00,X
                 ldaa    sys_temp_w3
-                bmi macro_clearswitch
-to_macro_go3    jmp macro_go
+                bmi     macro_clearswitch
+to_macro_go3    jmp     macro_go
 
 to_macro_getnextbyte            
-                jmp macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
+                jmp     macro_getnextbyte           ;Macro Data: A = Next Byte $D1+1
 
 ;-------------------------------------------
 ; Branch Handler for $55,$59,$5A,$5B
 ;-------------------------------------------
 macro_branch    pshb    
-                bsr branchdata              ;Gets Main Result
-                jsr test_a                  ;Returns #80 or #81 in (A) based on Test of A
+                bsr     branchdata              ;Gets Main Result
+                jsr     test_a                  ;Returns #80 or #81 in (A) based on Test of A
                 pulb                        ;Get Back Command in B
                 aba 
                 psha    
                 bitb    #$02                    ;Relative or Absolute Branch Flag
                 ifeq
-                    jsr macro_getnextword           ;Macro Data: Load X with Next Two Bytes
+                    jsr     macro_getnextword           ;Macro Data: Load X with Next Two Bytes
                 else
-                    bsr to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
+                    bsr     to_macro_getnextbyte        ;Macro Data: A = Next Byte $D1+1
                     ldab    #$FF
                     cmpa    #$80
                     adcb    #$00
@@ -4321,12 +4326,12 @@ macro_branch    pshb
                     adcb    vm_pc
                     staa    temp1+1
                     stab    temp1
-                    ldx temp1
+                    ldx     temp1
                 endif
                 pula                        ;Get our result from above push
                 rora                        ;Test LSB
-                bcc to_macro_go3            ;If result was #80, then ignore this branch (jmp  $F3B5)
-                jmp pc_sto2             ;Else, we will branch now. (stx  $D1, jmp $F3B5)
+                bcc     to_macro_go3            ;If result was #80, then ignore this branch (jmp  $F3B5)
+                jmp     pc_sto2             ;Else, we will branch now. (stx  $D1, jmp $F3B5)
 
 ;-----------------------------------------------------
 ; This appears to be the main routine for doing a 
@@ -4339,18 +4344,18 @@ branchdata      bsr     to_macro_getnextbyte        ;Macro Data: A = Next Byte $
                 bcc     complexbranch           ;Branch if #F0 or above (Complex)
                 cmpa    #$E0
                 ifcc                        ;Branch if less than #E0
-                    jmp macro_b_ram             ;RAM Data (A&0f)->A (Data is E_)
+                    jmp     macro_b_ram             ;RAM Data (A&0f)->A (Data is E_)
                 endif
-                ldx #adj_gamebase           ;Pointer to Bottom of Game Adjustments
+                ldx     #adj_gamebase           ;Pointer to Bottom of Game Adjustments
                 anda    #$0F                ;A = Index for Game Adjustment Lookup
                 asla    
-                jsr xplusa              ;X = X + A
-                jmp cmosinc_a               ;CMOS,X++ -> A
+                jsr     xplusa              ;X = X + A
+                jmp     cmosinc_a               ;CMOS,X++ -> A
 
 complexbranch   cmpa    #$F3
                 ifcc                            ;data is below #F3 (not complex)
 cbra2               psha                        ;Push Current Branch Inst.
-                    bsr branchdata              ;Gets Encoded Data Type
+                    bsr     branchdata              ;Gets Encoded Data Type
                     tab 
                     stab    temp1
                     pula    
@@ -4358,7 +4363,7 @@ cbra2               psha                        ;Push Current Branch Inst.
                     ifcc                        ;Branch if below #F9 (Lamp or Bit Test)
                         psha    
                         pshb    
-                        bsr branchdata              ;Gets Encoded Data Type
+                        bsr     branchdata              ;Gets Encoded Data Type
                         staa    temp1
                         pulb    
                         pula    
@@ -4371,67 +4376,67 @@ cbra2               psha                        ;Push Current Branch Inst.
                 ldaa    temp1
                 jmp     $00,X
 
-branch_invert   bsr test_a
+branch_invert   bsr     test_a
                 eora    #$01
 to_rts3         rts 
 
-branch_lamp_on  jsr bit_lamp_buf_0          ;Bit Test B with Lamp Data (A)
-                bne ret_true                ;return true
-                jsr bit_lamp_flash          ;Check Encoded #(A) with $0030
-test_z          bne ret_true                ;return true
-                bra ret_false               ;return false
+branch_lamp_on  jsr     bit_lamp_buf_0          ;Bit Test B with Lamp Data (A)
+                bne     ret_true                ;return true
+                jsr     bit_lamp_flash          ;Check Encoded #(A) with $0030
+test_z          bne     ret_true                ;return true
+                bra     ret_false               ;return false
             
 branch_lamprangeoff 
-                jsr lfill_b
-test_c          bcs ret_true                ;return true
-                bra ret_false               ;return false
+                jsr     lfill_b
+test_c          bcs     ret_true                ;return true
+                bra     ret_false               ;return false
             
 branch_lamprangeon  
-                jsr lfill_a
-                bra test_c
+                jsr     lfill_a
+                bra     test_c
 
 branch_tilt     ldaa    flag_tilt               ;tilt flag?
-                bne ret_true                ;return true
+                bne     ret_true                ;return true
 ret_false       ldaa    #$80                    ;return false
                 rts 
             
 branch_gameover ldaa    flag_gameover           ;game over?
-                beq ret_false               ;return false
+                beq     ret_false               ;return false
 ret_true        ldaa    #$81
                 rts
 
-branch_lampbuf1 jsr bit_lamp_buf_1          ;Check Encoded #(A) with $0028
-                bra test_z              ;Return Bool based on Z
+branch_lampbuf1 jsr     bit_lamp_buf_1          ;Check Encoded #(A) with $0028
+                bra     test_z              ;Return Bool based on Z
 
 
-branch_bitflag  ldaa  temp1                 ;Check Encoded #(A) with bitflags
-                jsr   bit_flags
-                bra test_z              ;Return Boolean based on Z
+branch_bitflag  ldaa    temp1                 ;Check Encoded #(A) with bitflags
+                jsr     bit_flags
+                bra     test_z              ;Return Boolean based on Z
 
-branch_switch   jsr bit_switch              ;Check Encoded #(A) with $0061:
-                bra test_z              ;Return Boolean based on Z
+branch_switch   jsr     bit_switch              ;Check Encoded #(A) with $0061:
+                bra     test_z              ;Return Boolean based on Z
             
-branch_and      bsr set_logic
+branch_and      bsr     set_logic
                 anda    temp1
                 rts 
             
 branch_add      aba 
                 rts 
-branch_or       bsr set_logic
+branch_or       bsr     set_logic
                 oraa    temp1
                 rts 
             
 branch_equal    cba 
-                beq ret_true                ;lda  #$81, rts
-                bra ret_false               ;lda  #$80, rts
+                beq     ret_true                ;lda  #$81, rts
+                bra     ret_false               ;lda  #$80, rts
             
 branch_ge       cba 
-                bra test_c
+                bra     test_c
 
 branch_threadpri    
-                jsr check_threadid
-                bcc ret_true                ;lda  #$81, rts
-                bra ret_false               ;lda  #$80, rts
+                jsr     check_threadid
+                bcc     ret_true                ;lda  #$81, rts
+                bra     ret_false               ;lda  #$80, rts
             
 branch_bitwise  stab    temp1
                 anda    temp1
@@ -4457,28 +4462,28 @@ test_a          tsta
 ;*******************************************************            
 
 award_replay    psha    
-                stx   credit_x_temp
-                ldx #aud_replaycredits      ;AUD: Replay Score Credits
-                jsr ptrx_plus_1             ;Add 1 to data at X
-                jsr gr_special_event            ;Game ROM Hook
-                ldx   credit_x_temp
-                bra eb_rts  
+                stx     credit_x_temp
+                ldx     #aud_replaycredits      ;AUD: Replay Score Credits
+                jsr     ptrx_plus_1             ;Add 1 to data at X
+                jsr     gr_special_event            ;Game ROM Hook
+                ldx     credit_x_temp
+                bra     eb_rts  
 
 award_extraball psha    
-do_eb           stx eb_x_temp               ;Save X for later
-                jsr gr_eb_event
-                ldx #aud_extraballs         ;AUD: Total Extra Balls
-                jsr ptrx_plus_1             ;Add 1 to data at X
-                ldx eb_x_temp               ;Restore X
+do_eb           stx     eb_x_temp               ;Save X for later
+                jsr     gr_eb_event
+                ldx     #aud_extraballs         ;AUD: Total Extra Balls
+                jsr     ptrx_plus_1             ;Add 1 to data at X
+                ldx     eb_x_temp               ;Restore X
 eb_rts          pula    
                 rts
 
-addcredits      stx credit_x_temp           ;Save X
+addcredits      stx     credit_x_temp           ;Save X
                 psha    
 addcredit2      pshb    
-                bsr checkmaxcredits         ;Check Max Credits (Carry Set if Okay)
+                bsr     checkmaxcredits         ;Check Max Credits (Carry Set if Okay)
                 ifcs                        ;No more if Carry Clear.
-                    jsr cmosinc_b               ;CMOS,X++ -> B
+                    jsr     cmosinc_b               ;CMOS,X++ -> B
                     dex 
                     dex 
                     aba                     ;Add the new credits.
@@ -4486,34 +4491,34 @@ addcredit2      pshb
                     ifcs
                         ldaa    #$99                    ;If it rolled, set it to 99
                     endif
-                    jsr a_cmosinc               ;A -> CMOS,X++
+                    jsr     a_cmosinc               ;A -> CMOS,X++
                     cmpb    current_credits         ;Actual Credits
                     ifeq                        ;Check against shown credits
                         ldab    #$0E
                         stab    thread_priority
-                        ldx #creditq                ;Thread: Add on Queued Credits
-                        jsr newthread_sp            ;Push VM: Data in A,B,X,threadpriority,$A6,$A7
+                        ldx     #creditq                ;Thread: Add on Queued Credits
+                        jsr     newthread_sp            ;Push VM: Data in A,B,X,threadpriority,$A6,$A7
                         ifcs                        ;If Carry is set, thread was not added
                             staa    current_credits         ;Actual Credits
                         endif
                     endif
-                    bsr coinlockout             ;Check Max Credits, Adjust Coin Lockout If Necessary
+                    bsr     coinlockout             ;Check Max Credits, Adjust Coin Lockout If Necessary
                 endif
-                ldx credit_x_temp           ;Restore X
-                bra pull_ba_rts             ;pulb,pula,rts
+                ldx     credit_x_temp           ;Restore X
+                bra     pull_ba_rts             ;pulb,pula,rts
 
 ;**********************************************
 ;* Adjust the coin lockout solenoid and the 
 ;* credit lamp on playfield if installed.
 ;**********************************************         
 coinlockout     psha    
-                jsr checkmaxcredits         ;Check Max Credits (Carry Set if Okay)
+                jsr     checkmaxcredits         ;Check Max Credits (Carry Set if Okay)
                 ldaa    gr_coinlockout          ;Get coil number
                 oraa    #$F0
                 ifcc
                     anda    #$0F
                 endif
-                jsr solbuf              ;Turn Off Lockout Coils
+                jsr     solbuf              ;Turn Off Lockout Coils
                 pula    
                 rts 
 
@@ -4525,13 +4530,13 @@ coinlockout     psha
 ;**********************************************         
 checkmaxcredits psha    
                 pshb    
-                ldx #adj_max_credits            ;ADJ: Max Credits
-                jsr cmosinc_b               ;CMOS,X++ -> B
-                ldx #aud_currentcredits     ;CMOS: Current Credits
+                ldx     #adj_max_credits            ;ADJ: Max Credits
+                jsr     cmosinc_b               ;CMOS,X++ -> B
+                ldx     #aud_currentcredits     ;CMOS: Current Credits
                 tstb                        ;Max Credits allowed
                 sec 
                 ifne
-                    jsr cmos_a              ;CMOS, X -> A
+                    jsr     cmos_a              ;CMOS, X -> A
                     cba 
                 endif
 pull_ba_rts     pulb    
@@ -4548,23 +4553,23 @@ pull_ba_rts     pulb
 ;* With this, the game ROM can control the credit 
 ;* award process.
 ;***********************************************            
-creditq         ldx #aud_currentcredits     ;CMOS: Current Credits
-                jsr cmosinc_b               ;CMOS,X++ -> B
+creditq         ldx     #aud_currentcredits     ;CMOS: Current Credits
+                jsr     cmosinc_b               ;CMOS,X++ -> B
                 cmpb    current_credits
                 ifne
                     ldaa    current_credits
                     adda    #$01
                     daa 
                     staa    current_credits
-                    ldx gr_coin_ptr         ;Game ROM:
+                    ldx     gr_coin_ptr         ;Game ROM:
                     cba 
                     ifne
-                        jsr $00,X                   ;jsr to Game ROM Credit Hook
-                        bra creditq             ;Loop it.
+                        jsr     $00,X                   ;jsr to Game ROM Credit Hook
+                        bra     creditq             ;Loop it.
                     endif
-                    jsr $00,X                   ;jsr to Game ROM/bell?
+                    jsr     $00,X                   ;jsr to Game ROM/bell?
                 endif
-                jmp killthread              ;Remove Current Thread from VM
+                jmp     killthread              ;Remove Current Thread from VM
 
 ;*************************************************
 ;* Some utility routines for getting data from
@@ -4572,29 +4577,29 @@ creditq         ldx #aud_currentcredits     ;CMOS: Current Credits
 ;*************************************************
 ptrx_plus_1     psha    
                 ldaa    #$01
-                bra ptrx_plus
+                bra     ptrx_plus
 ptrx_plus_a     psha    
 ptrx_plus       pshb    
-                stx temp1
-                jsr cmosinc_b               ;CMOS,X++ -> B
+                stx     temp1
+                jsr     cmosinc_b               ;CMOS,X++ -> B
                 pshb    
-                jsr cmosinc_b               ;CMOS,X++ -> B
+                jsr     cmosinc_b               ;CMOS,X++ -> B
                 aba 
                 daa 
                 tab 
                 pula    
                 adca    #$00
                 daa 
-                ldx temp1
-                jsr a_cmosinc               ;A -> CMOS,X++
-                jsr b_cmosinc               ;B -> CMOS,X++
-                ldx temp1
-                bra pull_ba_rts             ;pula, pulb, rts.
+                ldx     temp1
+                jsr     a_cmosinc               ;A -> CMOS,X++
+                jsr     b_cmosinc               ;B -> CMOS,X++
+                ldx     temp1
+                bra     pull_ba_rts             ;pula, pulb, rts.
         
 coin_accepted   
                 ;Starts with macro
                 JSRR_(do_coin)  ;MJSR $F7A7
-                jmp killthread
+                jmp     killthread
             
 do_coin         PRI_($0E)       ;Set this loops priority to #0E
                 SLEEP_($20)     ;Delay $20
@@ -4616,7 +4621,7 @@ do_coin         PRI_($0E)       ;Set this loops priority to #0E
                 bsr     cmos_a_plus_b_cmos      ;Load A with CMOS $0164, add B, Save in CMOS++
                 ldx     #cmos_minimumcoins  ;ADJ: Minimum Coin Units
                 jsr     cmosinc_b           ;Get Minimum Coin Amount into B
-                bsr dec2hex
+                bsr     dec2hex
                 cba  
                 ifcc                    ;Have we met inserted minimum coins?
                                         ;Yes!
@@ -4624,7 +4629,7 @@ do_coin         PRI_($0E)       ;Set this loops priority to #0E
                     jsr     cmosinc_b           ;Get Value
                     bsr     dec2hex             ;Convert Decimal(B) to Hex(B)
                     bsr     divide_ab
-                    staa  temp1
+                    staa    temp1
                     ldx     #cmos_coinunits     ;Save remainder coin units for next time
                     jsr     b_cmosinc           ;( B -> CMOS,X++)
                     ldx     #cmos_bonuscoins        ;ADJ: Coin Unit Bonus Point
@@ -4635,7 +4640,7 @@ do_coin         PRI_($0E)       ;Set this loops priority to #0E
                     bsr     divide_ab
                     tsta 
                     ifne
-                        bsr clr_bonus_coins
+                        bsr     clr_bonus_coins
                     endif
                     adda    temp1
                     daa  
@@ -4651,9 +4656,9 @@ do_coin         PRI_($0E)       ;Set this loops priority to #0E
 ;* post increment
 ;*********************************************************
 cmos_a_plus_b_cmos  
-                jsr cmos_a          ;CMOS, X -> A 
+                jsr     cmos_a          ;CMOS, X -> A 
                 aba 
-                jmp a_cmosinc           ;A -> CMOS,X++
+                jmp     a_cmosinc           ;A -> CMOS,X++
 
 ;********************************************************
 ;* Divides A by B, returns result in A and remainder in
@@ -4677,9 +4682,9 @@ divide_ab       stab    temp2+1
 ;********************************************************
 ;* Cleans out any half credits and bonus coins
 ;********************************************************           
-clr_bonus_coins ldx #0000
-                stx cmos_coinunits
-                stx cmos_bonusunits
+clr_bonus_coins ldx     #0000
+                stx     cmos_coinunits
+                stx     cmos_bonusunits
                 rts 
 
 ;********************************************************
@@ -4695,7 +4700,7 @@ dec2hex         psha
                 clrb    
                 begin
                     tsta    
-                    beq to_pula_rts     ;done
+                    beq     to_pula_rts     ;done
                     adda    #$99
                     daa 
                     incb    
@@ -4717,15 +4722,15 @@ write_range     begin
 ;*********************************************************
 ;* Initialzes a new game.
 ;*********************************************************          
-do_game_init    ldx gr_gamestart_ptr            ;Game Start Hook
-                jsr $00,X                   ;jsr to Game ROM Hook
-                jsr dump_score_queue            ;Clean the score queue
-                bsr clear_displays          ;Blank all Player Displays (buffer 0)
+do_game_init    ldx     gr_gamestart_ptr            ;Game Start Hook
+                jsr     $00,X                   ;jsr to Game ROM Hook
+                jsr     dump_score_queue            ;Clean the score queue
+                bsr     clear_displays          ;Blank all Player Displays (buffer 0)
                 deca
-                staa   p1_dispalt
-                bsr initialize_game         ;Remove one Credit, init some game variables
-                bsr add_player              ;Add one Player
-                jmp init_player_up
+                staa    p1_dispalt
+                bsr     initialize_game         ;Remove one Credit, init some game variables
+                bsr     add_player              ;Add one Player
+                jmp     init_player_up
 
 
 ;****************************************************
@@ -4740,12 +4745,12 @@ add_player      jsr   gr_addplayer_event
                 ldab  num_players
                 bsr   init_player_game
             
-                ldx #gr_p1_startsound           ;Game ROM Table: Player Start Sounds
-                jsr xplusb              ;X = X + B)
+                ldx     #gr_p1_startsound           ;Game ROM Table: Player Start Sounds
+                jsr     xplusb              ;X = X + B)
                 ldaa    $00,X
-                jsr isnd_once               ;Play Player Start Sound From Game ROM Table
-                ldx #adj_wizardspergame
-                jsr cmosinc_a           
+                jsr     isnd_once               ;Play Player Start Sound From Game ROM Table
+                ldx     #adj_wizardspergame
+                jsr     cmosinc_a           
                 tstb
                 ifne
                     staa    p2_dispwiz
@@ -4754,9 +4759,9 @@ add_player      jsr   gr_addplayer_event
                 endif
 ap_shft         aslb
                 aslb
-                ldx #score_p1_b0
-                jsr xplusb
-                clr $03,X
+                ldx     #score_p1_b0
+                jsr     xplusb
+                clr     $03,X
                 rts
 
 ;****************************************************   
@@ -4809,11 +4814,11 @@ set_dis_masks12 staa    dmask_p2
 init_player_game    
                 psha    
                 pshb    
-                bsr setplayerbuffer         ;Set up the Pointer to the Players Buffer
-                bsr copyplayerdata          ;Copy Default Player Data into Player Buffer (X)
-                ldx temp1
+                bsr     setplayerbuffer         ;Set up the Pointer to the Players Buffer
+                bsr     copyplayerdata          ;Copy Default Player Data into Player Buffer (X)
+                ldx     temp1
                 ldab    #$06
-                bsr clear_range             ;Clear Temp vars temp1,temp2,temp3
+                bsr     clear_range             ;Clear Temp vars temp1,temp2,temp3
                 pulb    
                 pula    
                 rts 
@@ -4843,7 +4848,7 @@ setplayerbuffer ldaa    #gamedata_size          ;Length of Player Buffer
 ;***********************************************************            
 copyplayerdata  stx     temp1
                 ldx     #gr_playerstartdata     ;*** Table Pointer ***
-                ldab    #$1E
+                ldab    #playerdata_len
                 jmp     copyblock               ;Copy Block: X -> temp1 B=Length
 
 ;***********************************************************
@@ -4945,7 +4950,7 @@ resetplayerdata ldx #lampbuffer0
                 stx temp2                   ;temp2 Points to Base of Player Game Data Buffer
                 ldx #gr_playerstartdata     ;X points to base of default player data
                 begin
-                    ldaa    $1E,X                   ;Get Game Data Reset Data
+                    ldaa    playerdata_len,X                   ;Get Game Data Reset Data
                     tab 
                     comb    
                     andb    $00,X                   ;AND !B with Players Last Lamps
@@ -4959,10 +4964,11 @@ resetplayerdata ldx #lampbuffer0
                     ldx temp1
                     staa    $00,X
                     inx 
-                    cpx #$0022
-                    ifeq
-                        ldx #lampflashflag
-                    endif
+                    ;took this out as we will plan on not having reset data into the flash flags
+                    ; cpx #$0022
+                    ; ifeq
+                        ; ldx #lampflashflag
+                    ; endif
                     stx temp1
                     ldx temp3
                     cpx #gr_playerresetdata     ;End of Default Player Game Data
@@ -4998,10 +5004,11 @@ dump_score_queue
 ;*********************************************************************
 ;* Main Outhole Routine: The outhole switch will jump here on closure
 ;*********************************************************************          
-outhole_main    bsr dump_score_queue            
-                swi         ;Start Executing Macros
-                SLEEP_(1)                       ;Delay 1
-                BEQR_($FE,$01,$01,$FA)          ;Branch if Priority #01 to $F9B0
+outhole_main    bsr     dump_score_queue            
+                swi     ;Start Executing Macros
+                BEGIN_
+                    SLEEP_(1)                       ;Delay 1
+                NEEND_(PRIORITY_,$01,$01)          ;Branch if Priority #01 to $F9B0
                 REMTHREADS_($0A,$00)            ;Reset Threads Based on Priority #0A    
                 CPUX_                   ;Resume CPU Execution
                 ldx     gr_outhole_ptr          ;Game ROM: Pointer
